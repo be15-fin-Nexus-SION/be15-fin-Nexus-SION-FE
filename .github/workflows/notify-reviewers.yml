@@ -1,0 +1,152 @@
+name: Notify Reviewers on PR
+
+on:
+  repository_dispatch:
+    types: [notify-reviewers]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: notify-review-${{ github.event.client_payload.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PR info
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.client_payload.pr_number
+            });
+
+            const reviewers = pr.data.requested_reviewers.map(r => r.login);
+            core.setOutput("html_url", pr.data.html_url);
+            core.setOutput("number", pr.data.number.toString());
+            core.setOutput("reviewers", JSON.stringify(reviewers));
+
+      - name: Get already notified reviewers from comment
+        id: notified
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt("${{ steps.pr.outputs.number }}"),
+            });
+
+            const notifiedLine = comments.data.find(comment =>
+              comment.body.startsWith("[🔔 Reviewer Notified]")
+            );
+
+            if (!notifiedLine) return "";
+
+            const matches = notifiedLine.body.match(/\[(?:.*?)\] (.+)/);
+            return matches ? matches[1] : "";
+
+      - name: Determine new reviewers to notify
+        id: new-reviewers
+        run: |
+          old_reviewers="${{ steps.notified.outputs.result }}"
+          current_reviewers=$(echo '${{ steps.pr.outputs.reviewers }}' | jq -r '.[]')
+          echo "Old reviewers: $old_reviewers"
+          echo "Current reviewers: $current_reviewers"
+
+          new_reviewers=""
+          for reviewer in $current_reviewers; do
+            if [[ ! " $old_reviewers " =~ " $reviewer " ]]; then
+              new_reviewers+="$reviewer "
+            fi
+          done
+
+          new_reviewers=$(echo "$new_reviewers" | xargs) # trim
+          echo "new_reviewers=$new_reviewers" >> "$GITHUB_OUTPUT"
+
+      - name: Map new reviewers to Discord mentions
+        id: mentions
+        run: |
+          declare -A USER_MAP=(
+            ["sezeme"]="534088965050073089"
+            ["Kihong12"]="385400409654820864"
+            ["kimjy8937"]="592708683687788557"
+            ["ckaudgh"]="417182025401892868"
+            ["didiha"]="1069488556206206997"
+            ["develup-psy"]="531501995140448267"
+          )
+
+          new_reviewers="${{ steps.new-reviewers.outputs.new_reviewers }}"
+          mentions=""
+
+          for reviewer in $new_reviewers; do
+            id=${USER_MAP[$reviewer]}
+            if [ -n "$id" ]; then
+              mentions+="<@$id> "
+            else
+              echo "⚠️ No Discord ID mapped for $reviewer"
+            fi
+          done
+
+          echo "mentions=$mentions" >> "$GITHUB_OUTPUT"
+
+      - name: Send Discord Notification
+        if: steps.mentions.outputs.mentions != ''
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          MENTIONS: ${{ steps.mentions.outputs.mentions }}
+          PR_URL: ${{ steps.pr.outputs.html_url }}
+        run: |
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{
+            \"content\": \"📣 $MENTIONS님! Pull Request 리뷰어로 지정됐습니다. 확인해 주세요.\\n🔗 PR: $PR_URL\",
+            \"allowed_mentions\": {
+              \"parse\": [\"users\"]
+            }
+          }" \
+          "$DISCORD_WEBHOOK_URL"
+
+      - name: Update notified reviewer comment
+        if: steps.mentions.outputs.mentions != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = parseInt("${{ steps.pr.outputs.number }}");
+
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+            });
+
+            const reviewerString = `${{ steps.pr.outputs.reviewers }}`.replace(/[\[\]"]/g, '');
+            const reviewers = reviewerString.split(',').map(r => r.trim()).filter(Boolean);
+            const body = `[🔔 Reviewer Notified] ${reviewers.join(", ")}`;
+
+            const existing = comments.data.find(comment =>
+              comment.body.startsWith("[🔔 Reviewer Notified]")
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                body
+              });
+            }
