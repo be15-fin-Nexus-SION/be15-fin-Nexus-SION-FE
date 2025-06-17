@@ -4,20 +4,50 @@ export default {
   theme: {
     extend: {
       colors: {
-        // 🎨 Primary 색상 팔레트
         primary: {
-          50: "#EBEDF7",
-          100: "#E1E4F2",
-          200: "#C2C7E5",
-          300: "#3949AB",
-          400: "#33429A",
-          500: "#2E3A89",
-          600: "#2B3780",
-          700: "#222C67",
-          800: "#1A214D",
-          900: "#141A3C",
+          DEFAULT: "#6574F6",
+          hover: "#586DDD",
         },
-        grayText: "#8E98A8", // 헥스/ RGB 설명용 색
+        secondary: {
+          blue: {
+            DEFAULT: "#CBEEFF",
+            hover: "#A9C6E0",
+          },
+          green: {
+            DEFAULT: "#00C1BD",
+            hover: "#03A67A",
+          },
+        },
+        neutral: {
+          light: {
+            DEFAULT: "#EBEAFF",
+            hover: "#BEC0D7",
+          },
+          gray: {
+            DEFAULT: "#E0E0E0",
+            hover: "#CCC9C9",
+          },
+        },
+        semantic: {
+          success: "#A1FFAA",
+          warning: "#EC4D4D",
+          wait: "#FFD344",
+        },
+        support: {
+          stack: "#555555",
+          stack_dark: "#808080",
+        },
+      },
+      backgroundImage: {
+        "gradient-card": "linear-gradient(90deg, #FE8686 0%, #1268DD 100%)",
+        "gradient-ai": "linear-gradient(90deg, #7F5AF0 0%, #00C3FF 100%)",
+        "gradient-arrangement":
+          "linear-gradient(90deg, #FE8686 0%, #1E268D 100%)",
+        "gradient-grade-s": "linear-gradient(90deg, #FF8C00 0%, #992E00 100%)",
+        "gradient-grade-a": "linear-gradient(90deg, #FF000D 0%, #990000 100%)",
+        "gradient-grade-b": "linear-gradient(90deg, #00FFA6 0%, #009966 100%)",
+        "gradient-grade-c": "linear-gradient(90deg, #FFE500 0%, #999600 100%)",
+        "gradient-grade-d": "linear-gradient(90deg, #BDBDBD 0%, #606060 100%)",
       },
 
       borderRadius: {
