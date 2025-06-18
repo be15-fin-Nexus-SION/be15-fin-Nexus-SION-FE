@@ -24,20 +24,20 @@
 </template>
 
 <script setup>
-import StatusBadge from "@/components/common/StatusBadge.vue";
-import TechBadge from "@/components/common/TechBadge.vue";
+import StatusBadge from "@/components/badge/StatusBadge.vue";
+import TechBadge from "@/components/badge/TechBadge.vue";
 
-// const props = defineProps({
-//   profileImage: String,
-//   name: String,
-//   code: String,
-//   grade: String,
-//   career: String,
-//   stack: String,
-//   startDate: String,
-//   endDate: String,
-//   status: String,
-// })
+const props = defineProps({
+  profileImage: String,
+  name: String,
+  code: String,
+  grade: String,
+  career: String,
+  stack: String,
+  startDate: String,
+  endDate: String,
+  status: String,
+});
 </script>
 
 <style scoped>
