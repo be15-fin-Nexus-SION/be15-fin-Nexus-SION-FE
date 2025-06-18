@@ -18,7 +18,7 @@ export default {
             hover: "#03A67A",
           },
         },
-        neutral: {
+        natural: {
           light: {
             DEFAULT: "#EBEAFF",
             hover: "#BEC0D7",
