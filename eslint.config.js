@@ -23,6 +23,13 @@ export default defineConfig([
   },
 
   js.configs.recommended,
+
+  {
+    rules: {
+      "no-unused-vars": "warn",
+    },
+  },
+
   ...pluginVue.configs["flat/essential"],
 
   {
@@ -37,5 +44,6 @@ export default defineConfig([
       "cypress/support/**/*.{js,ts,jsx,tsx}",
     ],
   },
+
   skipFormatting,
 ]);
