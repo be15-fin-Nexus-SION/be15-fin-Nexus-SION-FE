@@ -37,6 +37,10 @@ export default {
           stack: "#555555",
           stack_dark: "#808080",
         },
+        status: {
+          waiting: "#FFD344",
+          projecting: "#64CF8B",
+        },
       },
       backgroundImage: {
         "gradient-card": "linear-gradient(90deg, #FE8686 0%, #1268DD 100%)",
