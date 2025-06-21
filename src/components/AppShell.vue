@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import HeaderMain from "@/components/header/HeaderMain.vue";
+</script>
+
 <template>
   <div class="app-shell">
     <!-- 공통 헤더 -->
@@ -5,22 +9,23 @@
 
     <!-- 페이지별 컨텐츠 영역 -->
     <main class="content-area">
-      <router-view />
+      <div class="content-inner">
+        <router-view />
+      </div>
     </main>
   </div>
 </template>
 
-<script setup>
-import HeaderMain from "./header/HeaderMain.vue";
-</script>
-
 <style scoped>
 .app-shell {
-  @apply w-full min-h-screen flex flex-col bg-white relative;
+  @apply w-full min-h-screen flex flex-col bg-white;
 }
 
 .content-area {
-  @apply w-full flex-1 px-[42px] pt-[30px] pb-[60px];
-  margin-top: 82px; /* 헤더 높이만큼 여백 확보 */
+  @apply flex justify-center w-full flex-1;
+}
+
+.content-inner {
+  @apply w-full max-w-[1200px]; /* 원하는 최대 너비 */
 }
 </style>

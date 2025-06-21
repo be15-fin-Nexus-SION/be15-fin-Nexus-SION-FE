@@ -7,24 +7,40 @@
 <script setup>
 import { computed } from "vue";
 
-// 상태 값을 부모 컴포넌트에서 받아옴
 const props = defineProps({
   status: {
     type: String,
     required: true,
-    validator: (value) => ["대기중", "투입중"].includes(value),
+    validator: (value) =>
+      ["AVAILABLE", "UNAVAILABLE", "IN_PROJECT"].includes(value),
   },
 });
 
-// 상태에 따른 클래스 설정
+// 상태 표시 텍스트 변환
+const label = computed(() => {
+  switch (props.status) {
+    case "IN_PROJECT":
+      return "작업중";
+    case "AVAILABLE":
+      return "대기중";
+    case "UNAVAILABLE":
+      return "미투입"; // 또는 다른 표현
+    default:
+      return "알수없음";
+  }
+});
+
+// 상태에 따른 배경색 클래스
 const badgeClass = computed(() => {
   return [
     "flex items-center justify-center h-[27px] px-[10px] rounded-full",
-    props.status === "대기중" ? "bg-[#FFD344]" : "bg-[#2DCB67]",
+    props.status === "IN_PROJECT"
+      ? "bg-status-projecting"
+      : props.status === "AVAILABLE"
+        ? "bg-status-waiting"
+        : "bg-natural-gray",
   ];
 });
-
-const label = computed(() => props.status);
 </script>
 
 <style scoped>
