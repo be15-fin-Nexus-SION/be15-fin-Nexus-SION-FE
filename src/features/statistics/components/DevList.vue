@@ -1,10 +1,11 @@
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-1">
     <!-- 포함: 필터 + 선택 배지 + 정렬 -->
     <div class="filter-bar">
       <div class="filter-controls">
         <div class="filter-div">
           <select
+            id="stack-select"
             v-model="selectedStack"
             @change="addStack"
             class="filter-dropdown"
@@ -29,7 +30,7 @@
           />
         </div>
 
-        <select v-model="sortOption" class="sort-dropdown">
+        <select id="sort-select" v-model="sortOption" class="sort-dropdown">
           <option disabled value="">정렬 기준 선택</option>
           <option value="name">이름순</option>
           <option value="position">직급순</option>
@@ -208,7 +209,7 @@ watch(
 }
 
 .filter-bar {
-  @apply flex flex-col mt-10;
+  @apply flex flex-col mt-10 gap-3 mb-1;
 }
 
 .filter-dropdown,
