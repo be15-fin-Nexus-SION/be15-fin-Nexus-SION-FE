@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { getAllTechStacks } from "@/api/statixtics.js"; // API 경로 주의
+import { getAllTechStacks } from "@/api/statistics.js"; // API 경로 주의
 
 const props = defineProps({
   placeholder: {
@@ -22,8 +22,8 @@ const allStacks = ref([]);
 onMounted(async () => {
   try {
     const res = await getAllTechStacks();
-    if (Array.isArray(res.data)) {
-      allStacks.value = res.data;
+    if (Array.isArray(res.data.data)) {
+      allStacks.value = res.data.data;
     } else {
       console.warn("스택 목록이 배열이 아님:", res.data);
       allStacks.value = [];
@@ -138,7 +138,6 @@ function selectStack(stack) {
   padding: 8px 15px;
   gap: 10px;
   width: 100%;
-  height: 32px;
   background: #ffffff;
   border: 1px solid #eeeeee;
   border-radius: 4px;

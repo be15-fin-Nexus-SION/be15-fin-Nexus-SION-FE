@@ -5,7 +5,7 @@
     <div
       v-if="showClose"
       class="flex flex-col justify-center items-center p-[3px] gap-[10px] w-[12px] h-[12px] bg-white/70 rounded-[6px] order-1 grow-0 cursor-pointer"
-      @click="$emit('remove')"
+      @click="$emit('remove', label)"
     >
       <svg
         width="6"

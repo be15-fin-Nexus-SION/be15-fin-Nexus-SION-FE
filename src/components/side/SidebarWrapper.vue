@@ -28,15 +28,15 @@ const rawItems = computed(() => {
       ]
     : [
         {
-          label: "스택별 구성원 수 조회",
+          label: "기술 스택별 구성원 수 조회",
           to: "/statistics/stack/member-count",
         },
-        { label: "스택별 등급 분포", to: "/statistics/stack/grades" },
+        { label: "기술 스택별 등급 분포", to: "/statistics/stack/grades" },
+        { label: "기술 스택별 점수 합계", to: "/statistics/total-score" },
         { label: "등급별 단가 비교", to: "/statistics/unit-price" },
         { label: "교육 이수 현황", to: "/statistics/education" },
         { label: "자격증 보유 현황", to: "/statistics/certification" },
         { label: "연차별 성과 비교", to: "/statistics/experience" },
-        { label: "기술별 점수 합계", to: "/statistics/total-score" },
       ];
 });
 
