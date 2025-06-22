@@ -18,7 +18,7 @@ export default {
             hover: "#03A67A",
           },
         },
-        neutral: {
+        natural: {
           light: {
             DEFAULT: "#EBEAFF",
             hover: "#BEC0D7",
@@ -36,6 +36,10 @@ export default {
         support: {
           stack: "#555555",
           stack_dark: "#808080",
+        },
+        status: {
+          waiting: "#FFD344",
+          projecting: "#64CF8B",
         },
       },
       backgroundImage: {

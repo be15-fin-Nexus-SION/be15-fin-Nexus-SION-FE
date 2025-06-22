@@ -1,63 +1,78 @@
 <template>
   <div class="developer-item">
     <div class="developer-content">
-      <!-- 프로필 이미지 -->
-      <img class="avatar" :src="profileImage" alt="profile" />
+      <img class="avatar" :src="profileImageUrl" alt="profile" />
 
-      <!-- 기본 정보 -->
-      <span class="name">{{ name }}</span>
-      <span class="code">{{ code }}</span>
-      <span class="grade">{{ grade }}</span>
-      <span class="career">{{ career }}</span>
-
-      <!-- 기술 스택 -->
-      <TechBadge :label="stack" />
-
-      <!-- 입사일, 종료일 -->
-      <span class="date">{{ startDate }}</span>
-      <span class="date">{{ endDate }}</span>
-
-      <!-- 상태 뱃지 -->
-      <StatusBadge :status="status" />
+      <span class="column name">{{ name }}</span>
+      <span class="column position">{{ position }}</span>
+      <span class="column department">{{ department }}</span>
+      <span class="column code">{{ code }}</span>
+      <span class="column grade">{{ grade }}</span>
+      <div class="column status">
+        <StatusBadge :status="status" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import StatusBadge from "@/components/common/StatusBadge.vue";
-import TechBadge from "@/components/common/TechBadge.vue";
+import StatusBadge from "@/components/badge/StatusBadge.vue";
 
-// const props = defineProps({
-//   profileImage: String,
-//   name: String,
-//   code: String,
-//   grade: String,
-//   career: String,
-//   stack: String,
-//   startDate: String,
-//   endDate: String,
-//   status: String,
-// })
+const props = defineProps({
+  profileImageUrl: String,
+  name: String,
+  code: String,
+  grade: String,
+  position: String,
+  department: String,
+  status: String,
+  techStacks: {
+    type: Array,
+    default: () => [],
+  },
+});
 </script>
 
 <style scoped>
 .developer-item {
-  @apply w-[833px] h-[61px] flex justify-center items-center px-[17px] py-[9px] bg-white border border-[#EEEEEE] rounded;
+  @apply w-full px-4 py-[10px] bg-white border border-[#eeeeee] rounded;
 }
 
 .developer-content {
-  @apply flex flex-row justify-center items-center gap-[46px] w-[799px] h-[43px];
+  @apply flex items-center w-full;
+}
+
+/* 공통 column 스타일 */
+.column {
+  @apply text-[14px] text-black font-normal text-center truncate flex items-center justify-center h-[43px];
 }
 
 .avatar {
-  @apply w-[43px] h-[43px] rounded-full object-cover;
+  @apply w-[43px] h-[43px] rounded-full object-cover ml-[30px] mr-[10px];
 }
 
-.name,
-.code,
-.grade,
-.career,
-.date {
-  @apply text-[14px] leading-[17px] text-black font-normal;
+/* 너비 재조정 - 전체 100% 기준 */
+.name {
+  @apply w-[140px];
+}
+
+.position {
+  @apply w-[100px];
+}
+
+.department {
+  @apply w-[155px];
+}
+
+.code {
+  @apply w-[155px];
+}
+
+.grade {
+  @apply w-[60px];
+}
+
+.status {
+  @apply w-[130px];
 }
 </style>
