@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
@@ -13,7 +13,7 @@ let chartInstance = null;
 
 const selectedStacksForChart = ref([]);
 const selectedStacksForFilter = ref([]);
-const careerStats = ref([]);
+const sortOption = ref("techStackName");
 
 const sortedChartStacks = computed(() =>
   [...selectedStacksForChart.value].sort((a, b) => a.localeCompare(b)),
@@ -58,20 +58,24 @@ function renderChart(labels = [], values = []) {
   });
 }
 
-async function fetchChartData() {
+async function renderInitialChartData() {
   if (selectedStacksForChart.value.length === 0) {
     renderChart([], []);
-    careerStats.value = [];
     return;
   }
 
   try {
-    const res = await getStackAvgCareer(selectedStacksForChart.value);
+    const res = await getStackAvgCareer({
+      stackList: selectedStacksForChart.value,
+      page: 0,
+      size: 10,
+      sort: sortOption.value,
+      direction: "asc",
+    });
     const data = res.data.data.content;
     const labels = data.map((item) => item.techStackName);
     const values = data.map((item) => item.averageCareer);
     renderChart(labels, values);
-    careerStats.value = data;
   } catch (e) {
     console.error("차트 데이터 조회 실패:", e);
   }
@@ -81,7 +85,7 @@ function handleStackSelect(stack) {
   if (!selectedStacksForChart.value.includes(stack)) {
     selectedStacksForChart.value.push(stack);
     selectedStacksForFilter.value.push(stack);
-    fetchChartData();
+    renderInitialChartData();
   }
 }
 
@@ -92,21 +96,24 @@ function handleRemoveFromChart(stack) {
   selectedStacksForFilter.value = selectedStacksForFilter.value.filter(
     (s) => s !== stack,
   );
-  fetchChartData();
+  renderInitialChartData();
 }
 
 function resetFilters() {
   selectedStacksForChart.value = [];
   selectedStacksForFilter.value = [];
   renderChart([], []);
-  careerStats.value = [];
 }
+
+watch(sortOption, () => {
+  renderInitialChartData();
+});
 
 onMounted(() => {
   renderChart();
   window.addEventListener("resize", () => {
     selectedStacksForChart.value.length > 0
-      ? fetchChartData()
+      ? renderInitialChartData()
       : renderChart([], []);
   });
 });
@@ -155,7 +162,11 @@ onMounted(() => {
         <canvas ref="barCanvas" class="chart-canvas" />
       </div>
 
-      <AvgList :careerStats="careerStats" />
+      <AvgList
+        :selectedStacks="selectedStacksForChart"
+        :sortOption="sortOption"
+        @updateSort="(val) => (sortOption.value = val)"
+      />
     </div>
   </div>
 </template>
