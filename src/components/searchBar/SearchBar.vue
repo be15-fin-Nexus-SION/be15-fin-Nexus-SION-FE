@@ -29,7 +29,7 @@ onMounted(async () => {
       allStacks.value = [];
     }
   } catch (e) {
-    console.error("기술스택 목록 조회 실패:", e);
+    console.error("목록 조회 실패:", e);
     allStacks.value = [];
   }
 });

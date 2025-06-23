@@ -27,16 +27,13 @@ const rawItems = computed(() => {
         { label: "운영 로그", to: "/admin/logs" },
       ]
     : [
-        {
-          label: "기술 스택별 구성원 수 조회",
-          to: "/statistics/stack/member-count",
-        },
-        { label: "기술 스택별 등급 분포", to: "/statistics/stack/grades" },
-        { label: "기술 스택별 점수 합계", to: "/statistics/total-score" },
-        { label: "등급별 단가 비교", to: "/statistics/unit-price" },
-        { label: "교육 이수 현황", to: "/statistics/education" },
-        { label: "자격증 보유 현황", to: "/statistics/certification" },
-        { label: "연차별 성과 비교", to: "/statistics/experience" },
+        { label: "기술 스택별 구성원", to: "/statistics/stack/member-count" },
+        { label: "기술 스택별 평균 경력", to: "/statistics/stack/avg-career" },
+        { label: "기간별 인기 기술 스택", to: "/statistics/total-score" },
+        { label: "프로젝트 참여 직무별 구성원", to: "/statistics/unit-price" },
+        { label: "등급별 대기 상태", to: "/statistics/education" },
+        { label: "등급별 연봉 분포", to: "/statistics/certification" },
+        { label: "기술 도입률 변화 추이", to: "/statistics/experience" },
       ];
 });
 
