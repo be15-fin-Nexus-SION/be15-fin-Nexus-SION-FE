@@ -70,14 +70,26 @@ const localSortOption = ref(props.sortOption || "techStackName");
 const scrollTarget = ref(null);
 
 const { items, isLoading, isLastPage, reset, loadMore } = useInfiniteScroll({
-  fetchFn: (pageParam) =>
-    getStackAvgCareer({
+  fetchFn: (pageParam) => {
+    if (!props.selectedStacks || props.selectedStacks.length === 0) {
+      return Promise.resolve({
+        data: {
+          data: {
+            content: [],
+            currentPage: 0,
+            totalPages: 0,
+          },
+        },
+      });
+    }
+    return getStackAvgCareer({
       stackList: props.selectedStacks,
-      page: pageParam - 1, // 0-indexed
+      page: pageParam - 1,
       size: 10,
       sort: localSortOption.value,
       direction: "asc",
-    }),
+    });
+  },
   scrollTargetRef: scrollTarget,
   threshold: 150,
 });
