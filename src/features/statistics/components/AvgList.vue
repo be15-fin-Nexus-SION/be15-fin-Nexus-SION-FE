@@ -24,6 +24,7 @@
       v-for="item in sortedCareerStats"
       :key="item.techStackName"
       class="item"
+      data-testid="avg-list-item"
     >
       <div class="content">
         <div class="techStackName">
