@@ -181,10 +181,10 @@ watch(
 
 <style scoped>
 .developer-header {
-  @apply flex items-center bg-[#f5f5f5] px-4 py-2 rounded;
+  @apply flex items-center bg-natural-gray px-4 py-3 rounded;
 }
 .column {
-  @apply text-[14px] text-gray-600 font-semibold truncate flex items-center justify-center;
+  @apply text-bodySm text-support-stack truncate flex items-center justify-center font-bold;
 }
 .profile {
   @apply w-[43px] ml-[30px] mr-[10px];
@@ -232,5 +232,9 @@ watch(
 
 .selected-stacks {
   @apply flex flex-wrap gap-2 w-full;
+}
+
+.developer-list-container {
+  @apply flex flex-col gap-2;
 }
 </style>

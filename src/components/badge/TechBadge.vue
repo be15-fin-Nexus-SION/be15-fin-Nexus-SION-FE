@@ -41,9 +41,12 @@ defineEmits(["remove"]);
 <style scoped>
 .tech-badge {
   @apply flex items-center justify-center px-[10px] py-[5px] rounded-full bg-[#555555] gap-1.5;
+  width: fit-content;
 }
 
 .tech-text {
-  @apply text-white text-bodySm leading-[17px] font-bold;
+  @apply text-white text-bodySm font-bold;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 </style>

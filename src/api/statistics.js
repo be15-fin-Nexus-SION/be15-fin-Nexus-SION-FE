@@ -8,6 +8,26 @@ export function getAllTechStacks() {
   return api.get("/statistics/all-tech-stacks");
 }
 
-export async function fetchDevelopers(page = 1) {
+export async function fetchDevelopers(page = 0) {
   return api.get(`/statistics/developers?page=${page}&size=10`);
+}
+
+export function getStackAvgCareer({
+  stackList = [],
+  page = 0,
+  size = 10,
+  sort = "techStackName",
+  direction = "asc",
+}) {
+  if (!Array.isArray(stackList)) {
+    console.warn("getStackAvgCareer: stackList가 배열이 아님", stackList);
+    stackList = [];
+  }
+
+  const stackQuery = stackList
+    .map((s) => `selectedStacks=${encodeURIComponent(s)}`)
+    .join("&");
+
+  const pageQuery = `page=${page}&size=${size}&sort=${sort}&direction=${direction}`;
+  return api.get(`/statistics/stack/average-career?${stackQuery}&${pageQuery}`);
 }

@@ -1,78 +1,23 @@
-<template>
-  <div class="page-layout">
-    <SidebarWrapper viewType="statistics" />
-
-    <div class="content-wrapper">
-      <h1 class="page-title">기술 스택별 구성원 수 조회</h1>
-      <p class="page-description">
-        기술 스택을 선택하여 해당 스택을 보유한 개발자 수를 확인할 수 있습니다.
-      </p>
-
-      <div class="search-section">
-        <div class="search-bar">
-          <SearchBar
-            placeholder="기술스택 검색"
-            :selectedStacks="selectedStacksForChart"
-            @select="handleStackSelect"
-          />
-        </div>
-        <PrimaryButton
-          label="필터 초기화"
-          bg-color-class="bg-natural-gray"
-          hover-color-class="hover:bg-natural-gray-hover"
-          text-color-class="text-black"
-          :onClick="resetFilters"
-        />
-      </div>
-
-      <div class="stack-button-list">
-        <TechBadge
-          v-for="stack in sortedChartStacks"
-          :key="stack"
-          :label="stack"
-          :showClose="true"
-          @remove="handleRemoveFromChart(stack)"
-        />
-      </div>
-
-      <div class="chart-card">
-        <canvas ref="barCanvas" class="chart-canvas" />
-      </div>
-
-      <DevList
-        :selectedStacks="selectedStacksForFilter"
-        :allStacks="selectedStacksForChart"
-        @remove="handleRemoveFromFilter"
-        @add="handleAddToFilter"
-        @reset="resetFilterStacks"
-      />
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { Chart } from "chart.js/auto";
-import { getStackMemberCounts } from "@/api/statistics.js";
+import { getStackAvgCareer } from "@/api/statistics.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
-import DevList from "@/features/statistics/components/DevList.vue";
+import AvgList from "@/features/statistics/components/AvgList.vue";
 
 const barCanvas = ref(null);
 let chartInstance = null;
 
 const selectedStacksForChart = ref([]);
 const selectedStacksForFilter = ref([]);
+const careerStats = ref([]);
 
 const sortedChartStacks = computed(() =>
   [...selectedStacksForChart.value].sort((a, b) => a.localeCompare(b)),
 );
-
-function resetFilterStacks() {
-  selectedStacksForFilter.value = [];
-}
 
 function renderChart(labels = [], values = []) {
   const ctx = barCanvas.value.getContext("2d");
@@ -89,7 +34,7 @@ function renderChart(labels = [], values = []) {
           borderRadius: 25,
           borderSkipped: "bottom",
           categoryPercentage: 0.8,
-          barPercentage: 0.7, // ✅ 유동적 너비로 설정 (기본값 수준)
+          barPercentage: 0.7,
         },
       ],
     },
@@ -99,7 +44,7 @@ function renderChart(labels = [], values = []) {
       scales: {
         y: {
           beginAtZero: true,
-          title: { display: true, text: "보유 수" },
+          title: { display: true, text: "평균 경력" },
           ticks: { stepSize: 5 },
         },
         x: {
@@ -116,15 +61,17 @@ function renderChart(labels = [], values = []) {
 async function fetchChartData() {
   if (selectedStacksForChart.value.length === 0) {
     renderChart([], []);
+    careerStats.value = [];
     return;
   }
 
   try {
-    const res = await getStackMemberCounts(selectedStacksForChart.value);
-    const data = res.data.data;
+    const res = await getStackAvgCareer(selectedStacksForChart.value);
+    const data = res.data.data.content;
     const labels = data.map((item) => item.techStackName);
-    const values = data.map((item) => item.count);
+    const values = data.map((item) => item.averageCareer);
     renderChart(labels, values);
+    careerStats.value = data;
   } catch (e) {
     console.error("차트 데이터 조회 실패:", e);
   }
@@ -148,22 +95,11 @@ function handleRemoveFromChart(stack) {
   fetchChartData();
 }
 
-function handleAddToFilter(stack) {
-  if (!selectedStacksForFilter.value.includes(stack)) {
-    selectedStacksForFilter.value.push(stack);
-  }
-}
-
-function handleRemoveFromFilter(stack) {
-  selectedStacksForFilter.value = selectedStacksForFilter.value.filter(
-    (s) => s !== stack,
-  );
-}
-
 function resetFilters() {
   selectedStacksForChart.value = [];
   selectedStacksForFilter.value = [];
   renderChart([], []);
+  careerStats.value = [];
 }
 
 onMounted(() => {
@@ -175,6 +111,54 @@ onMounted(() => {
   });
 });
 </script>
+
+<template>
+  <div class="page-layout">
+    <SidebarWrapper viewType="statistics" />
+
+    <div class="content-wrapper">
+      <h1 class="page-title">기술 스택별 평균 경력 조회</h1>
+      <p class="page-description">
+        각 기술 스택별로 해당 기술을 보유한 개발자들의 평균 경력을 확인할 수
+        있습니다.
+      </p>
+
+      <div class="search-section">
+        <div class="search-bar">
+          <SearchBar
+            placeholder="기술스택 검색"
+            :selectedStacks="selectedStacksForChart"
+            @select="handleStackSelect"
+          />
+        </div>
+
+        <PrimaryButton
+          label="필터 초기화"
+          bg-color-class="bg-natural-gray"
+          hover-color-class="hover:bg-natural-gray-hover"
+          text-color-class="text-black"
+          :onClick="resetFilters"
+        />
+      </div>
+
+      <div class="stack-button-list">
+        <TechBadge
+          v-for="stack in sortedChartStacks"
+          :key="stack"
+          :label="stack"
+          :showClose="true"
+          @remove="handleRemoveFromChart(stack)"
+        />
+      </div>
+
+      <div class="chart-card">
+        <canvas ref="barCanvas" class="chart-canvas" />
+      </div>
+
+      <AvgList :careerStats="careerStats" />
+    </div>
+  </div>
+</template>
 
 <style scoped>
 .page-layout {

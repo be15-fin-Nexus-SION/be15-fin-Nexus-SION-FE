@@ -7,4 +7,13 @@ export const statisticsRoutes = [
       requiresAuth: true,
     },
   },
+
+  {
+    path: "/statistics/stack/avg-career",
+    name: "StackAvgCareerView",
+    component: () => import("./views/StackAvgCareerView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];
