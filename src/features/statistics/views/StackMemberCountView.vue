@@ -207,7 +207,6 @@ onMounted(() => {
 
 .chart-card {
   @apply bg-white shadow-base p-6 rounded-lg w-full;
-  /* 스크롤 제거 */
   overflow-x: hidden;
 }
 

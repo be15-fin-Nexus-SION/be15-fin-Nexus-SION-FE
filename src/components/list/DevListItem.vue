@@ -44,7 +44,7 @@ const props = defineProps({
 
 /* 공통 column 스타일 */
 .column {
-  @apply text-[14px] text-black font-normal text-center truncate flex items-center justify-center h-[43px];
+  @apply text-bodySm text-black font-normal text-center truncate flex items-center justify-center h-[43px];
 }
 
 .avatar {
