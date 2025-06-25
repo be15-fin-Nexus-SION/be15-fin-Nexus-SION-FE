@@ -124,7 +124,7 @@ onMounted(() => {
     <SidebarWrapper viewType="statistics" />
 
     <div class="content-wrapper">
-      <h1 class="page-title">기술 스택별 평균 경력 조회</h1>
+      <h1 class="page-title">기술 스택별 평균 경력</h1>
       <p class="page-description">
         각 기술 스택별로 해당 기술을 보유한 개발자들의 평균 경력을 확인할 수
         있습니다.
@@ -173,7 +173,7 @@ onMounted(() => {
 
 <style scoped>
 .page-layout {
-  @apply flex justify-center;
+  @apply relative flex;
 }
 
 .content-wrapper {
