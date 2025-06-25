@@ -2,12 +2,11 @@
 export default {
   content: ["./index.html", "./src/**/*.{vue,js,ts}"],
   safelist: [
-    "bg-grade-s",
-    "bg-grade-a",
-    "bg-grade-b",
-    "bg-grade-c",
-    "bg-grade-d",
-    "bg-grade-default",
+    "bg-gradient-grade-s",
+    "bg-gradient-grade-a",
+    "bg-gradient-grade-b",
+    "bg-gradient-grade-c",
+    "bg-gradient-grade-d",
   ],
   theme: {
     extend: {

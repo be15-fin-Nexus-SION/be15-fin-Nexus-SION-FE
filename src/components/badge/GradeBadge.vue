@@ -17,17 +17,17 @@ const props = defineProps({
 const gradeGradientClass = computed(() => {
   switch (props.label?.toUpperCase()) {
     case "S":
-      return "bg-[linear-gradient(270deg,_#FF8C00_0%,_#992E00_100%)]";
+      return "bg-gradient-grade-s";
     case "A":
-      return "bg-[linear-gradient(270deg,_#FF000D_0%,_#990000_100%)]";
+      return "bg-gradient-grade-a";
     case "B":
-      return "bg-[linear-gradient(270deg,_#00FFA6_0%,_#009966_100%)]";
+      return "bg-gradient-grade-b";
     case "C":
-      return "bg-[linear-gradient(270deg,_#FFE600_0%,_#999600_100%)]";
+      return "bg-gradient-grade-c";
     case "D":
-      return "bg-[linear-gradient(270deg,_#BDBDBD_0%,_#606060_100%)]";
+      return "bg-gradient-grade-d";
     default:
-      return "bg-[linear-gradient(270deg,_#CCCCCC_0%,_#888888_100%)]";
+      return "bg-gradient-to-r from-gray-400 to-gray-600"; // fallback
   }
 });
 </script>

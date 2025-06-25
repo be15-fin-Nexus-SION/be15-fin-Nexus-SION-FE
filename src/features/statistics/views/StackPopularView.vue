@@ -10,7 +10,7 @@ const chartRef = ref(null);
 let chartInstance = null;
 
 const period = ref("1m");
-const top = ref("10");
+const top = ref(5);
 
 const contentList = ref([]);
 
@@ -28,12 +28,12 @@ function formatMonthKey(monthStr) {
 
 function resetFilters() {
   period.value = "1m";
-  top.value = "5";
+  top.value = 5;
 }
 
 async function renderInitialChartData() {
   try {
-    const res = await getPopularTechStacks(period.value, Number(top.value));
+    const res = await getPopularTechStacks(period.value, top.value);
     const content = res.data.data.content;
 
     contentList.value = content;
@@ -190,7 +190,6 @@ function renderMultiLineChart(labels, datasets) {
         <canvas ref="chartRef" class="chart-canvas" />
       </div>
 
-      <!-- ✅ 리스트 전달 시 바인딩으로 변경 -->
       <PopularList :list="contentList" />
     </div>
   </div>

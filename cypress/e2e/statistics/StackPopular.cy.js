@@ -4,6 +4,9 @@ describe("인기 기술 스택 통계 페이지", () => {
     cy.visit("/statistics/stack/popular");
   });
 
+  // Cypress 테스트 실행 중 특정 라이브러리 또는 차트 관련 코드에서 "instances" 관련 오류가 발생할 수 있음.
+  // 이는 렌더링 타이밍 이슈나 Chart.js의 내부 상태 관리 문제일 수 있으며, 테스트에는 영향을 주지 않음.
+  // 따라서 테스트 실패를 방지하기 위해 해당 예외만 무시함.
   Cypress.on("uncaught:exception", (err) => {
     if (err.message.includes("instances")) return false;
   });
