@@ -45,9 +45,15 @@
         </div>
       </div>
 
-      <div v-if="isLoading" class="text-gray-400 text-sm mt-4">로딩 중...</div>
       <div
-        v-else-if="!isLoading && sortedItems.length === 0"
+        v-if="isLoading && showLoadingMessage"
+        class="text-gray-400 text-sm mt-4"
+      >
+        로딩 중...
+      </div>
+
+      <div
+        v-else-if="!isLoading && items.length === 0"
         class="text-gray-400 text-sm mt-4"
       >
         선택된 기술 스택이 없습니다.
@@ -57,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, computed, nextTick } from "vue";
+import { ref, watch, onMounted, computed, nextTick, defineProps } from "vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { getStackAvgCareer } from "@/api/statistics.js";
 
@@ -65,85 +71,101 @@ import { getStackAvgCareer } from "@/api/statistics.js";
 const props = defineProps({
   selectedStacks: Array,
 });
-const emit = defineEmits(["updateSort"]);
 
 // 상태
-const allItems = ref([]);
+const items = ref([]);
 const isLoading = ref(false);
 const localSortOption = ref("techStackName");
-const visibleCount = ref(10); // 처음 보여줄 개수
+const sortDirection = ref("asc");
+const page = ref(0);
+const size = 10;
+const hasNext = ref(true);
 const scrollTarget = ref(null);
+const showLoadingMessage = ref(false);
+let loadingTimeout = null;
 
-// 데이터 fetch
-const fetchData = async () => {
+// fetch 함수
+const fetchData = async ({ reset = false } = {}) => {
   if (!props.selectedStacks || props.selectedStacks.length === 0) {
-    allItems.value = [];
+    items.value = [];
+    hasNext.value = false;
     return;
   }
 
   isLoading.value = true;
+
+  if (reset) {
+    showLoadingMessage.value = true;
+
+    if (loadingTimeout) clearTimeout(loadingTimeout);
+    loadingTimeout = setTimeout(() => {
+      showLoadingMessage.value = false;
+    }, 3000);
+  }
+
   try {
     const res = await getStackAvgCareer({
       stackList: props.selectedStacks,
-      page: 0,
-      size: 9999,
+      page: page.value,
+      size,
+      sort: localSortOption.value,
+      direction: sortDirection.value,
     });
-    allItems.value = res.data.data.content;
-    visibleCount.value = 10;
+
+    const content = res.data.data.content;
+    const isLast = res.data.data.last;
+
+    if (reset) {
+      items.value = content;
+    } else {
+      items.value.push(...content);
+    }
+
+    hasNext.value = !isLast;
   } finally {
     isLoading.value = false;
   }
 };
 
-// 정렬된 목록 계산
-const sortedItems = computed(() => {
-  const sorted = [...allItems.value];
-  switch (localSortOption.value) {
-    case "techStackName":
-      return sorted.sort((a, b) =>
-        a.techStackName.localeCompare(b.techStackName),
-      );
-    case "averageCareer":
-      return sorted.sort((a, b) => b.averageCareer - a.averageCareer);
-    case "count":
-      return sorted.sort((a, b) => b.count - a.count);
-    default:
-      return sorted;
-  }
-});
-
-// 화면에 보일 아이템
-const visibleItems = computed(() =>
-  sortedItems.value.slice(0, visibleCount.value),
-);
-
 // 스크롤 핸들링
 const handleScroll = () => {
   const el = scrollTarget.value;
-  if (!el) return;
+  if (!el || isLoading.value || !hasNext.value) return;
 
   const { scrollTop, scrollHeight, clientHeight } = el;
   if (scrollTop + clientHeight >= scrollHeight - 150) {
-    if (visibleCount.value < sortedItems.value.length) {
-      visibleCount.value += 10;
-    }
+    page.value += 1;
+    fetchData();
   }
 };
 
-// 정렬 변경 시 emit
+// 정렬 변경 시
 const onSortChange = () => {
-  emit("updateSort", localSortOption.value);
-  visibleCount.value = 10;
+  page.value = 0;
+  hasNext.value = true;
+  fetchData({ reset: true });
 };
 
-// 스크롤 이벤트 등록
+// 표시할 항목
+const visibleItems = computed(() => items.value);
+
+// 초기 실행
 onMounted(async () => {
   await nextTick();
   scrollTarget.value?.addEventListener("scroll", handleScroll);
+  fetchData({ reset: true });
 });
 
-// selectedStacks 변경 시 다시 fetch
-watch(() => props.selectedStacks, fetchData, { deep: true });
+// selectedStacks 변경 시 초기화
+watch(
+  () => props.selectedStacks,
+  () => {
+    page.value = 0;
+    hasNext.value = true;
+    fetchData({ reset: true });
+  },
+  { deep: true },
+);
 </script>
 
 <style scoped>

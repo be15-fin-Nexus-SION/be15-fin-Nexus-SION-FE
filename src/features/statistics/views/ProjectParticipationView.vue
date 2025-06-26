@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import { getJobParticipationStats } from "@/api/statistics";
@@ -9,51 +9,61 @@ const chartRef = ref(null);
 const stats = ref([]);
 let chartInstance = null;
 
-async function renderChart() {
+async function fetchStats() {
   try {
     const response = await getJobParticipationStats();
     stats.value = response.data.data;
-
-    const sortedStats = [...stats.value].sort((a, b) =>
-      a.jobName.localeCompare(b.jobName, ["ko", "en"], { sensitivity: "base" }),
-    );
-
-    const labels = sortedStats.map((item) => item.jobName);
-    const data = sortedStats.map((item) => item.memberCount);
-
-    if (chartInstance) chartInstance.destroy();
-
-    chartInstance = new Chart(chartRef.value, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [
-          {
-            label: "인원 수",
-            data,
-            backgroundColor: "#6574F6",
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 5 },
-          },
-        },
-      },
-    });
   } catch (error) {
     console.error("직무 참여 통계 조회 실패:", error);
   }
 }
 
-onMounted(renderChart);
+function renderChart() {
+  if (!chartRef.value || stats.value.length === 0) return;
+
+  const sortedStats = [...stats.value].sort((a, b) =>
+    a.jobName.localeCompare(b.jobName, ["ko", "en"], { sensitivity: "base" }),
+  );
+
+  const labels = sortedStats.map((item) => item.jobName);
+  const data = sortedStats.map((item) => item.memberCount);
+
+  if (chartInstance) chartInstance.destroy();
+
+  chartInstance = new Chart(chartRef.value, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "인원 수",
+          data,
+          backgroundColor: "#6574F6",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 5 },
+        },
+      },
+    },
+  });
+}
+
+onMounted(() => {
+  fetchStats();
+});
+
+watch(stats, () => {
+  renderChart();
+});
 </script>
 
 <template>

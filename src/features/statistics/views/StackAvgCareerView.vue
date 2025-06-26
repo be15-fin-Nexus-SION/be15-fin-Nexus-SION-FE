@@ -68,7 +68,7 @@ async function renderInitialChartData() {
     const res = await getStackAvgCareer({
       stackList: selectedStacksForChart.value,
       page: 0,
-      size: 10,
+      size: selectedStacksForChart.value.length,
       sort: sortOption.value,
       direction: "asc",
     });

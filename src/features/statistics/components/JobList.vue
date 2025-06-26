@@ -95,10 +95,6 @@ const filteredStackOptions = computed(() => {
   const allJobNames = props.stats.map((item) => item.jobName);
   return Array.from(new Set(allJobNames)).filter(Boolean);
 });
-
-function addStack() {
-  // 필터링은 computed에서 처리됨
-}
 </script>
 
 <style scoped>
