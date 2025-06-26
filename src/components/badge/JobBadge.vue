@@ -20,7 +20,7 @@ defineProps({
 }
 
 .tech-label {
-  @apply w-[65px] h-[17px] text-[14px] font-bold text-white flex items-center justify-center text-center;
+  @apply text-bodySm font-bold text-white flex items-center justify-center text-center;
   line-height: 1.1;
   white-space: nowrap;
 }

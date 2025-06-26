@@ -16,4 +16,13 @@ export const statisticsRoutes = [
       requiresAuth: true,
     },
   },
+
+  {
+    path: "/statistics/stack/popular",
+    name: "StackPopularView",
+    component: () => import("./views/StackPopularView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];

@@ -31,3 +31,9 @@ export function getStackAvgCareer({
   const pageQuery = `page=${page}&size=${size}&sort=${sort}&direction=${direction}`;
   return api.get(`/statistics/stack/average-career?${stackQuery}&${pageQuery}`);
 }
+
+export function getPopularTechStacks(period = "1m", top = 10) {
+  return api.get("/statistics/stack/popular", {
+    params: { period, top },
+  });
+}
