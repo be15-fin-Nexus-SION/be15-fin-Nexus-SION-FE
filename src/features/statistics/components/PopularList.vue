@@ -6,8 +6,8 @@
         <option disabled value="">정렬 기준 선택</option>
         <option value="totalUsageCount">사용 횟수순</option>
         <option value="techStackName">기술 스택 이름순</option>
-        <option value="latestProjectName">최근 사용된 프로젝트순</option>
-        <option value="topJobName">주요 사용 직무순</option>
+        <option value="latestProjectName">최근 사용된 프로젝트 이름순</option>
+        <option value="topJobName">주요 사용 직무 이름순</option>
       </select>
     </div>
 
