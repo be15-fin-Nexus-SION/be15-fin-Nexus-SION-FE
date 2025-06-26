@@ -25,4 +25,13 @@ export const statisticsRoutes = [
       requiresAuth: true,
     },
   },
+
+  {
+    path: "/statistics/project/participation",
+    name: "ProjectParticipationView",
+    component: () => import("./views/ProjectParticipationView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];
