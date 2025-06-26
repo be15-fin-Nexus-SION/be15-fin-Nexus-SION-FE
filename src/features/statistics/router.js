@@ -29,7 +29,7 @@ export const statisticsRoutes = [
   {
     path: "/statistics/project/participation",
     name: "ProjectParticipationView",
-    component: () => import("./views/ProjectParticipationView.vue"),
+    component: () => import("./views/JobParticipation.vue"),
     meta: {
       requiresAuth: true,
     },
