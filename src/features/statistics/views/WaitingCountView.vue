@@ -84,7 +84,7 @@ watch(stats, renderChart);
     <div class="content-wrapper">
       <h1 class="page-title">등급별 대기 상태 인원수</h1>
       <p class="page-description">
-        등급별로 현재 '즉시 투입 가능' 상태인 인원수를 조회할 수 있습니다.
+        등급별로 현재 '대기중' 상태인 인원수를 조회할 수 있습니다.
       </p>
 
       <div class="chart-card">
