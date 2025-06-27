@@ -21,7 +21,7 @@
         <select id="sort-select" v-model="sortOption" class="sort-dropdown">
           <option disabled value="">정렬 기준 선택</option>
           <option value="name">직무 이름순</option>
-          <option value="position">등록된 인원 수 순</option>
+          <option value="position">등록된 인원수 순</option>
         </select>
       </div>
     </div>
@@ -29,7 +29,7 @@
     <!-- 헤더 -->
     <div class="header">
       <span class="header-badge">직무</span>
-      <span class="header-text">등록된 인원 수</span>
+      <span class="header-text">등록된 인원수</span>
       <span class="header-badge2">대표 기술 스택</span>
     </div>
 

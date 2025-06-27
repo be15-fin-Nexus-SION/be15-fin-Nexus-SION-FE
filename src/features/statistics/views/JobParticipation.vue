@@ -82,9 +82,9 @@ watch(stats, () => {
     <SidebarWrapper viewType="statistics" />
 
     <div class="content-wrapper">
-      <h1 class="page-title">직무별 등록된 인원 수</h1>
+      <h1 class="page-title">직무별 등록된 인원수</h1>
       <p class="page-description">
-        프로젝트 기준으로 참여 직무(예: 프론트엔드, 백엔드 등)별 인원 수를
+        프로젝트 기준으로 참여 직무(예: 프론트엔드, 백엔드 등)별 인원수를
         확인합니다.
       </p>
 
