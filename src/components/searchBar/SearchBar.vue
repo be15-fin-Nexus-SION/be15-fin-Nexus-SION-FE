@@ -140,7 +140,7 @@ function selectStack(stack) {
   width: 100%;
   background: #ffffff;
   border: 1px solid #eeeeee;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .search-input {

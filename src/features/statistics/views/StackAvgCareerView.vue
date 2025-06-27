@@ -143,7 +143,7 @@ onMounted(() => {
       <div class="search-section">
         <div class="search-bar">
           <SearchBar
-            placeholder="기술스택 검색"
+            placeholder="기술 스택 검색"
             :selectedStacks="selectedStacksForChart"
             @select="handleStackSelect"
           />
