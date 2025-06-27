@@ -77,22 +77,23 @@ const chartOptions = {
   }
 }
 
-// 🧠 그라데이션 생성 및 주입
 watch(
     () => props.data,
     async () => {
-      await nextTick()
-      const chart = barChartRef.value?.chart
-      if (!chart) return
+      await nextTick();
+      const chartComponent = barChartRef.value;
+      const chartInstance = chartComponent?.chart;
 
-      const ctx = chart.ctx
-      const gradient = ctx.createLinearGradient(0, 0, 0, chart.height)
-      gradient.addColorStop(0, 'rgba(254, 134, 134, 1)') // 빨강
-      gradient.addColorStop(1, 'rgba(30, 38, 141, 1)')   // 남색
+      if (!chartInstance || !chartInstance.ctx || !chartInstance.height) return;
 
-      gradientBackground.value = gradient
-      chart.update()
+      const ctx = chartInstance.ctx;
+      const gradient = ctx.createLinearGradient(0, 0, 0, chartInstance.height);
+      gradient.addColorStop(0, 'rgba(254, 134, 134, 1)');
+      gradient.addColorStop(1, 'rgba(30, 38, 141, 1)');
+
+      gradientBackground.value = gradient;
+      chartInstance.update();
     },
     { immediate: true }
-)
+);
 </script>

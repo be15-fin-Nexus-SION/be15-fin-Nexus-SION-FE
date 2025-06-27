@@ -87,17 +87,16 @@ watch(
 
 function applyGradientBorder() {
   const chartInstance = radarChartRef.value?.chart;
-  if (!chartInstance) return;
+  if (!chartInstance || !chartInstance.ctx || !chartInstance.width) return;
 
   const ctx = chartInstance.ctx;
   const gradient = ctx.createLinearGradient(0, 0, chartInstance.width, 0);
   gradient.addColorStop(0, 'rgba(254, 134, 134, 1)'); // 시작색
-  gradient.addColorStop(1, 'rgba(30, 38, 141, 1)'); // 끝색
+  gradient.addColorStop(1, 'rgba(30, 38, 141, 1)');   // 끝색
 
   chartInstance.data.datasets[0].borderColor = gradient;
   chartInstance.update();
 }
-
 const options = {
   responsive: true,
   maintainAspectRatio: false,
