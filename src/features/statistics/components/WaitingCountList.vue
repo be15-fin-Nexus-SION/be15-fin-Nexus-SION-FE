@@ -7,7 +7,6 @@
           <select
             id="job-select"
             v-model="selectedStack"
-            @change="addStack"
             class="filter-dropdown"
           >
             <option disabled value="">등급 선택</option>
@@ -33,7 +32,7 @@
     <!-- 헤더 -->
     <div class="header">
       <span class="header-text">등급</span>
-      <span class="header-text">대기 인원 수</span>
+      <span class="header-text">대기 인원 / 전체 인원</span>
     </div>
 
     <!-- 리스트 -->
@@ -41,12 +40,14 @@
       <div v-for="item in sortedList" :key="item.gradeCode" class="item">
         <div class="content">
           <span class="content-text">{{ item.gradeCode }}</span>
-          <span class="content-text">{{ item.waitingCount }}명</span>
+          <span class="content-text">
+            {{ item.waitingCount }}명 / {{ item.totalCount }}명
+          </span>
         </div>
       </div>
 
       <div v-if="!sortedList.length" class="text-gray-400 text-sm mt-4">
-        등급별 대기 상태 중인 인원이 없습니다.
+        등급별로 상태가 '대기중'인 인원이 없습니다.
       </div>
     </div>
   </div>
