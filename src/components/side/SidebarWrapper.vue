@@ -31,10 +31,13 @@ const rawItems = computed(() => {
         { label: "기술 스택별 평균 경력", to: "/statistics/stack/avg-career" },
         { label: "기간별 인기 기술 스택", to: "/statistics/stack/popular" },
         {
-          label: "직무별 등록된 인원 수",
+          label: "직무별 등록된 인원수",
           to: "/statistics/project/participation",
         },
-        { label: "등급별 대기 상태", to: "/statistics/education" },
+        {
+          label: "등급별 대기 상태 인원수",
+          to: "/statistics/grade/waiting-count",
+        },
         { label: "등급별 연봉 분포", to: "/statistics/certification" },
         { label: "기술 도입률 변화 추이", to: "/statistics/experience" },
       ];
