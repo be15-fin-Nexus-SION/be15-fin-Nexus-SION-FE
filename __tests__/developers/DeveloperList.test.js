@@ -9,7 +9,6 @@ vi.mock('@/api/member', () => ({
     updateMemberStatus: vi.fn(),
 }));
 
-// 목 데이터
 const mockDevelopers = [
     {
         name: '홍길동',
@@ -24,23 +23,26 @@ const mockDevelopers = [
     }
 ];
 
-// 더미 컴포넌트
 const DeveloperDetailStub = {
     template: '<div>개발자 상세 페이지</div>'
 };
 
-// 라우터 설정
-const router = createRouter({
-    history: createWebHistory(),
-    routes: [
-        { path: '/', name: 'developer-list', component: DeveloperListView },
-        { path: '/members/:employeeId', name: 'developer-detail', component: DeveloperDetailStub }
-    ]
-});
+const routes = [
+    { path: '/', name: 'developer-list', component: DeveloperListView },
+    { path: '/members/:employeeId', name: 'developer-detail', component: DeveloperDetailStub }
+];
 
 describe('DeveloperListView.vue', () => {
+    let router;
+
     beforeEach(async () => {
         vi.clearAllMocks();
+
+        // 각 테스트마다 fresh router instance 생성
+        router = createRouter({
+            history: createWebHistory(),
+            routes
+        });
 
         memberApi.fetchDeveloperList.mockResolvedValue({
             data: { data: { content: mockDevelopers } }
@@ -50,25 +52,25 @@ describe('DeveloperListView.vue', () => {
         await router.isReady();
     });
 
-    it('개발자 목록을 렌더링한다', async () => {
+    const mountWithRouter = async () => {
         const wrapper = mount(DeveloperListView, {
             global: {
                 plugins: [router]
-            }
+            },
+            attachTo: document.body // ← 이게 중요: router DOM 반영
         });
-
         await flushPromises();
+        return wrapper;
+    };
+
+    it('개발자 목록을 렌더링한다', async () => {
+        const wrapper = await mountWithRouter();
         expect(wrapper.text()).toContain('홍길동');
         expect(wrapper.text()).toContain('Java');
     });
 
     it('검색어가 있을 때 메시지를 표시한다', async () => {
-        const wrapper = mount(DeveloperListView, {
-            global: {
-                plugins: [router]
-            }
-        });
-
+        const wrapper = await mountWithRouter();
         wrapper.vm.searchKeyword = '홍';
         await flushPromises();
 
@@ -77,14 +79,8 @@ describe('DeveloperListView.vue', () => {
 
     it('상태 변경 드롭다운을 열고 상태 변경을 시도한다', async () => {
         memberApi.updateMemberStatus.mockResolvedValue({});
+        const wrapper = await mountWithRouter();
 
-        const wrapper = mount(DeveloperListView, {
-            global: {
-                plugins: [router]
-            }
-        });
-
-        await flushPromises();
         await wrapper.find('td:last-child button').trigger('click');
         await wrapper.find('ul li').trigger('click');
 
@@ -92,15 +88,13 @@ describe('DeveloperListView.vue', () => {
     });
 
     it('개발자 row 클릭 시 상세 페이지 이동', async () => {
-        const wrapper = mount(DeveloperListView, {
-            global: {
-                plugins: [router]
-            }
-        });
+        const wrapper = await mountWithRouter();
 
-        await flushPromises();
         await wrapper.find('tbody tr').trigger('click');
+        await flushPromises(); // router.push 이후 변경 감지
 
-        expect(router.currentRoute.value.name).toBe('developer-list');
+        // 여기서 확인
+        expect(router.currentRoute.value.name).toBe('developer-detail');
+        expect(router.currentRoute.value.params.employeeId).toBe('001');
     });
 });
