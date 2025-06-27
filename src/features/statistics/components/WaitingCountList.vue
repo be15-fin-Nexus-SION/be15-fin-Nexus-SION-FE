@@ -5,8 +5,8 @@
       <div class="filter-controls">
         <div class="filter-div">
           <select
-            id="job-select"
-            v-model="selectedStack"
+            id="grade-select"
+            v-model="selectedGrade"
             class="filter-dropdown"
           >
             <option disabled value="">등급 선택</option>
@@ -65,12 +65,12 @@ const props = defineProps({
 
 const GRADE_ORDER = ["S", "A", "B", "C", "D"];
 
-const selectedStack = ref("__ALL__");
+const selectedGrade = ref("__ALL__");
 const sortOption = ref("grade");
 
 const filteredList = computed(() => {
-  if (selectedStack.value === "__ALL__") return props.stats;
-  return props.stats.filter((item) => item.gradeCode === selectedStack.value);
+  if (selectedGrade.value === "__ALL__") return props.stats;
+  return props.stats.filter((item) => item.gradeCode === selectedGrade.value);
 });
 
 const sortedList = computed(() => {

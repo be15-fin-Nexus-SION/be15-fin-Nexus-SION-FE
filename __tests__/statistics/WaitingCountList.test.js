@@ -3,11 +3,11 @@ import { mount } from "@vue/test-utils";
 import WaitingCountList from "@/features/statistics/components/WaitingCountList.vue";
 
 const sampleStats = [
-  { gradeCode: "S", waitingCount: 5 },
-  { gradeCode: "A", waitingCount: 3 },
-  { gradeCode: "B", waitingCount: 5 },
-  { gradeCode: "C", waitingCount: 2 },
-  { gradeCode: "D", waitingCount: 7 },
+  { gradeCode: "S", waitingCount: 1, totalCount: 3 },
+  { gradeCode: "A", waitingCount: 1, totalCount: 3 },
+  { gradeCode: "B", waitingCount: 1, totalCount: 2 },
+  { gradeCode: "C", waitingCount: 0, totalCount: 1 },
+  { gradeCode: "D", waitingCount: 1, totalCount: 1 },
 ];
 
 describe("WaitingCountList.vue", () => {
@@ -44,26 +44,20 @@ describe("WaitingCountList.vue", () => {
       item.findAll(".content-text")[0].text(),
     );
 
-    expect(renderedGrades).toEqual(["D", "S", "B", "A", "C"]);
+    expect(renderedGrades).toEqual(["S", "A", "B", "D", "C"]);
   });
 
-  it("특정 등급 필터 적용 시 해당 항목만 보여준다 - 'B'", async () => {
-    const stackSelect = wrapper.find("#job-select");
-    await stackSelect.setValue("B");
+  it.each(["B", "D"])(
+    "특정 등급 필터 적용 시 해당 항목만 보여준다 - '%s'",
+    async (grade) => {
+      const gradeSelect = wrapper.find("#grade-select");
+      await gradeSelect.setValue(grade);
 
-    const items = wrapper.findAll(".career-list-container .item");
-    expect(items.length).toBe(1);
-    expect(items[0].text()).toContain("B");
-  });
-
-  it("특정 등급 필터 적용 시 해당 항목만 보여준다 - 'D'", async () => {
-    const stackSelect = wrapper.find("#job-select");
-    await stackSelect.setValue("D");
-
-    const items = wrapper.findAll(".career-list-container .item");
-    expect(items.length).toBe(1);
-    expect(items[0].text()).toContain("D");
-  });
+      const items = wrapper.findAll(".career-list-container .item");
+      expect(items.length).toBe(1);
+      expect(items[0].text()).toContain(grade);
+    },
+  );
 
   it("빈 stats일 경우 안내 문구가 출력된다", () => {
     const emptyWrapper = mount(WaitingCountList, {
@@ -71,7 +65,7 @@ describe("WaitingCountList.vue", () => {
     });
 
     expect(emptyWrapper.text()).toContain(
-      "등급별 대기 상태 중인 인원이 없습니다.",
+      "등급별로 상태가 '대기중'인 인원이 없습니다.",
     );
   });
 });
