@@ -36,7 +36,7 @@
       </div>
 
       <div class="chart-card">
-        <canvas ref="barCanvas" class="chart-canvas" />
+        <canvas ref="chartRef" class="chart-canvas" />
       </div>
 
       <DevList
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, nextTick } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
@@ -60,7 +60,7 @@ import { getStackMemberCounts } from "@/api/statistics.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import DevList from "@/features/statistics/components/DevList.vue";
 
-const barCanvas = ref(null);
+const chartRef = ref(null);
 let chartInstance = null;
 
 const selectedStacksForChart = ref([]);
@@ -74,8 +74,21 @@ function resetFilterStacks() {
   selectedStacksForFilter.value = [];
 }
 
-function renderChart(labels = [], values = []) {
-  const ctx = barCanvas.value.getContext("2d");
+async function renderChart(labels = [], values = []) {
+  await nextTick();
+
+  const ctx = chartRef.value?.getContext("2d");
+  if (!ctx) {
+    console.warn("Canvas context를 얻을 수 없습니다.");
+    return;
+  }
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 230);
+  gradient.addColorStop(0 / 230, "#404591");
+  gradient.addColorStop(100 / 230, "#705C95");
+  gradient.addColorStop(150 / 230, "#A07298");
+  gradient.addColorStop(230 / 230, "#FFC0C0");
+
   if (chartInstance) chartInstance.destroy();
 
   chartInstance = new Chart(ctx, {
@@ -85,11 +98,11 @@ function renderChart(labels = [], values = []) {
       datasets: [
         {
           data: values,
-          backgroundColor: "#6574F6",
+          backgroundColor: gradient,
           borderRadius: 25,
           borderSkipped: "bottom",
           categoryPercentage: 0.8,
-          barPercentage: 0.7, // ✅ 유동적 너비로 설정 (기본값 수준)
+          barPercentage: 0.7,
         },
       ],
     },

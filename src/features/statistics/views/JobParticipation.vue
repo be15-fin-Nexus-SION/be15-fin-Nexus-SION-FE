@@ -21,6 +21,14 @@ async function fetchStats() {
 function renderChart() {
   if (!chartRef.value || stats.value.length === 0) return;
 
+  const ctx = chartRef.value.getContext("2d");
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 230);
+  gradient.addColorStop(0 / 230, "#404591");
+  gradient.addColorStop(100 / 230, "#705C95");
+  gradient.addColorStop(150 / 230, "#A07298");
+  gradient.addColorStop(230 / 230, "#FFC0C0");
+
   const sortedStats = [...stats.value].sort((a, b) =>
     a.jobName.localeCompare(b.jobName, ["ko", "en"], { sensitivity: "base" }),
   );
@@ -36,9 +44,12 @@ function renderChart() {
       labels,
       datasets: [
         {
-          label: "인원 수",
           data,
-          backgroundColor: "#6574F6",
+          backgroundColor: gradient,
+          borderRadius: 25,
+          borderSkipped: "bottom",
+          categoryPercentage: 0.8,
+          barPercentage: 0.7,
         },
       ],
     },
