@@ -8,7 +8,7 @@ vi.mock("@/components/side/SidebarWrapper.vue", () => ({
   default: { template: "<div>Sidebar</div>" },
 }));
 
-vi.mock("@/components/searchBar/SearchBar.vue", () => ({
+vi.mock("@/components/searchBar/TechStackSearchBar.vue", () => ({
   default: {
     props: ["selectedStacks"],
     emits: ["select"],
@@ -44,7 +44,7 @@ describe("StackAvgCareerView.vue", () => {
     expect(wrapper.text()).toContain("개발자들의 평균 경력을 확인할 수");
   });
 
-  it("SearchBar 클릭 시 스택이 추가된다", async () => {
+  it("TechStackSearchBar 클릭 시 스택이 추가된다", async () => {
     const wrapper = mount(StackAvgCareerView);
     const searchInput = wrapper.find("input");
     await searchInput.trigger("click");

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch, computed, nextTick } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import SearchBar from "@/components/searchBar/SearchBar.vue";
+import TechStackSearchBar from "@/components/searchBar/TechStackSearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { Chart } from "chart.js/auto";
 import { getStackAvgCareer } from "@/api/statistics.js";

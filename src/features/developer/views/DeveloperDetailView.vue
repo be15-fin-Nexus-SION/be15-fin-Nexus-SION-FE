@@ -1,11 +1,190 @@
-<script setup>
-// 개발자 상세 정보 로직
-</script>
-
 <template>
-  <section class="p-6">
-    <h1 class="text-2xl font-bold">DeveloperDetailView</h1>
-  </section>
+  <div class="max-w-7xl mx-auto py-10 px-4 space-y-8">
+    <!-- 상단 버튼 -->
+    <div class="flex items-center justify-between">
+      <div class="text-xl font-semibold">개발자 상세</div>
+      <div class="space-x-2">
+        <button class="px-4 py-2 rounded-md bg-primary text-white text-sm">수정</button>
+        <button class="px-4 py-2 rounded-md bg-gray-200 text-sm">삭제</button>
+      </div>
+    </div>
+
+    <!-- 개인 정보 카드 -->
+    <section
+        v-if="developer"
+        class="relative bg-white p-10 rounded-xl shadow flex gap-20 items-start"
+    >
+      <!-- 상태 뱃지: 카드 오른쪽 상단 고정 -->
+      <div class="absolute top-6 right-6">
+    <span
+        :class="[
+        'px-4 py-1 rounded-full text-sm font-semibold',
+        developer.status === 'IN_PROJECT'
+          ? 'bg-green-100 text-green-700'
+          : developer.status === 'AVAILABLE'
+            ? 'bg-yellow-100 text-yellow-700'
+            : 'bg-gray-100 text-gray-600'
+      ]"
+    >
+      {{ statusLabel(developer.status) }}
+    </span>
+      </div>
+
+      <!-- 좌측: 프로필 이미지 및 이름/직급 -->
+      <div class="w-48 flex flex-col items-center">
+        <img
+            :src="developer.profileImageUrl"
+            alt="프로필 이미지"
+            class="w-48 h-48 rounded-full object-cover border mb-4"
+        />
+        <div class="text-center">
+          <div class="text-lg font-bold text-gray-900">{{ developer.name }}</div>
+          <div class="text-sm font-semibold text-gray-500 mt-1">{{ developer.grade || '-' }}</div>
+        </div>
+      </div>
+
+      <!-- 우측: 상세 정보 -->
+      <div class="flex-1 space-y-4">
+        <!-- 기본 정보 -->
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">사원 정보</h3>
+        <div class="border-b pb-4">
+          <dl class="grid grid-cols-4 gap-y-3 text-sm text-gray-800">
+            <dt class="font-semibold text-gray-500">사번</dt>
+            <dd class="col-span-3">{{ developer.employeeId }}</dd>
+
+            <dt class="font-semibold text-gray-500">직급</dt>
+            <dd class="col-span-3">{{ developer.position || '-' }}</dd>
+
+            <dt class="font-semibold text-gray-500">부서</dt>
+            <dd class="col-span-3">{{ developer.department || '-' }}</dd>
+
+            <dt class="font-semibold text-gray-500">생년월일</dt>
+            <dd class="col-span-3">{{ developer.birthday || '-' }}</dd>
+
+            <dt class="font-semibold text-gray-500">이메일</dt>
+            <dd class="col-span-3">{{ developer.email }}</dd>
+
+            <dt class="font-semibold text-gray-500">근무 기간</dt>
+            <dd class="col-span-3">{{ developer.joinedAt }} ~ 진행중</dd>
+
+            <dt class="font-semibold text-gray-500">연락처</dt>
+            <dd class="col-span-3">{{ developer.phoneNumber }} | {{ developer.email }}</dd>
+
+            <dt class="font-semibold text-gray-500">년차</dt>
+            <dd class="col-span-3">{{ developer.careerYears }}년차</dd>
+          </dl>
+        </div>
+
+        <!-- 기술 스택 -->
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">기술 스택</h3>
+        <div>
+          <div class="flex flex-wrap gap-1.5">
+            <TechBadge
+                v-for="tech in techList"
+                :key="tech"
+                :label="tech"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 이력 및 기술 스택 -->
+    <section class="grid grid-cols-2 gap-6">
+      <!-- 이력 관리 -->
+      <div class="bg-white p-4 rounded-xl shadow">
+        <div class="font-semibold mb-4">이력 관리</div>
+        <div class="flex gap-4 text-sm mb-2">
+          <span class="font-semibold text-primary">프로젝트 이력</span>
+          <span class="text-gray-400">자격증</span>
+          <span class="text-gray-400">교육 이력</span>
+        </div>
+        <!-- 프로젝트 이력이 없을 경우 -->
+        <div class="h-40 flex items-center justify-center">
+          <p class="text-gray-400 text-sm">프로젝트 이력이 없습니다.</p>
+        </div>
+
+      </div>
+
+      <!-- Radar 차트 -->
+      <div class="bg-white p-4 rounded-xl shadow">
+        <div class="font-semibold mb-4">주요 기술 스택</div>
+        <RadarChart v-if="radarData" :data="radarData" />
+      </div>
+    </section>
+
+    <!-- Bar 차트 -->
+    <section class="bg-white p-4 rounded-xl shadow">
+      <div class="font-semibold mb-4">기술 스택별 점수</div>
+      <BarChart v-if="barData" :data="barData" />
+    </section>
+  </div>
 </template>
 
-<style scoped></style>
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import BarChart from '@/features/developer/components/BarChart.vue';
+import RadarChart from '@/features/developer/components/RadarChart.vue';
+import { fetchDeveloperDetail, fetchTechStacksByEmployeeId } from '@/api/member';
+import TechBadge from "@/components/badge/TechBadge.vue";
+
+const route = useRoute();
+const employeeId = route.params.employeeId;
+
+const developer = ref(null);
+const techList = ref([]);
+const barData = ref(null);
+const radarData = ref(null);
+
+const statusLabel = (status) => {
+  switch (status) {
+    case 'AVAILABLE': return '대기중';
+    case 'IN_PROJECT': return '투입중';
+    case 'UNAVAILABLE': return '비활성';
+    default: return status;
+  }
+};
+
+onMounted(async () => {
+  try {
+    // 개발자 상세 정보
+    const { data: devRes } = await fetchDeveloperDetail(employeeId);
+    developer.value = devRes.data;
+
+    // 기술 스택 점수
+    const { data: stackRes } = await fetchTechStacksByEmployeeId(employeeId);
+    const stackData = stackRes.data;
+
+    techList.value = stackData.map((s) => s.techStackName);
+
+    // Bar 차트
+    barData.value = stackData;
+
+    // Radar 차트 (상위 7개)
+    const top7 = [...stackData].sort((a, b) => b.score - a.score).slice(0, 7);
+    radarData.value = {
+      labels: top7.map((s) => s.techStackName),
+      datasets: [
+        {
+          label: '기술 점수',
+          data: top7.map((s) => s.score),
+          backgroundColor: 'rgba(75,192,192,0.2)',
+          borderColor: 'rgba(75,192,192,1)',
+          borderWidth: 1,
+        },
+      ],
+    };
+  } catch (e) {
+    console.error('개발자 상세 정보 불러오기 실패', e);
+  }
+});
+</script>
+
+<style scoped>
+th,
+td {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+</style>

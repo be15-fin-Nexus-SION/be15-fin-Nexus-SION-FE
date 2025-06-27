@@ -45,7 +45,7 @@ defineEmits(["remove"]);
 }
 
 .tech-text {
-  @apply text-white text-bodySm font-bold;
+  @apply text-white text-xs font-medium;
   line-height: 1.1;
   white-space: nowrap;
 }
