@@ -10,7 +10,7 @@
 
       <div class="search-section">
         <div class="search-bar">
-          <SearchBar
+          <TechStackSearchBar
             placeholder="기술스택 검색"
             :selectedStacks="selectedStacksForChart"
             @select="handleStackSelect"
@@ -53,7 +53,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import SearchBar from "@/components/searchBar/SearchBar.vue";
+import TechStackSearchBar from "@/components/searchBar/TechStackSearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { Chart } from "chart.js/auto";
 import { getStackMemberCounts } from "@/api/statistics.js";
