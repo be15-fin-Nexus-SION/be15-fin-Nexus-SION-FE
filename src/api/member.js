@@ -29,7 +29,6 @@ export function searchDeveloperList({
                                         page = 0,
                                         size = 10
                                     }) {
-    console.log("search 호출, "+keyword);
     return api.get("/members/search", {
         params: {
             keyword,
