@@ -8,7 +8,7 @@ export const developerRoutes = [
     },
   },
   {
-    path: "developers/:id",
+    path: "developers/:employeeId",
     name: "developer-detail",
     component: () => import("./views/DeveloperDetailView.vue"),
     meta: {
