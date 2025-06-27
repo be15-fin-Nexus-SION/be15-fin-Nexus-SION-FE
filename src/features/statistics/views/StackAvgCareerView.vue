@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, nextTick } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
@@ -19,9 +19,19 @@ const sortedChartStacks = computed(() =>
   [...selectedStacksForChart.value].sort((a, b) => a.localeCompare(b)),
 );
 
-function renderChart(labels = [], values = []) {
-  const ctx = barCanvas.value.getContext("2d");
+async function renderChart(labels = [], values = []) {
+  await nextTick(); // 캔버스 렌더 보장
+
+  const ctx = barCanvas.value?.getContext("2d");
+  if (!ctx) return;
+
   if (chartInstance) chartInstance.destroy();
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 230);
+  gradient.addColorStop(0 / 230, "#404591");
+  gradient.addColorStop(100 / 230, "#705C95");
+  gradient.addColorStop(150 / 230, "#A07298");
+  gradient.addColorStop(230 / 230, "#FFC0C0");
 
   chartInstance = new Chart(ctx, {
     type: "bar",
@@ -30,7 +40,7 @@ function renderChart(labels = [], values = []) {
       datasets: [
         {
           data: values,
-          backgroundColor: "#6574F6",
+          backgroundColor: gradient,
           borderRadius: 25,
           borderSkipped: "bottom",
           categoryPercentage: 0.8,
@@ -68,7 +78,7 @@ async function renderInitialChartData() {
     const res = await getStackAvgCareer({
       stackList: selectedStacksForChart.value,
       page: 0,
-      size: 10,
+      size: selectedStacksForChart.value.length,
       sort: sortOption.value,
       direction: "asc",
     });

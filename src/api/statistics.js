@@ -37,3 +37,7 @@ export function getPopularTechStacks(period = "1m", top = 10) {
     params: { period, top },
   });
 }
+
+export function getJobParticipationStats() {
+  return api.get("/statistics/participation");
+}
