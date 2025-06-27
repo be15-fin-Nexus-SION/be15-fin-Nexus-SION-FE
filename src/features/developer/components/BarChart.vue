@@ -36,7 +36,7 @@ const chartData = computed(() => {
   }
 
   const labels = props.data.map(item => item.techStackName)
-  const values = props.data.map(item => item.score * 10)
+  const values = props.data.map(item => item.score)
 
   return {
     labels,
