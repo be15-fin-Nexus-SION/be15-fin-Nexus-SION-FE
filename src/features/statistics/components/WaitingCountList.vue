@@ -5,51 +5,49 @@
       <div class="filter-controls">
         <div class="filter-div">
           <select
-            id="job-select"
-            v-model="selectedStack"
-            @change="addStack"
+            id="grade-select"
+            v-model="selectedGrade"
             class="filter-dropdown"
           >
-            <option disabled value="">직무 선택</option>
+            <option disabled value="">등급 선택</option>
             <option value="__ALL__">전체 선택</option>
-            <option v-for="job in filteredStackOptions" :key="job" :value="job">
-              {{ job }}
+            <option
+              v-for="gradeCode in filteredStackOptions"
+              :key="gradeCode"
+              :value="gradeCode"
+            >
+              {{ gradeCode }}
             </option>
           </select>
         </div>
 
         <select id="sort-select" v-model="sortOption" class="sort-dropdown">
           <option disabled value="">정렬 기준 선택</option>
-          <option value="name">직무 이름순</option>
-          <option value="position">등록된 인원수 순</option>
+          <option value="grade">등급순</option>
+          <option value="waitingCount">대기 상태 인원수</option>
         </select>
       </div>
     </div>
 
     <!-- 헤더 -->
     <div class="header">
-      <span class="header-badge">직무</span>
-      <span class="header-text">등록된 인원수</span>
-      <span class="header-badge2">대표 기술 스택</span>
+      <span class="header-text">등급</span>
+      <span class="header-text">대기 인원 / 전체 인원</span>
     </div>
 
     <!-- 리스트 -->
     <div class="career-list-container">
-      <div v-for="item in sortedList" :key="item.jobName" class="item">
+      <div v-for="item in sortedList" :key="item.gradeCode" class="item">
         <div class="content">
-          <div class="badgeName job">
-            <JobBadge :label="item.jobName" />
-          </div>
-          <span class="content-text count">{{ item.memberCount }}명</span>
-          <div class="badgeName2">
-            <TechBadge :label="item.topTechStack1" />
-            <TechBadge :label="item.topTechStack2" />
-          </div>
+          <span class="content-text">{{ item.gradeCode }}</span>
+          <span class="content-text">
+            {{ item.waitingCount }}명 / {{ item.totalCount }}명
+          </span>
         </div>
       </div>
 
       <div v-if="!sortedList.length" class="text-gray-400 text-sm mt-4">
-        아직 진행된 프로젝트가 없습니다.
+        등급별로 상태가 '대기중'인 인원이 없습니다.
       </div>
     </div>
   </div>
@@ -57,8 +55,6 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import TechBadge from "@/components/badge/TechBadge.vue";
-import JobBadge from "@/components/badge/JobBadge.vue";
 
 const props = defineProps({
   stats: {
@@ -67,33 +63,43 @@ const props = defineProps({
   },
 });
 
-const selectedStack = ref("__ALL__");
-const sortOption = ref("name");
+const GRADE_ORDER = ["S", "A", "B", "C", "D"];
+
+const selectedGrade = ref("__ALL__");
+const sortOption = ref("grade");
 
 const filteredList = computed(() => {
-  if (selectedStack.value === "__ALL__") return props.stats;
-  return props.stats.filter((item) => item.jobName === selectedStack.value);
+  if (selectedGrade.value === "__ALL__") return props.stats;
+  return props.stats.filter((item) => item.gradeCode === selectedGrade.value);
 });
 
 const sortedList = computed(() => {
   let list = [...filteredList.value];
 
-  if (sortOption.value === "name") {
-    return list.sort((a, b) =>
-      a.jobName.localeCompare(b.jobName, ["ko", "en"], { sensitivity: "base" }),
+  if (sortOption.value === "grade") {
+    return list.sort(
+      (a, b) =>
+        GRADE_ORDER.indexOf(a.gradeCode) - GRADE_ORDER.indexOf(b.gradeCode),
     );
   }
 
-  if (sortOption.value === "position") {
-    return list.sort((a, b) => b.memberCount - a.memberCount);
+  if (sortOption.value === "waitingCount") {
+    return list.sort((a, b) => {
+      const countDiff = b.waitingCount - a.waitingCount;
+      if (countDiff !== 0) return countDiff;
+      return (
+        GRADE_ORDER.indexOf(a.gradeCode) - GRADE_ORDER.indexOf(b.gradeCode)
+      );
+    });
   }
 
   return list;
 });
 
 const filteredStackOptions = computed(() => {
-  const allJobNames = props.stats.map((item) => item.jobName);
-  return Array.from(new Set(allJobNames)).filter(Boolean);
+  const allGrades = props.stats.map((item) => item.gradeCode);
+  const uniqueGrades = Array.from(new Set(allGrades)).filter(Boolean);
+  return GRADE_ORDER.filter((grade) => uniqueGrades.includes(grade));
 });
 </script>
 
@@ -125,15 +131,7 @@ const filteredStackOptions = computed(() => {
 }
 
 .header-text {
-  @apply w-[140px] flex items-center justify-center text-bodySm text-support-stack font-bold;
-}
-
-.header-badge {
-  @apply w-[200px] flex items-center justify-center text-bodySm text-support-stack font-bold;
-}
-
-.header-badge2 {
-  @apply w-[300px] flex items-center justify-center text-bodySm text-support-stack font-bold;
+  @apply w-[440px] flex items-center justify-center text-bodySm text-support-stack font-bold;
 }
 
 .item {
@@ -144,16 +142,8 @@ const filteredStackOptions = computed(() => {
   @apply flex items-center w-full px-4 justify-between;
 }
 
-.badgeName {
-  @apply w-[200px] flex justify-center;
-}
-
-.badgeName2 {
-  @apply w-[300px] flex justify-center gap-1;
-}
-
 .content-text {
-  @apply w-[140px] flex items-center justify-center text-bodySm h-[43px];
+  @apply w-[440px] flex items-center justify-center text-bodySm h-[43px];
 }
 
 .career-list-container {

@@ -34,4 +34,13 @@ export const statisticsRoutes = [
       requiresAuth: true,
     },
   },
+
+  {
+    path: "/statistics/grade/waiting-count",
+    name: "WaitingCountView",
+    component: () => import("./views/WaitingCountView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];
