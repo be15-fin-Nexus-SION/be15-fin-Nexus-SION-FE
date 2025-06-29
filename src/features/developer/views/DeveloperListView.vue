@@ -35,15 +35,15 @@
       <table class="min-w-full text-sm mt-4">
         <thead>
         <tr class="text-gray-500 border-b">
-          <th class="p-2 text-left w-[14%]">사번</th>
-          <th class="p-2 text-left w-[19%]">이름</th>
-          <th class="p-2 text-left w-[19%]">부서</th>
-          <th class="p-2 text-left w-[18%]">직급</th>
-          <th class="p-2 text-left w-[15%]">주요 기술</th>
-          <th class="p-2 text-left w-[15%]">등급</th>
-          <th class="p-2 text-left w-[15%]">
+          <th class="p-2 text-center w-[14%]">사번</th>
+          <th class="p-2 text-center w-[19%]">이름</th>
+          <th class="p-2 text-center w-[19%]">부서</th>
+          <th class="p-2 text-center w-[18%]">직급</th>
+          <th class="p-2 text-center w-[15%]">주요 기술</th>
+          <th class="p-2 text-center w-[15%]">등급</th>
+          <th class="p-2 text-center w-[15%]">
             <SortDropdown
-                class="w-36 text-gray-500"
+                class="w-20 text-gray-500"
                 :options="statusOptions"
                 :defaultValue="statusOptions.find(opt => opt.value === statusFilter)"
                 @change="onStatusFilterChange"
@@ -59,37 +59,58 @@
             class="border-b py-4 hover:bg-gray-50 cursor-pointer"
             @click="goToDetail(developer.employeeId)"
         >
-          <td class="p-4">{{ developer.employeeId }}</td>
-          <td class="p-4 flex items-center gap-2">
+          <!-- 사번 -->
+          <td class="p-4 text-center">{{ developer.employeeId }}</td>
+
+          <!-- 이름 + 프로필 이미지 -->
+          <td class="p-4 flex items-center justify-center gap-2 text-center">
             <img
                 :src="developer.profileImageUrl || fallbackImage"
                 class="w-8 h-8 rounded-full object-cover"
             />
             {{ developer.name }}
           </td>
-          <td class="p-4">{{ developer.department }}</td>
-          <td class="p-4">{{ developer.position }}</td>
-          <td class="p-4 text-xs font-medium">
-            <TechBadge class="p-2 text-xs font-medium" :label = developer.topTechStackName />
-          </td>
-          <td class="p-4">{{ developer.grade }}</td>
-          <td class="p-4 relative" @click.stop>
-            <div class="relative inline-block">
-              <button
-                  @click="toggleDropdown(index)"
-                  class="text-xs px-3 py-1 rounded-full font-medium focus:outline-none"
-                  :class="{
-                    'bg-yellow-100 text-yellow-700': developer.status === '대기중',
-                    'bg-green-100 text-green-700': developer.status === '투입중',
-                    'bg-gray-100 text-gray-600': developer.status === '비활성'
-                  }"
-              >
-                {{ developer.status }}
-              </button>
 
+          <!-- 부서 -->
+          <td class="p-4 text-center">{{ developer.department }}</td>
+
+          <!-- 직급 -->
+          <td class="p-4 text-center">{{ developer.position }}</td>
+
+          <!-- 주요 기술 -->
+          <td class="p-4 text-center text-xs font-medium">
+            <div class="flex justify-center">
+              <TechBadge
+                  class="p-2 text-xs font-medium"
+                  :label="developer.topTechStackName"
+              />
+            </div>
+          </td>
+
+          <!-- 등급 -->
+          <td class="p-4 text-center">{{ developer.grade }}</td>
+
+          <!-- 현재 상태 -->
+          <td class="p-4 relative text-center" @click.stop>
+            <div class="relative">
+              <div class="flex justify-center">
+                <button
+                    @click="toggleDropdown(index)"
+                    class="text-xs px-3 py-1 rounded-full font-medium focus:outline-none"
+                    :class="{
+          'bg-yellow-100 text-yellow-700': developer.status === '대기중',
+          'bg-green-100 text-green-700': developer.status === '투입중',
+          'bg-gray-100 text-gray-600': developer.status === '비활성'
+        }"
+                >
+                  {{ developer.status }}
+                </button>
+              </div>
+
+              <!-- 상태 변경 드롭다운 -->
               <ul
                   v-if="openDropdownIndex === index"
-                  class="absolute top-full z-10 mt-1 w-24 bg-white border border-gray-200 rounded-md shadow text-sm left-1/2 -translate-x-1/2"
+                  class="absolute top-full left-1/2 -translate-x-1/2 z-10 mt-1 w-24 bg-white border border-gray-200 rounded-md shadow text-sm"
               >
                 <li
                     v-for="option in statusOptions.slice(1)"
@@ -97,10 +118,10 @@
                     @click="changeStatus(index, option.name, option.value)"
                     class="m-3 px-2 py-1 text-xs rounded-full font-medium cursor-pointer text-center"
                     :class="{
-                      'bg-yellow-100 text-yellow-700': option.name === '대기중',
-                      'bg-green-100 text-green-700': option.name === '투입중',
-                      'bg-gray-100 text-gray-600': option.name === '비활성'
-                    }"
+          'bg-yellow-100 text-yellow-700': option.name === '대기중',
+          'bg-green-100 text-green-700': option.name === '투입중',
+          'bg-gray-100 text-gray-600': option.name === '비활성'
+        }"
                 >
                   {{ option.name }}
                 </li>
