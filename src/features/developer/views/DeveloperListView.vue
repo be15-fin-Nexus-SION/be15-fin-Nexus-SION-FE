@@ -61,7 +61,10 @@
         >
           <td class="p-4">{{ developer.employeeId }}</td>
           <td class="p-4 flex items-center gap-2">
-            <img :src="developer.profileImageUrl || fallbackImage" class="w-8 h-8 rounded-full" />
+            <img
+                :src="developer.profileImageUrl || fallbackImage"
+                class="w-8 h-8 rounded-full object-cover"
+            />
             {{ developer.name }}
           </td>
           <td class="p-4">{{ developer.department }}</td>
