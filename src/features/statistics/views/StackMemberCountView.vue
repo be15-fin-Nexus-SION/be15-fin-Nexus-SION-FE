@@ -143,10 +143,19 @@ function handleStackSearch(keyword) {
   const normalized = keyword.trim();
   if (!normalized) return;
 
-  if (!selectedStacksForChart.value.includes(normalized)) {
-    selectedStacksForChart.value.push(normalized);
-    selectedStacksForFilter.value.push(normalized);
-    fetchChartData();
+  const lowerKeyword = normalized.toLowerCase();
+  const alreadySelectedLower = selectedStacksForChart.value.map((s) =>
+    s.toLowerCase(),
+  );
+  if (!alreadySelectedLower.includes(lowerKeyword)) {
+    const exactMatch = allStacks.value.find(
+      (s) => s.toLowerCase() === lowerKeyword,
+    );
+    if (exactMatch) {
+      selectedStacksForChart.value.push(exactMatch);
+      selectedStacksForFilter.value.push(exactMatch);
+      fetchChartData();
+    }
   }
 }
 

@@ -33,7 +33,7 @@
       </div>
 
       <div v-if="!sortedList.length" class="text-gray-400 text-sm mt-4">
-        등급별로 상태가 '대기중'인 인원이 없습니다.
+        등급별 연봉 정보가 없습니다.
       </div>
     </div>
   </div>
@@ -52,7 +52,7 @@ const props = defineProps({
 
 const GRADE_ORDER = ["S", "A", "B", "C", "D"];
 const selectedGrade = ref("__ALL__");
-const sortOption = ref("grade");
+const sortOption = "grade";
 
 const filteredStackOptions = computed(() => {
   const allGrades = props.stats.map((item) => item.gradeCode);
