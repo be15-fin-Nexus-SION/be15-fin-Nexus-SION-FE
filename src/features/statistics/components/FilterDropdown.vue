@@ -65,7 +65,7 @@ const getLabel = (item) => {
       </ListboxButton>
 
       <ListboxOptions
-        class="absolute z-10 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg py-1 space-y-1"
+        class="absolute z-10 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg py-1 space-y-1 max-h-60 overflow-y-auto"
       >
         <ListboxOption
           :value="'__ALL__'"
