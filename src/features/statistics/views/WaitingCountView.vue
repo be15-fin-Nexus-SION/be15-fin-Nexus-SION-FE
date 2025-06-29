@@ -32,7 +32,6 @@ function renderChart() {
   gradient.addColorStop(150 / 230, "#A07298");
   gradient.addColorStop(230 / 230, "#FFC0C0");
 
-  // ✅ GRADE_ORDER 기준으로 수동 정렬
   const sortedStats = [...stats.value].sort(
     (a, b) =>
       GRADE_ORDER.indexOf(a.gradeCode) - GRADE_ORDER.indexOf(b.gradeCode),

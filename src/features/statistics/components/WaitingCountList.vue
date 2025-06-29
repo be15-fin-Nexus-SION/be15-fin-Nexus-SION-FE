@@ -4,28 +4,18 @@
     <div class="filter-bar">
       <div class="filter-controls">
         <div class="filter-div">
-          <select
-            id="grade-select"
+          <FilterDropdown
+            :options="filteredStackOptions"
             v-model="selectedGrade"
-            class="filter-dropdown"
-          >
-            <option disabled value="">등급 선택</option>
-            <option value="__ALL__">전체 선택</option>
-            <option
-              v-for="gradeCode in filteredStackOptions"
-              :key="gradeCode"
-              :value="gradeCode"
-            >
-              {{ gradeCode }}
-            </option>
-          </select>
+            placeholder="등급 선택"
+          />
         </div>
 
-        <select id="sort-select" v-model="sortOption" class="sort-dropdown">
-          <option disabled value="">정렬 기준 선택</option>
-          <option value="grade">등급순</option>
-          <option value="waitingCount">대기 상태 인원수</option>
-        </select>
+        <SortDropdown
+          :options="sortOptions"
+          :defaultValue="sortOptions.find((opt) => opt.value === sortOption)"
+          @change="onSortChange"
+        />
       </div>
     </div>
 
@@ -55,6 +45,8 @@
 
 <script setup>
 import { computed, ref } from "vue";
+import SortDropdown from "@/components/SortDropdown.vue";
+import FilterDropdown from "@/features/statistics/components/FilterDropdown.vue";
 
 const props = defineProps({
   stats: {
@@ -67,6 +59,15 @@ const GRADE_ORDER = ["S", "A", "B", "C", "D"];
 
 const selectedGrade = ref("__ALL__");
 const sortOption = ref("grade");
+
+const sortOptions = [
+  { name: "등급순", value: "grade" },
+  { name: "대기 상태 인원수", value: "waitingCount" },
+];
+
+const onSortChange = (option) => {
+  sortOption.value = option.value;
+};
 
 const filteredList = computed(() => {
   if (selectedGrade.value === "__ALL__") return props.stats;
@@ -114,16 +115,6 @@ const filteredStackOptions = computed(() => {
 
 .filter-div {
   @apply flex items-center gap-2;
-}
-
-.filter-dropdown,
-.sort-dropdown {
-  @apply appearance-none bg-[#f5f5f5] rounded-md px-[20px] py-[11px] text-bodySm text-black shadow-sm;
-  background-image: url("data:image/svg+xml,%3Csvg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1.5rem;
-  padding-right: 2.5rem;
 }
 
 .header {
