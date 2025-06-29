@@ -50,9 +50,9 @@ export function getSalaryByGrade() {
   return api.get("/statistics/salary-stats-by-grade");
 }
 
-export function getTechAdoptionTrendByYear({ year, page = 0, size = 10 }) {
+export function getTechAdoptionTrendByYear(year) {
   return api.get("/statistics/tech-adoption-trend", {
-    params: { year, page, size },
+    params: { year },
   });
 }
 

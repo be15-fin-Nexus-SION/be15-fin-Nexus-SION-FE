@@ -9,31 +9,27 @@ import TechList from "@/features/statistics/components/TechList.vue";
 const chartRef = ref(null);
 let chartInstance = null;
 
-const year = ref(null); // 초기 선택값
-const page = ref(0);
-const size = ref(100);
-const contentList = ref([]);
-
+const year = ref(null);
 const yearOptions = ref([]);
+const contentList = ref([]);
 
 onMounted(async () => {
   try {
     const res = await getProjectYears();
     const years = res.data.data;
-
     yearOptions.value = years.map((y) => ({ name: `${y}년`, value: y }));
     if (years.length > 0) {
-      year.value = years[0]; // 최신 연도부터 보여주기 위해 첫 번째 값을 기본 선택
+      year.value = years[0];
+      await fetchTrendData();
     }
   } catch (err) {
     console.error("연도 목록 로딩 실패:", err);
   }
 });
 
-watch(year, () => {
-  if (year.value !== null) {
-    page.value = 0;
-    fetchTrendData();
+watch(year, async (newVal) => {
+  if (typeof newVal === "number" && !Number.isNaN(newVal)) {
+    await fetchTrendData();
   }
 });
 
@@ -42,13 +38,10 @@ function onYearChange(option) {
 }
 
 async function fetchTrendData() {
+  if (!year.value) return;
   try {
-    const res = await getTechAdoptionTrendByYear({
-      year: year.value,
-      page: page.value,
-      size: size.value,
-    });
-    const data = res.data.data.content;
+    const res = await getTechAdoptionTrendByYear(year.value); // 변경됨
+    const data = res.data.data; // 변경됨
     contentList.value = data;
 
     const groupedByStack = {};
@@ -103,20 +96,14 @@ async function fetchTrendData() {
 
 function renderLineChart(labels, datasets) {
   if (chartInstance) chartInstance.destroy();
-
   const ctx = chartRef.value.getContext("2d");
   chartInstance = new Chart(ctx, {
     type: "line",
-    data: {
-      labels,
-      datasets,
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { position: "bottom" },
-      },
+      plugins: { legend: { position: "bottom" } },
       scales: {
         y: {
           beginAtZero: true,
