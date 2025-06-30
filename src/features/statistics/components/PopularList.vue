@@ -2,13 +2,11 @@
   <div class="flex flex-col gap-1">
     <!-- 정렬 드롭다운 -->
     <div class="sort">
-      <select id="sort-select" v-model="localSortOption" class="sort-dropdown">
-        <option disabled value="">정렬 기준 선택</option>
-        <option value="totalUsageCount">사용 횟수순</option>
-        <option value="techStackName">기술 스택 이름순</option>
-        <option value="latestProjectName">최근 사용된 프로젝트 이름순</option>
-        <option value="topJobName">주요 사용 직무 이름순</option>
-      </select>
+      <SortDropdown
+        :options="sortOptions"
+        :defaultValue="sortOptions.find((opt) => opt.value === localSortOption)"
+        @change="handleSortChange"
+      />
     </div>
 
     <!-- 헤더 -->
@@ -45,6 +43,7 @@
 import { defineProps, ref, computed } from "vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import JobBadge from "@/components/badge/JobBadge.vue";
+import SortDropdown from "@/components/SortDropdown.vue";
 
 const props = defineProps({
   list: {
@@ -55,14 +54,25 @@ const props = defineProps({
 
 const localSortOption = ref("totalUsageCount");
 
+const sortOptions = [
+  { name: "사용 횟수순", value: "totalUsageCount" },
+  { name: "기술 스택 이름순", value: "techStackName" },
+  { name: "최근 사용된 프로젝트 이름순", value: "latestProjectName" },
+  { name: "주요 사용 직무 이름순", value: "topJobName" },
+];
+
+const handleSortChange = (option) => {
+  localSortOption.value = option.value;
+};
+
 const sortedList = computed(() => {
   const key = localSortOption.value;
   return [...props.list].sort((a, b) => {
     if (typeof a[key] === "number") {
-      return b[key] - a[key]; // 내림차순
+      return b[key] - a[key];
     }
     if (typeof a[key] === "string") {
-      return a[key].localeCompare(b[key]); // 오름차순
+      return a[key].localeCompare(b[key]);
     }
     return 0;
   });
@@ -72,15 +82,6 @@ const sortedList = computed(() => {
 <style scoped>
 .sort {
   @apply mt-10 mb-3 flex justify-end;
-}
-
-.sort-dropdown {
-  @apply appearance-none bg-[#f5f5f5] rounded-md px-[20px] py-[11px] text-bodySm text-black shadow-sm;
-  background-image: url("data:image/svg+xml,%3Csvg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1.5rem;
-  padding-right: 2.5rem;
 }
 
 .header {

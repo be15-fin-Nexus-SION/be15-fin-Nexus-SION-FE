@@ -4,32 +4,26 @@
     <div class="filter-bar">
       <div class="filter-controls">
         <div class="filter-div">
-          <select
-            id="job-select"
+          <FilterDropdown
+            :options="filteredStackOptions"
             v-model="selectedStack"
-            @change="addStack"
-            class="filter-dropdown"
-          >
-            <option disabled value="">직무 선택</option>
-            <option value="__ALL__">전체 선택</option>
-            <option v-for="job in filteredStackOptions" :key="job" :value="job">
-              {{ job }}
-            </option>
-          </select>
+            placeholder="직무 선택"
+            @change="onFilterChange"
+          />
         </div>
 
-        <select id="sort-select" v-model="sortOption" class="sort-dropdown">
-          <option disabled value="">정렬 기준 선택</option>
-          <option value="name">직무 이름순</option>
-          <option value="position">등록된 인원 수 순</option>
-        </select>
+        <SortDropdown
+          :options="sortOptions"
+          :defaultValue="sortOptions.find((opt) => opt.value === sortOption)"
+          @change="onSortChange"
+        />
       </div>
     </div>
 
     <!-- 헤더 -->
     <div class="header">
       <span class="header-badge">직무</span>
-      <span class="header-text">등록된 인원 수</span>
+      <span class="header-text">등록된 인원수</span>
       <span class="header-badge2">대표 기술 스택</span>
     </div>
 
@@ -59,6 +53,8 @@
 import { computed, ref } from "vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import JobBadge from "@/components/badge/JobBadge.vue";
+import SortDropdown from "@/components/SortDropdown.vue";
+import FilterDropdown from "@/features/statistics/components/FilterDropdown.vue";
 
 const props = defineProps({
   stats: {
@@ -69,6 +65,19 @@ const props = defineProps({
 
 const selectedStack = ref("__ALL__");
 const sortOption = ref("name");
+
+const sortOptions = [
+  { name: "직무 이름순", value: "name" },
+  { name: "등록된 인원수 순", value: "position" },
+];
+
+const onSortChange = (option) => {
+  sortOption.value = option.value;
+};
+
+const onFilterChange = () => {
+  // 필요시 별도 로직 연결 가능 (현재는 없음)
+};
 
 const filteredList = computed(() => {
   if (selectedStack.value === "__ALL__") return props.stats;
@@ -108,16 +117,6 @@ const filteredStackOptions = computed(() => {
 
 .filter-div {
   @apply flex items-center gap-2;
-}
-
-.filter-dropdown,
-.sort-dropdown {
-  @apply appearance-none bg-[#f5f5f5] rounded-md px-[20px] py-[11px] text-bodySm text-black shadow-sm;
-  background-image: url("data:image/svg+xml,%3Csvg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1.5rem;
-  padding-right: 2.5rem;
 }
 
 .header {

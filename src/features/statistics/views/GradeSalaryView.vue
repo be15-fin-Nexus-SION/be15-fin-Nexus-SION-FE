@@ -2,19 +2,33 @@
 import { ref, onMounted, watch } from "vue";
 import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import { getJobParticipationStats } from "@/api/statistics";
-import JobList from "@/features/statistics/components/JobList.vue";
+import { getSalaryByGrade } from "@/api/statistics";
+import SalaryList from "@/features/statistics/components/SalaryList.vue";
+import SortDropdown from "@/components/SortDropdown.vue";
 
 const chartRef = ref(null);
 const stats = ref([]);
+const salaryType = ref("avg");
 let chartInstance = null;
+
+const GRADE_ORDER = ["S", "A", "B", "C", "D"];
+
+const salaryOptions = [
+  { name: "평균 연봉", value: "avg" },
+  { name: "최소 연봉", value: "min" },
+  { name: "최대 연봉", value: "max" },
+];
+
+function onSalaryChange(option) {
+  salaryType.value = option.value;
+}
 
 async function fetchStats() {
   try {
-    const response = await getJobParticipationStats();
+    const response = await getSalaryByGrade();
     stats.value = response.data.data;
   } catch (error) {
-    console.error("직무 참여 통계 조회 실패:", error);
+    console.error("등급별 연봉 조회 실패:", error);
   }
 }
 
@@ -22,19 +36,23 @@ function renderChart() {
   if (!chartRef.value || stats.value.length === 0) return;
 
   const ctx = chartRef.value.getContext("2d");
-
   const gradient = ctx.createLinearGradient(0, 0, 0, 230);
   gradient.addColorStop(0 / 230, "#404591");
   gradient.addColorStop(100 / 230, "#705C95");
   gradient.addColorStop(150 / 230, "#A07298");
   gradient.addColorStop(230 / 230, "#FFC0C0");
 
-  const sortedStats = [...stats.value].sort((a, b) =>
-    a.jobName.localeCompare(b.jobName, ["ko", "en"], { sensitivity: "base" }),
+  const sortedStats = [...stats.value].sort(
+    (a, b) =>
+      GRADE_ORDER.indexOf(a.gradeCode) - GRADE_ORDER.indexOf(b.gradeCode),
   );
 
-  const labels = sortedStats.map((item) => item.jobName);
-  const data = sortedStats.map((item) => item.memberCount);
+  const labels = sortedStats.map((item) => item.gradeCode);
+  const data = sortedStats.map((item) => {
+    if (salaryType.value === "min") return item.minSalary;
+    if (salaryType.value === "max") return item.maxSalary;
+    return item.avgSalary;
+  });
 
   if (chartInstance) chartInstance.destroy();
 
@@ -61,20 +79,15 @@ function renderChart() {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 5 },
+          ticks: { stepSize: 1, precision: 0 },
         },
       },
     },
   });
 }
 
-onMounted(() => {
-  fetchStats();
-});
-
-watch(stats, () => {
-  renderChart();
-});
+onMounted(fetchStats);
+watch([stats, salaryType], renderChart);
 </script>
 
 <template>
@@ -82,17 +95,24 @@ watch(stats, () => {
     <SidebarWrapper viewType="statistics" />
 
     <div class="content-wrapper">
-      <h1 class="page-title">직무별 등록된 인원수</h1>
+      <h1 class="page-title">등급별 연봉 분포</h1>
       <p class="page-description">
-        프로젝트 기준으로 참여 직무(예: 프론트엔드, 백엔드 등)별 인원수를
-        확인합니다.
+        등급별로 최소, 최대, 평균 연봉을 확인 할 수 있습니다.
       </p>
+
+      <div class="filter-solid">
+        <SortDropdown
+          :options="salaryOptions"
+          :defaultValue="salaryOptions.find((opt) => opt.value === salaryType)"
+          @change="onSalaryChange"
+        />
+      </div>
 
       <div class="chart-card">
         <canvas ref="chartRef" class="chart-canvas" />
       </div>
 
-      <JobList :stats="stats" />
+      <SalaryList :stats="stats" :salaryType="salaryType" />
     </div>
   </div>
 </template>

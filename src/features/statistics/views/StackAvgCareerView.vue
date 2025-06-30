@@ -1,10 +1,10 @@
 <script setup>
 import { ref, onMounted, watch, computed, nextTick } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import TechStackSearchBar from "@/components/searchBar/TechStackSearchBar.vue";
+import SearchBar from "@/components/searchBar/TechStackSearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { Chart } from "chart.js/auto";
-import { getStackAvgCareer } from "@/api/statistics.js";
+import { getStackAvgCareer, getAllTechStacks } from "@/api/statistics.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import AvgList from "@/features/statistics/components/AvgList.vue";
 
@@ -14,13 +14,14 @@ let chartInstance = null;
 const selectedStacksForChart = ref([]);
 const selectedStacksForFilter = ref([]);
 const sortOption = ref("techStackName");
+const allStacks = ref([]);
 
 const sortedChartStacks = computed(() =>
   [...selectedStacksForChart.value].sort((a, b) => a.localeCompare(b)),
 );
 
 async function renderChart(labels = [], values = []) {
-  await nextTick(); // 캔버스 렌더 보장
+  await nextTick();
 
   const ctx = barCanvas.value?.getContext("2d");
   if (!ctx) return;
@@ -92,10 +93,15 @@ async function renderInitialChartData() {
 }
 
 function handleStackSelect(stack) {
-  if (!selectedStacksForChart.value.includes(stack)) {
-    selectedStacksForChart.value.push(stack);
-    selectedStacksForFilter.value.push(stack);
-    renderInitialChartData();
+  const lower = stack.toLowerCase();
+  const already = selectedStacksForChart.value.map((s) => s.toLowerCase());
+  if (!already.includes(lower)) {
+    const exactMatch = allStacks.value.find((s) => s.toLowerCase() === lower);
+    if (exactMatch) {
+      selectedStacksForChart.value.push(exactMatch);
+      selectedStacksForFilter.value.push(exactMatch);
+      renderInitialChartData();
+    }
   }
 }
 
@@ -119,7 +125,13 @@ watch(sortOption, () => {
   renderInitialChartData();
 });
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const res = await getAllTechStacks();
+    allStacks.value = res.data.data || [];
+  } catch (e) {
+    console.error("기술 스택 목록 조회 실패:", e);
+  }
   renderChart();
   window.addEventListener("resize", () => {
     selectedStacksForChart.value.length > 0
@@ -142,10 +154,11 @@ onMounted(() => {
 
       <div class="search-section">
         <div class="search-bar">
-          <TechStackSearchBar
-            placeholder="기술스택 검색"
+          <SearchBar
+            placeholder="기술 스택 검색"
+            :options="allStacks"
             :selectedStacks="selectedStacksForChart"
-            @select="handleStackSelect"
+            @search="handleStackSelect"
           />
         </div>
 

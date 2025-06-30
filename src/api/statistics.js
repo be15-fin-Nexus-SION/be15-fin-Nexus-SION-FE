@@ -41,3 +41,21 @@ export function getPopularTechStacks(period = "1m", top = 10) {
 export function getJobParticipationStats() {
   return api.get("/statistics/participation");
 }
+
+export function getWaitingCountByGrade() {
+  return api.get("/statistics/waiting-count-by-grade");
+}
+
+export function getSalaryByGrade() {
+  return api.get("/statistics/salary-stats-by-grade");
+}
+
+export function getTechAdoptionTrendByYear(year) {
+  return api.get("/statistics/tech-adoption-trend", {
+    params: { year },
+  });
+}
+
+export function getProjectYears() {
+  return api.get("/statistics/project/years");
+}

@@ -34,4 +34,31 @@ export const statisticsRoutes = [
       requiresAuth: true,
     },
   },
+
+  {
+    path: "/statistics/grade/waiting-count",
+    name: "WaitingCountView",
+    component: () => import("./views/WaitingCountView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+
+  {
+    path: "/statistics/grade/salary",
+    name: "GradeSalaryView",
+    component: () => import("./views/GradeSalaryView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+
+  {
+    path: "/statistics/tech/trend",
+    name: "TechTrendView",
+    component: () => import("./views/TechTrendView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];

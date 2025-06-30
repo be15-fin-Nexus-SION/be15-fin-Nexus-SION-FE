@@ -2,19 +2,22 @@
 import { ref, onMounted, watch } from "vue";
 import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import { getJobParticipationStats } from "@/api/statistics";
-import JobList from "@/features/statistics/components/JobList.vue";
+import { getWaitingCountByGrade } from "@/api/statistics";
+import WaitingCountList from "@/features/statistics/components/WaitingCountList.vue";
 
 const chartRef = ref(null);
 const stats = ref([]);
 let chartInstance = null;
 
+// 등급 정렬 우선순위 (S > A > B > C > D)
+const GRADE_ORDER = ["S", "A", "B", "C", "D"];
+
 async function fetchStats() {
   try {
-    const response = await getJobParticipationStats();
+    const response = await getWaitingCountByGrade();
     stats.value = response.data.data;
   } catch (error) {
-    console.error("직무 참여 통계 조회 실패:", error);
+    console.error("등급별 대기 인원 통계 조회 실패:", error);
   }
 }
 
@@ -29,12 +32,13 @@ function renderChart() {
   gradient.addColorStop(150 / 230, "#A07298");
   gradient.addColorStop(230 / 230, "#FFC0C0");
 
-  const sortedStats = [...stats.value].sort((a, b) =>
-    a.jobName.localeCompare(b.jobName, ["ko", "en"], { sensitivity: "base" }),
+  const sortedStats = [...stats.value].sort(
+    (a, b) =>
+      GRADE_ORDER.indexOf(a.gradeCode) - GRADE_ORDER.indexOf(b.gradeCode),
   );
 
-  const labels = sortedStats.map((item) => item.jobName);
-  const data = sortedStats.map((item) => item.memberCount);
+  const labels = sortedStats.map((item) => item.gradeCode);
+  const data = sortedStats.map((item) => item.waitingCount);
 
   if (chartInstance) chartInstance.destroy();
 
@@ -61,20 +65,15 @@ function renderChart() {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 5 },
+          ticks: { stepSize: 1, precision: 0 },
         },
       },
     },
   });
 }
 
-onMounted(() => {
-  fetchStats();
-});
-
-watch(stats, () => {
-  renderChart();
-});
+onMounted(fetchStats);
+watch(stats, renderChart);
 </script>
 
 <template>
@@ -82,17 +81,16 @@ watch(stats, () => {
     <SidebarWrapper viewType="statistics" />
 
     <div class="content-wrapper">
-      <h1 class="page-title">직무별 등록된 인원수</h1>
+      <h1 class="page-title">등급별 대기 상태 인원수</h1>
       <p class="page-description">
-        프로젝트 기준으로 참여 직무(예: 프론트엔드, 백엔드 등)별 인원수를
-        확인합니다.
+        등급별로 현재 '대기중' 상태인 인원수를 조회할 수 있습니다.
       </p>
 
       <div class="chart-card">
         <canvas ref="chartRef" class="chart-canvas" />
       </div>
 
-      <JobList :stats="stats" />
+      <WaitingCountList :stats="stats" />
     </div>
   </div>
 </template>

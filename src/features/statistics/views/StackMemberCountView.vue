@@ -3,17 +3,17 @@
     <SidebarWrapper viewType="statistics" />
 
     <div class="content-wrapper">
-      <h1 class="page-title">기술 스택별 구성원 수</h1>
+      <h1 class="page-title">기술 스택별 구성원</h1>
       <p class="page-description">
         기술 스택을 선택하여 해당 스택을 보유한 개발자 수를 확인할 수 있습니다.
       </p>
 
       <div class="search-section">
         <div class="search-bar">
-          <TechStackSearchBar
-            placeholder="기술스택 검색"
-            :selectedStacks="selectedStacksForChart"
-            @select="handleStackSelect"
+          <SearchBar
+            placeholder="기술 스택 검색"
+            :options="allStacks"
+            @search="handleStackSearch"
           />
         </div>
         <PrimaryButton
@@ -53,10 +53,10 @@
 <script setup>
 import { ref, onMounted, computed, nextTick } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import TechStackSearchBar from "@/components/searchBar/TechStackSearchBar.vue";
+import SearchBar from "@/components/searchBar/TechStackSearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { Chart } from "chart.js/auto";
-import { getStackMemberCounts } from "@/api/statistics.js";
+import { getStackMemberCounts, getAllTechStacks } from "@/api/statistics.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import DevList from "@/features/statistics/components/DevList.vue";
 
@@ -65,6 +65,7 @@ let chartInstance = null;
 
 const selectedStacksForChart = ref([]);
 const selectedStacksForFilter = ref([]);
+const allStacks = ref([]);
 
 const sortedChartStacks = computed(() =>
   [...selectedStacksForChart.value].sort((a, b) => a.localeCompare(b)),
@@ -76,18 +77,13 @@ function resetFilterStacks() {
 
 async function renderChart(labels = [], values = []) {
   await nextTick();
-
   const ctx = chartRef.value?.getContext("2d");
-  if (!ctx) {
-    console.warn("Canvas context를 얻을 수 없습니다.");
-    return;
-  }
+  if (!ctx) return;
 
   const gradient = ctx.createLinearGradient(0, 0, 0, 230);
-  gradient.addColorStop(0 / 230, "#404591");
-  gradient.addColorStop(100 / 230, "#705C95");
-  gradient.addColorStop(150 / 230, "#A07298");
-  gradient.addColorStop(230 / 230, "#FFC0C0");
+  gradient.addColorStop(0, "#404591");
+  gradient.addColorStop(0.5, "#A07298");
+  gradient.addColorStop(1, "#FFC0C0");
 
   if (chartInstance) chartInstance.destroy();
 
@@ -143,11 +139,23 @@ async function fetchChartData() {
   }
 }
 
-function handleStackSelect(stack) {
-  if (!selectedStacksForChart.value.includes(stack)) {
-    selectedStacksForChart.value.push(stack);
-    selectedStacksForFilter.value.push(stack);
-    fetchChartData();
+function handleStackSearch(keyword) {
+  const normalized = keyword.trim();
+  if (!normalized) return;
+
+  const lowerKeyword = normalized.toLowerCase();
+  const alreadySelectedLower = selectedStacksForChart.value.map((s) =>
+    s.toLowerCase(),
+  );
+  if (!alreadySelectedLower.includes(lowerKeyword)) {
+    const exactMatch = allStacks.value.find(
+      (s) => s.toLowerCase() === lowerKeyword,
+    );
+    if (exactMatch) {
+      selectedStacksForChart.value.push(exactMatch);
+      selectedStacksForFilter.value.push(exactMatch);
+      fetchChartData();
+    }
   }
 }
 
@@ -179,8 +187,16 @@ function resetFilters() {
   renderChart([], []);
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const res = await getAllTechStacks();
+    allStacks.value = res.data.data;
+  } catch (e) {
+    console.error("기술 스택 목록 조회 실패:", e);
+  }
+
   renderChart();
+
   window.addEventListener("resize", () => {
     selectedStacksForChart.value.length > 0
       ? fetchChartData()

@@ -15,4 +15,12 @@ export const adminRoutes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "admin/jobs",
+    name: "AdminJobsView",
+    component: () => import("./views/AdminJobsView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];

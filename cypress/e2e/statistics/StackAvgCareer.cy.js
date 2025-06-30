@@ -1,6 +1,6 @@
 describe("기술 스택별 평균 경력 통계 페이지", () => {
   beforeEach(() => {
-    cy.visit("/statistics/stack/avg-career"); // 실제 라우터 경로에 맞게 수정
+    cy.visit("/statistics/stack/avg-career");
   });
 
   it("페이지 타이틀과 설명이 보인다", () => {
