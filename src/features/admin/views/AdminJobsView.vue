@@ -82,7 +82,7 @@ onMounted(fetchJobs);
   <div class="page-layout">
     <SidebarWrapper viewType="adminSetting" />
     <div class="content-wrapper">
-      <h1 class="page-title">직무 설정</h1>
+      <h1 class="page-title">직무 관리</h1>
       <div class="body">
         <div class="body-main">
           <div class="input-add">
