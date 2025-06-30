@@ -86,7 +86,11 @@ onMounted(fetchJobs);
       <div class="body">
         <div class="body-main">
           <div class="input-add">
-            <InputBox v-model="jobName" placeholder="예: Backend" />
+            <InputBox
+              v-model="jobName"
+              placeholder="예: Backend"
+              @enter="handleAdd"
+            />
             <PrimaryButton
               label="추가"
               text-color-class="text-white"
@@ -145,6 +149,6 @@ onMounted(fetchJobs);
 }
 
 .input-add {
-  @apply flex gap-4 px-[15px];
+  @apply flex gap-4 pr-[15px];
 }
 </style>

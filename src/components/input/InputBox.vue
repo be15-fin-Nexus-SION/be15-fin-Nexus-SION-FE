@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "enter"]);
 </script>
 
 <template>
@@ -21,6 +21,7 @@ const emit = defineEmits(["update:modelValue"]);
       :placeholder="placeholder"
       :value="modelValue"
       @input="emit('update:modelValue', $event.target.value)"
+      @keydown.enter="emit('enter')"
     />
   </div>
 </template>

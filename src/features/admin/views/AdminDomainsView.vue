@@ -34,7 +34,7 @@ async function handleAdd() {
     await addDomain(domainName.value.trim());
     await fetchDomains();
     domainName.value = "";
-    showErrorToast("도메인이 등록되었습니다.");
+    showSuccessToast("도메인이 등록되었습니다.");
   } catch (e) {
     const errorMessage =
       e.response?.data?.message || "도메인 등록에 실패했습니다.";
@@ -86,7 +86,11 @@ onMounted(fetchDomains);
       <div class="body">
         <div class="body-main">
           <div class="input-add">
-            <InputBox v-model="domainName" placeholder="예: 영업" />
+            <InputBox
+              v-model="domainName"
+              placeholder="예: 영업"
+              @enter="handleAdd"
+            />
             <PrimaryButton
               label="추가"
               text-color-class="text-white"
@@ -145,6 +149,6 @@ onMounted(fetchDomains);
 }
 
 .input-add {
-  @apply flex gap-4 px-[15px];
+  @apply flex gap-4 pr-[15px];
 }
 </style>

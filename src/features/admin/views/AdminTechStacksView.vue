@@ -91,7 +91,11 @@ onMounted(fetchTechStacks);
       <div class="body">
         <div class="body-main">
           <div class="input-add">
-            <InputBox v-model="techStackName" placeholder="예: Java" />
+            <InputBox
+              v-model="techStackName"
+              placeholder="예: Java"
+              @enter="handleAdd"
+            />
             <PrimaryButton
               label="추가"
               text-color-class="text-white"
@@ -150,6 +154,6 @@ onMounted(fetchTechStacks);
 }
 
 .input-add {
-  @apply flex gap-4 px-[15px];
+  @apply flex gap-4 pr-[15px];
 }
 </style>
