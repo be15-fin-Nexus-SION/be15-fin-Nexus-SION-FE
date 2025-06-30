@@ -1,22 +1,14 @@
 export const adminRoutes = [
   {
-    path: "admin/settings",
-    name: "admin-settings",
-    component: () => import("./views/AdminSettingsView.vue"),
+    path: "/admin/domains",
+    name: "AdminDomainsView",
+    component: () => import("./views/AdminDomainsView.vue"),
     meta: {
       requiresAuth: true,
     },
   },
   {
-    path: "admin/users",
-    name: "admin-user-list",
-    component: () => import("./views/AdminUserListView.vue"),
-    meta: {
-      requiresAuth: true,
-    },
-  },
-  {
-    path: "admin/jobs",
+    path: "/admin/jobs",
     name: "AdminJobsView",
     component: () => import("./views/AdminJobsView.vue"),
     meta: {

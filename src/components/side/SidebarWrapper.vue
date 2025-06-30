@@ -21,7 +21,7 @@ const rawItems = computed(() => {
   return props.viewType === "adminSetting"
     ? [
         { label: "기술 스택 설정", to: "/admin/users" },
-        { label: "도메인 설정", to: "/admin/projects" },
+        { label: "도메인 설정", to: "/admin/domains" },
         { label: "고객사 설정", to: "/admin/tech-stack" },
         { label: "직무 설정", to: "/admin/jobs" },
         { label: "구간별 단가 설정", to: "/admin/logs" },
