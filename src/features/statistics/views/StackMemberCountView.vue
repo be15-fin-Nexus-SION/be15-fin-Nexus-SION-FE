@@ -3,7 +3,7 @@
     <SidebarWrapper viewType="statistics" />
 
     <div class="content-wrapper">
-      <h1 class="page-title">기술 스택별 구성원 수</h1>
+      <h1 class="page-title">기술 스택별 구성원</h1>
       <p class="page-description">
         기술 스택을 선택하여 해당 스택을 보유한 개발자 수를 확인할 수 있습니다.
       </p>
