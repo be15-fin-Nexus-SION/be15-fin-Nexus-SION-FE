@@ -49,3 +49,13 @@ export function getWaitingCountByGrade() {
 export function getSalaryByGrade() {
   return api.get("/statistics/salary-stats-by-grade");
 }
+
+export function getTechAdoptionTrendByYear(year) {
+  return api.get("/statistics/tech-adoption-trend", {
+    params: { year },
+  });
+}
+
+export function getProjectYears() {
+  return api.get("/statistics/project/years");
+}

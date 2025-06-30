@@ -52,4 +52,13 @@ export const statisticsRoutes = [
       requiresAuth: true,
     },
   },
+
+  {
+    path: "/statistics/tech/trend",
+    name: "TechTrendView",
+    component: () => import("./views/TechTrendView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];

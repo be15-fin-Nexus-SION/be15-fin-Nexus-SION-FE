@@ -87,6 +87,7 @@ const sortOptions = [
 
 function handleSortChange(option) {
   localSortOption.value = option.value;
+  sortDirection.value = option.value === "techStackName" ? "asc" : "desc";
   onSortChange();
 }
 
