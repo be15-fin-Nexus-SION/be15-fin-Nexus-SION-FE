@@ -11,9 +11,6 @@ const props = defineProps({
 
 const emit = defineEmits(["editJob", "deleteJob"]);
 
-function handleEdit(jobName) {
-  emit("editJob", jobName);
-}
 function handleDelete(jobName) {
   emit("deleteJob", jobName);
 }
