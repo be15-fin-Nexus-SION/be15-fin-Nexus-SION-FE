@@ -5,9 +5,9 @@ import { getInitialConsonant, isChoseong } from "@/utills/hangul.js";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import InputBox from "@/components/input/InputBox.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
-import AdmJobsList from "@/features/admin/components/AdminJobsList.vue";
+import AdminJobsList from "@/features/admin/components/AdminJobsList.vue";
 import NameIndexBar from "@/components/searchBar/NameIndexBar.vue";
-import { getAllJobs, addJobApi, deleteJobApi } from "@/api/admin.js";
+import { getAllJobs, addJob, deleteJob } from "@/api/admin.js";
 
 const jobName = ref("");
 const jobList = ref([]);
@@ -19,18 +19,19 @@ async function fetchJobs() {
     const res = await getAllJobs();
     jobList.value = res.data.data.jobs;
   } catch (e) {
-    console.error("직무 목록 가져오기 실패", e);
+    const errorMessage = e.response?.data?.message || "직무 목록 조회 실패";
+    showSuccessToast(errorMessage);
   }
 }
 
 // ---- 직무 추가 ----
-async function addJob() {
+async function handleAdd() {
   if (!jobName.value.trim()) {
     showErrorToast("직무명을 입력해주세요.");
     return;
   }
   try {
-    await addJobApi(jobName.value.trim());
+    await addJob(jobName.value.trim());
     await fetchJobs();
     jobName.value = "";
     showSuccessToast("직무가 등록되었습니다.");
@@ -44,7 +45,7 @@ async function addJob() {
 // ---- 직무 삭제 ----
 async function handleDelete(job) {
   try {
-    await deleteJobApi(job);
+    await deleteJob(job);
     await fetchJobs();
     showSuccessToast("직무가 삭제되었습니다.");
   } catch (e) {
@@ -52,11 +53,6 @@ async function handleDelete(job) {
       e.response?.data?.message || "직무 삭제에 실패했습니다.";
     showErrorToast(errorMessage);
   }
-}
-
-// ---- 편집 이벤트 (미구현) ----
-function handleEdit(job) {
-  console.log("수정할 직무:", job);
 }
 
 // ---- 스크롤 이동 ----
@@ -94,13 +90,12 @@ onMounted(fetchJobs);
             <PrimaryButton
               label="추가"
               text-color-class="text-white"
-              :onClick="addJob"
+              :onClick="handleAdd"
             />
           </div>
-          <AdmJobsList
+          <AdminJobsList
             ref="jobListRef"
             :jobList="jobList"
-            @editJob="handleEdit"
             @deleteJob="handleDelete"
           />
         </div>
