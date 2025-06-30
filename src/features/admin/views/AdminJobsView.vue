@@ -6,13 +6,14 @@ import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import InputBox from "@/components/input/InputBox.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import AdmJobsList from "@/features/admin/components/AdminJobsList.vue";
-import { getAllJobs, addJobApi } from "@/api/admin.js";
 import NameIndexBar from "@/components/searchBar/NameIndexBar.vue";
+import { getAllJobs, addJobApi, deleteJobApi } from "@/api/admin.js";
 
 const jobName = ref("");
 const jobList = ref([]);
 const jobListRef = ref(null);
 
+// ---- 데이터 불러오기 ----
 async function fetchJobs() {
   try {
     const res = await getAllJobs();
@@ -22,6 +23,7 @@ async function fetchJobs() {
   }
 }
 
+// ---- 직무 추가 ----
 async function addJob() {
   if (!jobName.value.trim()) {
     showErrorToast("직무명을 입력해주세요.");
@@ -39,16 +41,30 @@ async function addJob() {
   }
 }
 
+// ---- 직무 삭제 ----
+async function handleDelete(job) {
+  try {
+    await deleteJobApi(job);
+    await fetchJobs();
+    showSuccessToast("직무가 삭제되었습니다.");
+  } catch (e) {
+    const errorMessage =
+      e.response?.data?.message || "직무 삭제에 실패했습니다.";
+    showErrorToast(errorMessage);
+  }
+}
+
+// ---- 편집 이벤트 (미구현) ----
 function handleEdit(job) {
   console.log("수정할 직무:", job);
 }
-function handleDelete(job) {
-  console.log("삭제할 직무:", job);
-}
+
+// ---- 스크롤 이동 ----
 function onInitialSelect(letter) {
   jobListRef.value?.scrollToLetter(letter);
 }
 
+// ---- 초성 필터 ----
 const availableKoreanInitials = computed(() => {
   const initials = jobList.value
     .map((job) => getInitialConsonant(job.trim()[0]))
@@ -109,24 +125,30 @@ onMounted(fetchJobs);
 .page-layout {
   @apply relative flex;
 }
+
 .content-wrapper {
   @apply flex-1 px-[180px] py-12 max-w-[970px];
 }
+
 .page-title {
   @apply text-headlineSm text-black font-semibold mb-[50px];
 }
+
 .body {
   @apply flex flex-row gap-[10px];
 }
+
 .body-main {
   @apply flex flex-col gap-[20px];
 }
+
 .body-side {
   @apply flex flex-col gap-[10px];
   position: sticky;
   top: 120px;
   height: fit-content;
 }
+
 .input-add {
   @apply flex gap-4 px-[15px];
 }

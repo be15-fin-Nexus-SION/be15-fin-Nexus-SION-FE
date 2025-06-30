@@ -9,3 +9,7 @@ export function addJobApi(name) {
     name,
   });
 }
+
+export function deleteJobApi(name) {
+  return api.delete(`/jobs/${encodeURIComponent(name)}`);
+}
