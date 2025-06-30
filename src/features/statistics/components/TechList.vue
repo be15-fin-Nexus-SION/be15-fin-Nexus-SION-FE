@@ -115,12 +115,24 @@ const sortedList = computed(() => {
           <div class="badgeName">
             <TechBadge :label="item.techStackName" />
           </div>
-          <span class="content-text">{{ item.q1 }}%</span>
-          <span class="content-text">{{ item.q2 }}%</span>
-          <span class="content-text">{{ item.q3 }}%</span>
-          <span class="content-text">{{ item.q4 }}%</span>
+          <span class="content-text">
+            {{ Number.isInteger(item.q1) ? item.q1 : item.q1.toFixed(2) }}%
+          </span>
+          <span class="content-text">
+            {{ Number.isInteger(item.q2) ? item.q2 : item.q2.toFixed(2) }}%
+          </span>
+          <span class="content-text">
+            {{ Number.isInteger(item.q3) ? item.q3 : item.q3.toFixed(2) }}%
+          </span>
+          <span class="content-text">
+            {{ Number.isInteger(item.q4) ? item.q4 : item.q4.toFixed(2) }}%
+          </span>
           <span class="content-text font-semibold">
-            {{ item.totalPercentage.toFixed(1) }}%
+            {{
+              Number.isInteger(item.totalPercentage)
+                ? item.totalPercentage
+                : item.totalPercentage.toFixed(2)
+            }}%
           </span>
         </div>
       </div>
