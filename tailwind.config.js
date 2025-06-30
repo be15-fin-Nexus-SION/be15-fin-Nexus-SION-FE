@@ -26,6 +26,12 @@ export default {
           },
         },
         natural: {
+          blue: {
+            light: {
+              DEFAULT: "#E8EBF5",
+              hover: "#BFC9F3",
+            },
+          },
           light: {
             DEFAULT: "#EBEAFF",
             hover: "#BEC0D7",
