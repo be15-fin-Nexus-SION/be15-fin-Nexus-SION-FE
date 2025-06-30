@@ -102,13 +102,6 @@ defineExpose({
       <div class="job-name">{{ job }}</div>
       <div class="button-group">
         <PrimaryButton
-          label="수정"
-          bg-color-class="bg-natural-blue-light"
-          hover-color-class="hover:bg-natural-blue-light-hover"
-          text-color-class="text-black"
-          :onClick="() => handleEdit(job)"
-        />
-        <PrimaryButton
           label="삭제"
           bg-color-class="bg-natural-blue-light"
           hover-color-class="hover:bg-natural-blue-light-hover"
