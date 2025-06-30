@@ -45,3 +45,7 @@ export function getJobParticipationStats() {
 export function getWaitingCountByGrade() {
   return api.get("/statistics/waiting-count-by-grade");
 }
+
+export function getSalaryByGrade() {
+  return api.get("/statistics/salary-stats-by-grade");
+}

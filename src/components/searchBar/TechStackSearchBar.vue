@@ -1,89 +1,3 @@
-<script setup>
-import { ref, onMounted } from "vue";
-import { getAllTechStacks } from "@/api/statistics.js"; // API 경로 주의
-
-const props = defineProps({
-  placeholder: {
-    type: String,
-    default: "검색어를 입력하세요",
-  },
-  selectedStacks: {
-    type: Array,
-    default: () => [],
-  },
-});
-
-const emit = defineEmits(["select"]);
-
-const searchInput = ref("");
-const filteredStacks = ref([]);
-const allStacks = ref([]);
-
-onMounted(async () => {
-  try {
-    const res = await getAllTechStacks();
-    if (Array.isArray(res.data.data)) {
-      allStacks.value = res.data.data;
-    } else {
-      console.warn("스택 목록이 배열이 아님:", res.data);
-      allStacks.value = [];
-    }
-  } catch (e) {
-    console.error("목록 조회 실패:", e);
-    allStacks.value = [];
-  }
-});
-
-function handleInput() {
-  if (allStacks.value.length === 0) {
-    filteredStacks.value = [];
-    return;
-  }
-
-  const input = searchInput.value;
-  const parts = input.split(",").map((s) => s.trim());
-  const last = parts[parts.length - 1].toLowerCase();
-
-  if (!last) {
-    filteredStacks.value = [];
-    return;
-  }
-
-  filteredStacks.value = allStacks.value.filter(
-    (stack) =>
-      stack.toLowerCase().startsWith(last) &&
-      !props.selectedStacks.includes(stack) &&
-      !parts.slice(0, -1).some((p) => p.toLowerCase() === stack.toLowerCase()),
-  );
-}
-
-function handleSubmit() {
-  const raw = searchInput.value.trim();
-  if (!raw) return;
-
-  const keywords = raw.split(",").map((s) => s.trim().toLowerCase());
-
-  const validStacks = allStacks.value.filter(
-    (stack) =>
-      keywords.includes(stack.toLowerCase()) &&
-      !props.selectedStacks.includes(stack),
-  );
-
-  validStacks.forEach((stack) => emit("select", stack));
-
-  searchInput.value = "";
-  filteredStacks.value = [];
-}
-
-function selectStack(stack) {
-  if (!props.selectedStacks.includes(stack)) {
-    emit("select", stack);
-  }
-  searchInput.value = "";
-  filteredStacks.value = [];
-}
-</script>
-
 <template>
   <div class="search-bar-wrapper">
     <div class="search-bar">
@@ -92,11 +6,13 @@ function selectStack(stack) {
         :placeholder="placeholder"
         v-model="searchInput"
         class="search-input"
+        @keydown.down.prevent="highlightNext"
+        @keydown.up.prevent="highlightPrev"
+        @keydown.enter.prevent="selectHighlighted"
         @input="handleInput"
-        @keyup.enter="handleSubmit"
       />
       <svg
-        class="search-icon"
+        class="search-icon cursor-pointer"
         xmlns="http://www.w3.org/2000/svg"
         width="15"
         height="15"
@@ -106,24 +22,108 @@ function selectStack(stack) {
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
+        @click="triggerSearch"
       >
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
     </div>
 
-    <ul v-if="filteredStacks.length" class="autocomplete-list">
+    <ul v-if="currentInput && filteredOptions.length" class="autocomplete-list">
       <li
-        v-for="stack in filteredStacks"
-        :key="stack"
-        class="autocomplete-item"
-        @click="selectStack(stack)"
+        v-for="(option, index) in filteredOptions"
+        :key="option"
+        :class="{ highlighted: index === highlightedIndex }"
+        @mousedown.prevent="selectOption(option)"
       >
-        {{ stack }}
+        {{ option }}
       </li>
     </ul>
   </div>
 </template>
+
+<script setup>
+import { ref, computed, watch } from "vue";
+
+const props = defineProps({
+  placeholder: { type: String, default: "검색어를 입력하세요" },
+  options: { type: Array, default: () => [] },
+});
+
+const emit = defineEmits(["search"]);
+const searchInput = ref("");
+const highlightedIndex = ref(-1);
+
+const currentInput = computed(() => {
+  const parts = searchInput.value.split(",");
+  return parts[parts.length - 1].trim();
+});
+
+const alreadySelected = computed(() => {
+  return searchInput.value
+    .split(",")
+    .slice(0, -1)
+    .map((s) => s.trim().toLowerCase());
+});
+
+const filteredOptions = computed(() => {
+  const keyword = currentInput.value.toLowerCase();
+  return props.options.filter(
+    (opt) =>
+      opt.toLowerCase().includes(keyword) &&
+      !alreadySelected.value.includes(opt.toLowerCase()),
+  );
+});
+
+watch(currentInput, () => {
+  highlightedIndex.value = -1;
+});
+
+function triggerSearch() {
+  const rawInputs = searchInput.value.split(",");
+  const validInputs = rawInputs.map((input) => input.trim().toLowerCase());
+  const matchedOptions = props.options.filter((opt) =>
+    validInputs.includes(opt.toLowerCase()),
+  );
+  if (matchedOptions.length > 0) {
+    matchedOptions.forEach((opt) => emit("search", opt));
+  }
+  searchInput.value = "";
+}
+
+function selectOption(option) {
+  const parts = searchInput.value.split(",");
+  parts[parts.length - 1] = option;
+  searchInput.value = parts.map((p) => p.trim()).join(", ") + ", ";
+}
+
+function highlightNext() {
+  if (highlightedIndex.value < filteredOptions.value.length - 1) {
+    highlightedIndex.value++;
+  }
+}
+
+function highlightPrev() {
+  if (highlightedIndex.value > 0) {
+    highlightedIndex.value--;
+  }
+}
+
+function selectHighlighted() {
+  if (highlightedIndex.value >= 0) {
+    const option = filteredOptions.value[highlightedIndex.value];
+    selectOption(option);
+  } else {
+    triggerSearch();
+  }
+}
+
+function handleInput(event) {
+  if (event.inputType === "insertText" && event.data === ",") {
+    highlightedIndex.value = -1;
+  }
+}
+</script>
 
 <style scoped>
 .search-bar-wrapper {
@@ -140,7 +140,7 @@ function selectStack(stack) {
   width: 100%;
   background: #ffffff;
   border: 1px solid #eeeeee;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .search-input {
@@ -160,25 +160,25 @@ function selectStack(stack) {
 
 .autocomplete-list {
   position: absolute;
-  top: 36px;
+  top: 100%;
   left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #eeeeee;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  z-index: 10;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
   max-height: 200px;
   overflow-y: auto;
+  z-index: 1000;
+  border-radius: 0 0 8px 8px;
 }
 
-.autocomplete-item {
-  padding: 8px 12px;
+.autocomplete-list li {
+  padding: 8px 15px;
   cursor: pointer;
-  font-size: 14px;
 }
 
-.autocomplete-item:hover {
-  background-color: #f5f5f5;
+.autocomplete-list li.highlighted {
+  background-color: #f0f0f0;
+  font-weight: bold;
 }
 </style>

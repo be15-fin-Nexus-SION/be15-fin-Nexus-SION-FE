@@ -38,7 +38,7 @@ const rawItems = computed(() => {
           label: "등급별 대기 상태 인원수",
           to: "/statistics/grade/waiting-count",
         },
-        { label: "등급별 연봉 분포", to: "/statistics/certification" },
+        { label: "등급별 연봉 분포", to: "/statistics/grade/salary" },
         { label: "기술 도입률 변화 추이", to: "/statistics/experience" },
       ];
 });

@@ -4,6 +4,7 @@ import { getPopularTechStacks } from "@/api/statistics";
 import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
+import SortDropdown from "@/components/SortDropdown.vue";
 import PopularList from "@/features/statistics/components/PopularList.vue";
 
 const chartRef = ref(null);
@@ -14,7 +15,28 @@ const top = ref(5);
 
 const contentList = ref([]);
 
+const periodOptions = [
+  { name: "최근 1달", value: "1m" },
+  { name: "최근 6달", value: "6m" },
+  { name: "최근 1년", value: "1y" },
+  { name: "최근 5년", value: "5y" },
+];
+
+const topOptions = [
+  { name: "Top 5", value: 5 },
+  { name: "Top 10", value: 10 },
+  { name: "Top 20", value: 20 },
+];
+
 watch([period, top], renderInitialChartData, { immediate: true });
+
+function onPeriodChange(option) {
+  period.value = option.value;
+}
+
+function onTopChange(option) {
+  top.value = option.value;
+}
 
 function formatDateKey(dateStr) {
   const [, month, day] = dateStr.split("-");
@@ -52,24 +74,17 @@ async function renderInitialChartData() {
       : sortedKeys.map(formatMonthKey);
 
     const colorPalette = [
-      // 퍼플 계열
-      "#404591", // 딥 퍼플
-      "#A07298", // 연보라
-      "#BFA0C9", // 페일 라벤더
-
-      // 붉은 계열
-      "#FE8686", // 워터멜론 레드 (그라데이션 색상 참고)
-      "#F59E9E", // 연한 레드핑크
-      "#B16B6B", // 브릭로즈
-
-      // 와인/버건디
-      "#814477", // 와인 퍼플
-      "#BF7384", // 푸시아 브릭
-
-      // 그라데이션 색 조화
-      "#1E268D", // 딥 블루퍼플 (gradient 상단색)
-      "#6D62B5", // 블루보라
-      "#9E84AD", // 보라+핑크 중간색
+      "#404591",
+      "#A07298",
+      "#BFA0C9",
+      "#FE8686",
+      "#F59E9E",
+      "#B16B6B",
+      "#814477",
+      "#BF7384",
+      "#1E268D",
+      "#6D62B5",
+      "#9E84AD",
     ];
 
     const datasets = content.map((item, idx) => {
@@ -102,36 +117,23 @@ async function renderInitialChartData() {
 }
 
 function renderMultiLineChart(labels, datasets) {
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
+  if (chartInstance) chartInstance.destroy();
 
   const ctx = chartRef.value.getContext("2d");
   chartInstance = new Chart(ctx, {
     type: "line",
-    data: {
-      labels,
-      datasets,
-    },
+    data: { labels, datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: "bottom",
-        },
+        legend: { position: "bottom" },
       },
       scales: {
         y: {
           beginAtZero: true,
-          title: {
-            display: true,
-            text: "누적 사용 횟수",
-          },
-          ticks: {
-            stepSize: 1,
-            precision: 0,
-          },
+          title: { display: true, text: "누적 사용 횟수" },
+          ticks: { stepSize: 1, precision: 0 },
         },
         x: {
           ticks: {
@@ -157,22 +159,19 @@ function renderMultiLineChart(labels, datasets) {
         기간별 프로젝트에 가장 많이 사용된 기술 스택을 조회합니다. 시간 단위를
         선택하면 Top n 기술 스택이 시각화됩니다.
       </p>
+
       <div class="filter-solid">
         <div class="filter-bar">
-          <select id="time-select" class="filter-dropdown" v-model="period">
-            <option disabled value="">기간 선택</option>
-            <option value="1m">최근 1달</option>
-            <option value="6m">최근 6달</option>
-            <option value="1y">최근 1년</option>
-            <option value="5y">최근 5년</option>
-          </select>
-
-          <select id="top-select" class="filter-dropdown" v-model="top">
-            <option disabled value="">Top n</option>
-            <option :value="5">Top 5</option>
-            <option :value="10">Top 10</option>
-            <option :value="20">Top 20</option>
-          </select>
+          <SortDropdown
+            :options="periodOptions"
+            :defaultValue="periodOptions.find((opt) => opt.value === period)"
+            @change="onPeriodChange"
+          />
+          <SortDropdown
+            :options="topOptions"
+            :defaultValue="topOptions.find((opt) => opt.value === top)"
+            @change="onTopChange"
+          />
         </div>
 
         <PrimaryButton
@@ -215,16 +214,7 @@ function renderMultiLineChart(labels, datasets) {
 }
 
 .filter-bar {
-  @apply flex justify-start gap-2;
-}
-
-.filter-dropdown {
-  @apply appearance-none bg-[#f5f5f5] rounded-md px-[20px] py-[11px] text-bodySm text-black shadow-sm;
-  background-image: url("data:image/svg+xml,%3Csvg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1.5rem;
-  padding-right: 2.5rem;
+  @apply flex justify-start gap-4 items-center;
 }
 
 .chart-card {

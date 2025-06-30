@@ -2,22 +2,33 @@
 import { ref, onMounted, watch } from "vue";
 import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import { getWaitingCountByGrade } from "@/api/statistics";
-import WaitingCountList from "@/features/statistics/components/WaitingCountList.vue";
+import { getSalaryByGrade } from "@/api/statistics";
+import SalaryList from "@/features/statistics/components/SalaryList.vue";
+import SortDropdown from "@/components/SortDropdown.vue";
 
 const chartRef = ref(null);
 const stats = ref([]);
+const salaryType = ref("avg");
 let chartInstance = null;
 
-// 등급 정렬 우선순위 (S > A > B > C > D)
 const GRADE_ORDER = ["S", "A", "B", "C", "D"];
+
+const salaryOptions = [
+  { name: "평균 연봉", value: "avg" },
+  { name: "최소 연봉", value: "min" },
+  { name: "최대 연봉", value: "max" },
+];
+
+function onSalaryChange(option) {
+  salaryType.value = option.value;
+}
 
 async function fetchStats() {
   try {
-    const response = await getWaitingCountByGrade();
+    const response = await getSalaryByGrade();
     stats.value = response.data.data;
   } catch (error) {
-    console.error("등급별 대기 인원 통계 조회 실패:", error);
+    console.error("등급별 연봉 조회 실패:", error);
   }
 }
 
@@ -25,7 +36,6 @@ function renderChart() {
   if (!chartRef.value || stats.value.length === 0) return;
 
   const ctx = chartRef.value.getContext("2d");
-
   const gradient = ctx.createLinearGradient(0, 0, 0, 230);
   gradient.addColorStop(0 / 230, "#404591");
   gradient.addColorStop(100 / 230, "#705C95");
@@ -38,7 +48,11 @@ function renderChart() {
   );
 
   const labels = sortedStats.map((item) => item.gradeCode);
-  const data = sortedStats.map((item) => item.waitingCount);
+  const data = sortedStats.map((item) => {
+    if (salaryType.value === "min") return item.minSalary;
+    if (salaryType.value === "max") return item.maxSalary;
+    return item.avgSalary;
+  });
 
   if (chartInstance) chartInstance.destroy();
 
@@ -73,7 +87,7 @@ function renderChart() {
 }
 
 onMounted(fetchStats);
-watch(stats, renderChart);
+watch([stats, salaryType], renderChart);
 </script>
 
 <template>
@@ -81,16 +95,24 @@ watch(stats, renderChart);
     <SidebarWrapper viewType="statistics" />
 
     <div class="content-wrapper">
-      <h1 class="page-title">등급별 대기 상태 인원수</h1>
+      <h1 class="page-title">등급별 연봉 분포</h1>
       <p class="page-description">
-        등급별로 현재 '대기중' 상태인 인원수를 조회할 수 있습니다.
+        등급별로 최소, 최대, 평균 연봉을 확인 할 수 있습니다.
       </p>
+
+      <div class="filter-solid">
+        <SortDropdown
+          :options="salaryOptions"
+          :defaultValue="salaryOptions.find((opt) => opt.value === salaryType)"
+          @change="onSalaryChange"
+        />
+      </div>
 
       <div class="chart-card">
         <canvas ref="chartRef" class="chart-canvas" />
       </div>
 
-      <WaitingCountList :stats="stats" />
+      <SalaryList :stats="stats" :salaryType="salaryType" />
     </div>
   </div>
 </template>

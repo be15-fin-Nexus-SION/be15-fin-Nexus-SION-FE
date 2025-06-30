@@ -4,22 +4,12 @@
     <div class="filter-bar">
       <div class="filter-controls">
         <div class="filter-div">
-          <select
-            id="stack-select"
+          <FilterDropdown
             v-model="selectedStack"
+            :options="filteredStackOptions"
+            placeholder="기술 스택 선택"
             @change="addStack"
-            class="filter-dropdown"
-          >
-            <option disabled value="">기술 스택 선택</option>
-            <option value="__ALL__">전체 선택</option>
-            <option
-              v-for="stack in filteredStackOptions"
-              :key="stack"
-              :value="stack"
-            >
-              {{ stack }}
-            </option>
-          </select>
+          />
 
           <PrimaryButton
             label="필터 초기화"
@@ -30,13 +20,11 @@
           />
         </div>
 
-        <select id="sort-select" v-model="sortOption" class="sort-dropdown">
-          <option disabled value="">정렬 기준 선택</option>
-          <option value="name">이름순</option>
-          <option value="position">직급순</option>
-          <option value="grade">등급순</option>
-          <option value="status">상태순</option>
-        </select>
+        <SortDropdown
+          :options="sortOptions"
+          :defaultValue="sortOptions.find((opt) => opt.value === sortOption)"
+          @change="onSortChange"
+        />
       </div>
 
       <div class="selected-stacks">
@@ -83,12 +71,14 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, computed } from "vue";
 import DevListItem from "@/components/list/DevListItem.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { fetchDevelopers } from "@/api/statistics.js";
 import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
+import SortDropdown from "@/components/SortDropdown.vue";
+import FilterDropdown from "@/features/statistics/components/FilterDropdown.vue";
 
 const props = defineProps({
   selectedStacks: Array,
@@ -98,16 +88,20 @@ const props = defineProps({
 const emit = defineEmits(["remove", "add", "reset"]);
 
 const selectedStack = ref("");
+const sortOption = ref("name"); // 정렬 기본값
 
-const gradePriority = {
-  S: 1,
-  A: 2,
-  B: 3,
-  C: 4,
-  D: 5,
-};
+const sortOptions = [
+  { name: "이름순", value: "name" },
+  { name: "직급순", value: "position" },
+  { name: "등급순", value: "grade" },
+  { name: "상태순", value: "status" },
+];
 
-const sortOption = ref("name"); // default to "이름순"
+function onSortChange(option) {
+  sortOption.value = option.value;
+}
+
+const gradePriority = { S: 1, A: 2, B: 3, C: 4, D: 5 };
 
 const sortedSelectedStacks = computed(() =>
   [...props.selectedStacks].sort((a, b) => a.localeCompare(b)),
@@ -134,15 +128,15 @@ function addStack() {
 }
 
 function resetFilters() {
+  selectedStack.value = "";
   emit("reset");
 }
 
 function handleRemoveFromFilter(stack) {
   emit("remove", stack);
 }
-
 const scrollTarget = ref(null);
-const { items, isLoading, isLastPage, reset } = useInfiniteScroll({
+const { items, isLoading, isLastPage } = useInfiniteScroll({
   fetchFn: ({ pageParam }) => fetchDevelopers(pageParam),
   scrollTargetRef: scrollTarget,
   threshold: 150,
@@ -162,21 +156,16 @@ const filteredItems = computed(() => {
   } else if (sortOption.value === "position") {
     filtered.sort((a, b) => a.position.localeCompare(b.position));
   } else if (sortOption.value === "grade") {
-    filtered.sort((a, b) => {
-      return (gradePriority[a.grade] ?? 999) - (gradePriority[b.grade] ?? 999);
-    });
+    filtered.sort(
+      (a, b) =>
+        (gradePriority[a.grade] ?? 999) - (gradePriority[b.grade] ?? 999),
+    );
   } else if (sortOption.value === "status") {
     filtered.sort((a, b) => a.status.localeCompare(b.status));
   }
 
   return filtered;
 });
-
-watch(
-  () => props.selectedStacks,
-  () => reset(),
-  { deep: true },
-);
 </script>
 
 <style scoped>
@@ -210,16 +199,6 @@ watch(
 
 .filter-bar {
   @apply flex flex-col mt-10 gap-3 mb-1;
-}
-
-.filter-dropdown,
-.sort-dropdown {
-  @apply appearance-none bg-[#f5f5f5] rounded-md px-[20px] py-[11px] text-bodySm text-black shadow-sm;
-  background-image: url("data:image/svg+xml,%3Csvg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1.5rem;
-  padding-right: 2.5rem;
 }
 
 .filter-controls {

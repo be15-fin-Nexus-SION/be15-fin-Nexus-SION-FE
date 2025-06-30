@@ -2,17 +2,11 @@
   <div class="flex flex-col gap-1">
     <!-- 정렬 드롭다운 -->
     <div class="sort">
-      <select
-        id="sort-select"
-        v-model="localSortOption"
-        class="sort-dropdown"
-        @change="onSortChange"
-      >
-        <option disabled value="">정렬 기준 선택</option>
-        <option value="techStackName">기술 스택 이름순</option>
-        <option value="averageCareer">평균 경력순</option>
-        <option value="count">총 인원순</option>
-      </select>
+      <SortDropdown
+        :options="sortOptions"
+        :defaultValue="sortOptions.find((opt) => opt.value === localSortOption)"
+        @change="handleSortChange"
+      />
     </div>
 
     <!-- 헤더 -->
@@ -66,6 +60,7 @@
 import { ref, watch, onMounted, computed, nextTick, defineProps } from "vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { getStackAvgCareer } from "@/api/statistics.js";
+import SortDropdown from "@/components/SortDropdown.vue";
 
 // props
 const props = defineProps({
@@ -83,6 +78,17 @@ const hasNext = ref(true);
 const scrollTarget = ref(null);
 const showLoadingMessage = ref(false);
 let loadingTimeout = null;
+
+const sortOptions = [
+  { name: "기술 스택 이름순", value: "techStackName" },
+  { name: "평균 경력순", value: "averageCareer" },
+  { name: "총 인원순", value: "count" },
+];
+
+function handleSortChange(option) {
+  localSortOption.value = option.value;
+  onSortChange();
+}
 
 // fetch 함수
 const fetchData = async ({ reset = false } = {}) => {
@@ -171,15 +177,6 @@ watch(
 <style scoped>
 .sort {
   @apply mt-10 mb-3 flex justify-end;
-}
-
-.sort-dropdown {
-  @apply appearance-none bg-[#f5f5f5] rounded-md px-[20px] py-[11px] text-bodySm text-black shadow-sm;
-  background-image: url("data:image/svg+xml,%3Csvg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1.5rem;
-  padding-right: 2.5rem;
 }
 
 .header {

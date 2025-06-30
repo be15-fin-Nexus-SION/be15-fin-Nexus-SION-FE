@@ -43,4 +43,13 @@ export const statisticsRoutes = [
       requiresAuth: true,
     },
   },
+
+  {
+    path: "/statistics/grade/salary",
+    name: "GradeSalaryView",
+    component: () => import("./views/GradeSalaryView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];
