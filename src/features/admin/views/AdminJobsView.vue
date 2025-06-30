@@ -20,7 +20,7 @@ async function fetchJobs() {
     jobList.value = res.data.data.jobs;
   } catch (e) {
     const errorMessage = e.response?.data?.message || "직무 목록 조회 실패";
-    showSuccessToast(errorMessage);
+    showErrorToast(errorMessage);
   }
 }
 

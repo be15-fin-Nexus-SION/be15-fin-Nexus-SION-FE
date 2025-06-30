@@ -34,7 +34,7 @@ async function handleAdd() {
     await addDomain(domainName.value.trim());
     await fetchDomains();
     domainName.value = "";
-    showSuccessToast("도메인이 등록되었습니다.");
+    showErrorToast("도메인이 등록되었습니다.");
   } catch (e) {
     const errorMessage =
       e.response?.data?.message || "도메인 등록에 실패했습니다.";
@@ -63,14 +63,14 @@ function onInitialSelect(letter) {
 // ---- 초성 필터 ----
 const availableKoreanInitials = computed(() => {
   const initials = domainList.value
-    .map((job) => getInitialConsonant(job.trim()[0]))
+    .map((domain) => getInitialConsonant(domain.trim()[0]))
     .filter(isChoseong);
   return [...new Set(initials)];
 });
 
 const availableEnglishInitials = computed(() => {
   const initials = domainList.value
-    .map((job) => getInitialConsonant(job.trim()[0]))
+    .map((domain) => getInitialConsonant(domain.trim()[0]))
     .filter((i) => /^[A-Z]$/.test(i));
   return [...new Set(initials)];
 });
@@ -95,8 +95,8 @@ onMounted(fetchDomains);
           </div>
           <AdminDomainsList
             ref="domainListRef"
-            :jobList="domainList"
-            @deleteJob="handleDelete"
+            :domainList="domainList"
+            @deleteDomain="handleDelete"
           />
         </div>
         <div class="body-side">

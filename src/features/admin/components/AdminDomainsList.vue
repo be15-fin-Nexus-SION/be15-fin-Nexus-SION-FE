@@ -4,21 +4,21 @@ import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import { getInitialConsonant } from "@/utills/hangul.js";
 
 const props = defineProps({
-  jobList: {
+  domainList: {
     type: Array,
     required: true,
   },
 });
 
-const emit = defineEmits(["editJob", "deleteJob"]);
+const emit = defineEmits(["deleteDomain"]);
 
-function handleDelete(jobName) {
-  emit("deleteJob", jobName);
+function handleDelete(domainName) {
+  emit("deleteDomain", domainName);
 }
 
 // 한글 우선 정렬된 jobList
-const sortedJobList = computed(() => {
-  return [...props.jobList].sort((a, b) => {
+const sortedDomainList = computed(() => {
+  return [...props.domainList].sort((a, b) => {
     const aChar = a.trim()[0];
     const bChar = b.trim()[0];
     const aCode = aChar.charCodeAt(0);
@@ -36,9 +36,9 @@ const sortedJobList = computed(() => {
 
 const letterRefs = new Map();
 
-function registerRef(jobName, el) {
+function registerRef(domainName, el) {
   if (!el) return;
-  const initial = getInitialConsonant(jobName.trim()[0]);
+  const initial = getInitialConsonant(domainName.trim()[0]);
   if (!letterRefs.has(initial)) {
     letterRefs.set(initial, el);
   }
@@ -57,21 +57,21 @@ defineExpose({
 </script>
 
 <template>
-  <div class="job-list-wrapper">
+  <div class="domain-list-wrapper">
     <div
-      v-for="job in sortedJobList"
-      :key="job"
-      class="job-row-wrapper"
-      :ref="(el) => registerRef(job, el)"
+      v-for="domain in sortedDomainList"
+      :key="domain"
+      class="domain-row-wrapper"
+      :ref="(el) => registerRef(domain, el)"
     >
-      <div class="job-name">{{ job }}</div>
+      <div class="domain-name">{{ domain }}</div>
       <div class="button-group">
         <PrimaryButton
           label="삭제"
           bg-color-class="bg-natural-blue-light"
           hover-color-class="hover:bg-natural-blue-light-hover"
           text-color-class="text-black"
-          :onClick="() => handleDelete(job)"
+          :onClick="() => handleDelete(domain)"
         />
       </div>
     </div>
@@ -79,13 +79,13 @@ defineExpose({
 </template>
 
 <style scoped>
-.job-list-wrapper {
+.domain-list-wrapper {
   @apply flex flex-col gap-2 mt-4;
 }
-.job-row-wrapper {
+.domain-row-wrapper {
   @apply flex justify-between items-center px-4 py-2 gap-2 h-[56px] bg-white border-b border-[#EEEEEE];
 }
-.job-name {
+.domain-name {
   @apply h-[24px] text-bodyMd text-[#0D121C];
 }
 .button-group {
