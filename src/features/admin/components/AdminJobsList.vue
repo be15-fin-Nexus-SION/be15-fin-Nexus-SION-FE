@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeUnmount, computed } from "vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
+import { getInitialConsonant } from "@/utills/hangul.js";
 
 const props = defineProps({
   jobList: {
@@ -13,39 +14,6 @@ const emit = defineEmits(["editJob", "deleteJob"]);
 
 function handleDelete(jobName) {
   emit("deleteJob", jobName);
-}
-
-// 한글 초성 리스트
-const CHO = [
-  "ㄱ",
-  "ㄲ",
-  "ㄴ",
-  "ㄷ",
-  "ㄸ",
-  "ㄹ",
-  "ㅁ",
-  "ㅂ",
-  "ㅃ",
-  "ㅅ",
-  "ㅆ",
-  "ㅇ",
-  "ㅈ",
-  "ㅉ",
-  "ㅊ",
-  "ㅋ",
-  "ㅌ",
-  "ㅍ",
-  "ㅎ",
-];
-
-// 초성 추출 함수
-function getInitialConsonant(char) {
-  const code = char.charCodeAt(0);
-  if (code >= 0xac00 && code <= 0xd7a3) {
-    const choIndex = Math.floor((code - 0xac00) / 588);
-    return CHO[choIndex];
-  }
-  return char.toUpperCase();
 }
 
 // 한글 우선 정렬된 jobList

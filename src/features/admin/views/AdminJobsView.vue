@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { showSuccessToast, showErrorToast } from "@/utills/toast.js";
+import { getInitialConsonant, isChoseong } from "@/utills/hangul.js";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import InputBox from "@/components/input/InputBox.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
@@ -12,39 +13,6 @@ const jobName = ref("");
 const jobList = ref([]);
 const jobListRef = ref(null);
 
-// ---- 초성 추출 관련 ----
-const CHO = [
-  "ㄱ",
-  "ㄲ",
-  "ㄴ",
-  "ㄷ",
-  "ㄸ",
-  "ㄹ",
-  "ㅁ",
-  "ㅂ",
-  "ㅃ",
-  "ㅅ",
-  "ㅆ",
-  "ㅇ",
-  "ㅈ",
-  "ㅉ",
-  "ㅊ",
-  "ㅋ",
-  "ㅌ",
-  "ㅍ",
-  "ㅎ",
-];
-
-function getInitialConsonant(char) {
-  const code = char.charCodeAt(0);
-  if (code >= 0xac00 && code <= 0xd7a3) {
-    const choIndex = Math.floor((code - 0xac00) / 588);
-    return CHO[choIndex];
-  }
-  return char.toUpperCase();
-}
-
-// ---- API ----
 async function fetchJobs() {
   try {
     const res = await getAllJobs();
@@ -71,7 +39,6 @@ async function addJob() {
   }
 }
 
-// ---- 이벤트 핸들러 ----
 function handleEdit(job) {
   console.log("수정할 직무:", job);
 }
@@ -82,11 +49,10 @@ function onInitialSelect(letter) {
   jobListRef.value?.scrollToLetter(letter);
 }
 
-// ---- 사용 중인 초성 목록 계산 ----
 const availableKoreanInitials = computed(() => {
   const initials = jobList.value
     .map((job) => getInitialConsonant(job.trim()[0]))
-    .filter((i) => /^[ㄱ-ㅎ]$/.test(i));
+    .filter(isChoseong);
   return [...new Set(initials)];
 });
 
@@ -97,7 +63,6 @@ const availableEnglishInitials = computed(() => {
   return [...new Set(initials)];
 });
 
-// ---- 초기 데이터 로딩 ----
 onMounted(fetchJobs);
 </script>
 
