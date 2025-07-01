@@ -58,3 +58,15 @@ export function signup(payload) {
 export function login(payload) {
   return api.post("/members/login", payload);
 }
+
+export function registerDevelopers(developers) {
+  return api.post("/members", developers);
+}
+
+export function fetchPositionList() {
+  return api.get("/positions");
+}
+
+export function fetchDepartmentList() {
+  return api.get("/departments");
+}

@@ -25,14 +25,15 @@ export function useValidation() {
     return true;
   }
 
-  function isPhonenumberValid(phoneNumber) {
+  function isPhoneNumberValid(phoneNumber) {
     if (!phoneNumber) {
       phoneError.value = "전화번호를 입력해주세요.";
       return false;
     }
     const regex = /^01[016789]\d{7,8}$/;
     if (!regex.test(phoneNumber)) {
-      phoneError.value = "전화번호는 01로 시작하는 숫자 11자리여야 합니다.";
+      phoneError.value =
+        "전화번호는 01로 시작하는 10자리 또는 11자리 숫자여야 합니다.";
       return false;
     }
     phoneError.value = "";
@@ -55,7 +56,7 @@ export function useValidation() {
 
   function validateAll(form) {
     const isPasswordOk = isPasswordValid(form.password);
-    const isPhoneOk = isPhonenumberValid(form.phoneNumber);
+    const isPhoneOk = isPhoneNumberValid(form.phoneNumber);
     const isEmailOk = isEmailValid(form.email);
 
     return isPasswordOk && isPhoneOk && isEmailOk;
@@ -66,7 +67,7 @@ export function useValidation() {
     phoneError,
     emailError,
     isPasswordValid,
-    isPhonenumberValid,
+    isPhoneNumberValid,
     isEmailValid,
     validateAll,
   };

@@ -33,6 +33,7 @@ export const useAuthStore = defineStore(
       accessToken.value = null;
       expirationTime.value = null;
       memberId.value = null;
+      memberRole.value = null;
     }
 
     return {
@@ -48,7 +49,7 @@ export const useAuthStore = defineStore(
   {
     persist: {
       storage: sessionStorage,
-      paths: ["accessToken", "expirationTime", "memberId"],
+      paths: ["accessToken", "expirationTime", "memberId", "memberRole"],
     },
   },
 );

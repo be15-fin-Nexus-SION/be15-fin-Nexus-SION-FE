@@ -4,6 +4,7 @@ import { useValidation } from "@/composable/useValidation.js";
 import ShowIcon from "@/assets/icons/Show.svg";
 import HideIcon from "@/assets/icons/Hide.svg";
 import Close_LG from "@/assets/icons/Close_LG.svg";
+import { showErrorToast } from "@/utills/toast.js";
 
 const emit = defineEmits(["submit"]);
 
@@ -32,14 +33,14 @@ const {
   phoneError,
   emailError,
   isPasswordValid,
-  isPhonenumberValid,
+  isPhoneNumberValid,
   isEmailValid,
   validateAll,
 } = useValidation();
 
 function handleBlur(fieldKey) {
   if (fieldKey === "password") return isPasswordValid(form.password);
-  if (fieldKey === "phoneNumber") return isPhonenumberValid(form.phoneNumber);
+  if (fieldKey === "phoneNumber") return isPhoneNumberValid(form.phoneNumber);
   if (fieldKey === "email") return isEmailValid(form.email);
 }
 
@@ -48,7 +49,7 @@ function onSubmit() {
   const payload = { ...form, birthday: birthFormatted };
 
   if (!validateAll(payload)) {
-    console.log("유효성 검사 실패");
+    showErrorToast("입력값을 확인해주세요.");
     return;
   }
 

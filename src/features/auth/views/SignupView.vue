@@ -2,14 +2,14 @@
 import { signup } from "@/api/member.js";
 import { useRouter } from "vue-router";
 import SignupForm from "@/features/auth/components/SignupForm.vue";
-import { showErrorToast } from "@/utills/toast.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const router = useRouter();
 
 const handleRegister = async (payload) => {
   try {
     await signup(payload);
-    alert("회원가입이 완료되었습니다.");
+    showSuccessToast("회원가입이 완료되었습니다.");
     await router.push("/login");
   } catch (error) {
     console.error("회원 가입 실패:", error);
