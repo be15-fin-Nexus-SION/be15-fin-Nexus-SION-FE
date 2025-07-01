@@ -4,12 +4,16 @@ import { login } from "@/api/member.js";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import { useRouter } from "vue-router";
 import LoginForm from "@/features/auth/components/LoginForm.vue";
+import { useAuthStore } from "@/stores/auth.js";
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const handleLogin = async (payload) => {
   try {
-    await login(payload);
+    const resp = await login(payload);
+    const at = resp.data.data.accessToken;
+    authStore.setAuth(at);
     showSuccessToast("로그인이 완료되었습니다.");
     await router.push("/");
   } catch (error) {
