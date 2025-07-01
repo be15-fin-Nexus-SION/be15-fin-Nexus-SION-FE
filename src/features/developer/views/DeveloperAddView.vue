@@ -10,7 +10,7 @@
     <!-- 개발자 카드 목록 -->
     <div
         v-for="(dev, index) in developers"
-        :key="index"
+        :key="dev.id"
         class="w-full max-w-4xl mx-auto"
     >
       <DeveloperFormCard
@@ -43,6 +43,7 @@
   </div>
 </template>
 
+
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -53,8 +54,16 @@ import { fetchAllTechStacks } from '@/api/techstack.js';
 import PrimaryButton from '@/components/button/PrimaryButton.vue';
 
 const router = useRouter();
-const developers = reactive([
-  {
+const developers = reactive([createNewDeveloper()]);
+const isModalOpen = ref(false);
+const currentDevIndex = ref(null);
+const selectedTechStacks = ref([]);
+const allTechStacks = ref([]);
+const errors = ref([{}]);
+
+function createNewDeveloper() {
+  return {
+    id: Date.now() + Math.random(), // 고유 ID 보장
     employeeIdentificationNumber: '',
     employeeName: '',
     phoneNumber: '',
@@ -67,14 +76,8 @@ const developers = reactive([
     departmentName: '',
     salary: '',
     techStackNames: [],
-  },
-]);
-
-const isModalOpen = ref(false);
-const currentDevIndex = ref(null);
-const selectedTechStacks = ref([]);
-const allTechStacks = ref([]);
-const errors = ref([]);
+  };
+}
 
 onMounted(async () => {
   try {
@@ -86,20 +89,7 @@ onMounted(async () => {
 });
 
 function addDeveloper() {
-  developers.push({
-    employeeIdentificationNumber: '',
-    employeeName: '',
-    phoneNumber: '',
-    email: '',
-    birthday: '',
-    joinedAt: '',
-    careerYears: '',
-    profileImageUrl: null,
-    positionName: '',
-    departmentName: '',
-    salary: '',
-    techStackNames: [],
-  });
+  developers.push(createNewDeveloper());
   errors.value.push({});
 }
 
@@ -123,39 +113,15 @@ function applyTechStacks(newStacks) {
 
 function validate(dev) {
   const errs = {};
-
-  if (!dev.employeeName) {
-    errs.employeeName = '이름은 필수 입력 사항입니다.';
-  }
-
-  if (!dev.employeeIdentificationNumber) {
-    errs.employeeIdentificationNumber = '사번은 필수 입력 사항입니다.';
-  }
-
-  if (!dev.phoneNumber) {
-    errs.phoneNumber = '전화번호는 필수 입력 사항입니다.';
-  } else if (!/^010\d{8}$/.test(dev.phoneNumber)) {
-    errs.phoneNumber = '전화번호 형식이 올바르지 않습니다.';
-  }
-
-  if (!dev.email) {
-    errs.email = '이메일은 필수 입력 사항입니다.';
-  } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dev.email)) {
-    errs.email = '이메일 형식이 올바르지 않습니다.';
-  }
-
-  if (!dev.birthday) {
-    errs.birthday = '생년월일은 필수 입력 사항입니다.';
-  }
-
-  if (!dev.joinedAt) {
-    errs.joinedAt = '입사일은 필수 입력 사항입니다.';
-  }
-
-  if (dev.careerYears === '') {
-    errs.careerYears = '연차는 필수 입력 사항입니다.';
-  }
-
+  if (!dev.employeeName) errs.employeeName = '이름은 필수 입력 사항입니다.';
+  if (!dev.employeeIdentificationNumber) errs.employeeIdentificationNumber = '사번은 필수 입력 사항입니다.';
+  if (!dev.phoneNumber) errs.phoneNumber = '전화번호는 필수 입력 사항입니다.';
+  else if (!/^010\d{8}$/.test(dev.phoneNumber)) errs.phoneNumber = '전화번호 형식이 올바르지 않습니다.';
+  if (!dev.email) errs.email = '이메일은 필수 입력 사항입니다.';
+  else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dev.email)) errs.email = '이메일 형식이 올바르지 않습니다.';
+  if (!dev.birthday) errs.birthday = '생년월일은 필수 입력 사항입니다.';
+  if (!dev.joinedAt) errs.joinedAt = '입사일은 필수 입력 사항입니다.';
+  if (dev.careerYears === '') errs.careerYears = '연차는 필수 입력 사항입니다.';
   return errs;
 }
 
@@ -181,7 +147,6 @@ async function submit() {
     }));
 
     await registerDevelopers(payload);
-    //TODO: toast로 변경
     alert('등록에 성공했습니다.');
     await router.push({ name: 'developer-list' });
   } catch (e) {

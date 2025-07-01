@@ -107,7 +107,7 @@
       <div class="flex flex-wrap gap-2 mb-2">
         <TechBadge
             v-for="(tech, idx) in form.techStackNames"
-            :key="idx"
+            :key="tech"
             :label="tech"
             :showClose="true"
             @remove="removeTechStack(idx)"

@@ -15,7 +15,7 @@
       <div class="flex flex-wrap gap-2">
         <span
             v-for="(tech, idx) in selected"
-            :key="idx"
+            :key="tech"
             class="bg-gray-100 rounded-full px-3 py-1 text-xs flex items-center gap-1"
         >
           {{ tech }}
