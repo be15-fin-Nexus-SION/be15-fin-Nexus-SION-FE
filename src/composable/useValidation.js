@@ -5,11 +5,16 @@ export function useValidation() {
   const phoneError = ref("");
   const emailError = ref("");
 
-  function isPasswordValid(password) {
+  function isPasswordValid(password, isLogin = false) {
     if (!password) {
       passwordError.value = "비밀번호를 입력해주세요.";
       return false;
     }
+    if (isLogin) {
+      passwordError.value = "";
+      return true;
+    }
+
     const regex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+=-]).{8,}$/;
     if (!regex.test(password)) {
       passwordError.value =

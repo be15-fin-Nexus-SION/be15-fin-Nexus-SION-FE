@@ -53,3 +53,8 @@ export function fetchDeveloperDetail(employeeId) {
 export function signup(payload) {
   return api.post("/members/signup", payload);
 }
+
+/* 로그인 */
+export function login(payload) {
+  return api.post("/members/login", payload);
+}
