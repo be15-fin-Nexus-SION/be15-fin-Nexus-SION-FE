@@ -27,7 +27,7 @@ export function useValidation() {
     }
     const regex = /^01[016789]\d{7,8}$/;
     if (!regex.test(phoneNumber)) {
-      phoneError.value = "전화번호는 01로 시작하는 숫자 11자리여야 합니다.";
+phoneError.value = "전화번호는 01로 시작하는 10자리 또는 11자리 숫자여야 합니다.";
       return false;
     }
     phoneError.value = "";
