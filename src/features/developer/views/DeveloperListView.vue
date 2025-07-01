@@ -2,7 +2,7 @@
   <div class="max-w-5xl mx-auto py-10 px-4 space-y-6">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">개발자 목록</h1>
-      <PrimaryButton label="개발자 등록" />
+      <PrimaryButton label="개발자 등록" @click="goToAdd"/>
     </div>
 
     <div class="flex gap-2 items-center justify-between">
@@ -214,6 +214,10 @@ function handleClickOutside() {
 
 function goToDetail(employeeId) {
   router.push({ name: 'developer-detail', params: { employeeId: employeeId } });
+}
+
+function goToAdd() {
+  router.push({ name: 'developer-add' });
 }
 
 document.addEventListener('click', handleClickOutside);
