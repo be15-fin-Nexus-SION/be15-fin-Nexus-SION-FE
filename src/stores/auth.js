@@ -21,7 +21,6 @@ export const useAuthStore = defineStore(
       try {
         const payload = JSON.parse(atob(at.split(".")[1]));
         if (!payload.exp) throw new Error("만료 시간 없음");
-        console.log("payload", payload);
         expirationTime.value = payload.exp * 1000;
         memberId.value = payload.sub;
         memberRole.value = payload.role;

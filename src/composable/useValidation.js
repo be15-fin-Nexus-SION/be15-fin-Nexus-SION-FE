@@ -48,6 +48,14 @@ export function useValidation() {
     return true;
   }
 
+  function validateAll(form) {
+    const isPasswordOk = isPasswordValid(form.password);
+    const isPhoneOk = isPhonenumberValid(form.phoneNumber);
+    const isEmailOk = isEmailValid(form.email);
+
+    return isPasswordOk && isPhoneOk && isEmailOk;
+  }
+
   return {
     passwordError,
     phoneError,
@@ -55,5 +63,6 @@ export function useValidation() {
     isPasswordValid,
     isPhonenumberValid,
     isEmailValid,
+    validateAll,
   };
 }

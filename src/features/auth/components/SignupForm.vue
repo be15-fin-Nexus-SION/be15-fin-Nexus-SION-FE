@@ -33,6 +33,7 @@ const {
   isPasswordValid,
   isPhonenumberValid,
   isEmailValid,
+  validateAll,
 } = useValidation();
 
 function handleBlur(fieldKey) {
@@ -45,7 +46,11 @@ function onSubmit() {
   const birthFormatted = form.birthday ? form.birthday.replaceAll("-", "") : "";
   const payload = { ...form, birthday: birthFormatted };
 
-  console.log(payload);
+  if (!validateAll(payload)) {
+    console.log("유효성 검사 실패");
+    return;
+  }
+
   emit("submit", payload);
 }
 </script>
