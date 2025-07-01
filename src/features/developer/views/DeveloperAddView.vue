@@ -1,14 +1,28 @@
 <template>
-  <div class="max-w-5xl mx-auto py-10 space-y-6">
+  <div class="min-h-screen flex flex-col items-center py-10 space-y-8">
     <h1 class="text-2xl font-bold text-center">개발자 등록</h1>
 
-    <div v-for="(dev, index) in developers" :key="index">
+    <!-- 등록 버튼: 카드 리스트 위쪽에 위치 -->
+    <div class="w-full max-w-3xl flex justify-end mx-auto">
+      <PrimaryButton label="등록" @click="submit" />
+    </div>
+
+    <!-- 개발자 카드 목록 -->
+    <div
+        v-for="(dev, index) in developers"
+        :key="index"
+        class="w-full max-w-4xl mx-auto"
+    >
       <DeveloperFormCard
+          class="mx-auto"
           v-model="developers[index]"
+          :errorMessages="errors[index]"
           @remove="removeDeveloper(index)"
+          @open-tech-modal="openTechModal(index)"
       />
     </div>
 
+    <!-- + 버튼 -->
     <div class="flex justify-center">
       <button
           @click="addDeveloper"
@@ -18,51 +32,157 @@
       </button>
     </div>
 
-    <div class="flex justify-center">
-      <button @click="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg mt-4">등록</button>
-    </div>
+    <!-- 기술스택 선택 모달 -->
+    <TechStackSelectModal
+        v-if="isModalOpen"
+        :all-tech-stacks="allTechStacks"
+        :initial-selected="selectedTechStacks"
+        @apply="applyTechStacks"
+        @close="isModalOpen = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import DeveloperFormCard from '../components/DeveloperFormCard.vue';
+import TechStackSelectModal from '@/components/TechStackSelectModal.vue';
+import { registerDevelopers } from '@/api/member.js';
+import { fetchAllTechStacks } from '@/api/techstack.js';
+import PrimaryButton from '@/components/button/PrimaryButton.vue';
 
 const developers = reactive([
   {
-    name: '',
-    employeeId: '',
+    employeeIdentificationNumber: '',
+    employeeName: '',
     phoneNumber: '',
     email: '',
+    birthday: '',
     joinedAt: '',
-    leftAt: '',
     careerYears: '',
-    profileImage: null,
-    techStacks: [],
-  }
+    profileImageUrl: null,
+    positionName: '',
+    departmentName: '',
+    salary: '',
+    techStackNames: [],
+  },
 ]);
+
+const isModalOpen = ref(false);
+const currentDevIndex = ref(null);
+const selectedTechStacks = ref([]);
+const allTechStacks = ref([]);
+const errors = ref([]);
+
+onMounted(async () => {
+  try {
+    const response = await fetchAllTechStacks();
+    allTechStacks.value = response.data.data.techStacks;
+  } catch (e) {
+    console.error('기술 스택 목록 조회 실패', e);
+  }
+});
 
 function addDeveloper() {
   developers.push({
-    name: '',
-    employeeId: '',
+    employeeIdentificationNumber: '',
+    employeeName: '',
     phoneNumber: '',
     email: '',
+    birthday: '',
     joinedAt: '',
-    leftAt: '',
     careerYears: '',
-    profileImage: null,
-    techStacks: [],
+    profileImageUrl: null,
+    positionName: '',
+    departmentName: '',
+    salary: '',
+    techStackNames: [],
   });
+  errors.value.push({});
 }
 
 function removeDeveloper(index) {
   developers.splice(index, 1);
+  errors.value.splice(index, 1);
 }
 
-function submit() {
-  // 등록 API 호출
-  console.log('등록할 개발자들:', developers);
-  // 각 profileImage는 FormData로 별도 처리 가능
+function openTechModal(index) {
+  currentDevIndex.value = index;
+  selectedTechStacks.value = [...developers[index].techStackNames];
+  isModalOpen.value = true;
+}
+
+function applyTechStacks(newStacks) {
+  if (currentDevIndex.value !== null) {
+    developers[currentDevIndex.value].techStackNames = [...newStacks];
+  }
+  isModalOpen.value = false;
+}
+
+function validate(dev) {
+  const errs = {};
+
+  if (!dev.employeeName) {
+    errs.employeeName = '이름은 필수 입력 사항입니다.';
+  }
+
+  if (!dev.employeeIdentificationNumber) {
+    errs.employeeIdentificationNumber = '사번은 필수 입력 사항입니다.';
+  }
+
+  if (!dev.phoneNumber) {
+    errs.phoneNumber = '전화번호는 필수 입력 사항입니다.';
+  } else if (!/^010\d{8}$/.test(dev.phoneNumber)) {
+    errs.phoneNumber = '전화번호 형식이 올바르지 않습니다.';
+  }
+
+  if (!dev.email) {
+    errs.email = '이메일은 필수 입력 사항입니다.';
+  } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dev.email)) {
+    errs.email = '이메일 형식이 올바르지 않습니다.';
+  }
+
+  if (!dev.birthday) {
+    errs.birthday = '생년월일은 필수 입력 사항입니다.';
+  }
+
+  if (!dev.joinedAt) {
+    errs.joinedAt = '입사일은 필수 입력 사항입니다.';
+  }
+
+  if (dev.careerYears === '') {
+    errs.careerYears = '연차는 필수 입력 사항입니다.';
+  }
+
+  return errs;
+}
+
+async function submit() {
+  errors.value = developers.map(validate);
+  const hasError = errors.value.some(e => Object.keys(e).length > 0);
+  if (hasError) return;
+
+  try {
+    const payload = developers.map(dev => ({
+      employeeIdentificationNumber: dev.employeeIdentificationNumber?.trim(),
+      employeeName: dev.employeeName?.trim(),
+      phoneNumber: dev.phoneNumber?.trim(),
+      email: dev.email?.trim(),
+      birthday: dev.birthday || null,
+      joinedAt: dev.joinedAt || null,
+      careerYears: dev.careerYears !== '' ? Number(dev.careerYears) : null,
+      positionName: dev.positionName || null,
+      departmentName: dev.departmentName || null,
+      profileImageUrl: dev.profileImageUrl || null,
+      salary: dev.salary !== '' ? Number(dev.salary) : null,
+      techStackNames: dev.techStackNames || [],
+    }));
+
+    await registerDevelopers(payload);
+    alert('등록에 성공했습니다.');
+  } catch (e) {
+    console.error(e);
+    alert('등록에 실패했습니다.');
+  }
 }
 </script>
