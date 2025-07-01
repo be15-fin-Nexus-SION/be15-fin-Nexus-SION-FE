@@ -45,12 +45,14 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import DeveloperFormCard from '../components/DeveloperFormCard.vue';
 import TechStackSelectModal from '@/components/TechStackSelectModal.vue';
 import { registerDevelopers } from '@/api/member.js';
 import { fetchAllTechStacks } from '@/api/techstack.js';
 import PrimaryButton from '@/components/button/PrimaryButton.vue';
 
+const router = useRouter();
 const developers = reactive([
   {
     employeeIdentificationNumber: '',
@@ -179,7 +181,9 @@ async function submit() {
     }));
 
     await registerDevelopers(payload);
+    //TODO: toast로 변경
     alert('등록에 성공했습니다.');
+    await router.push({ name: 'developer-list' });
   } catch (e) {
     console.error(e);
     alert('등록에 실패했습니다.');
