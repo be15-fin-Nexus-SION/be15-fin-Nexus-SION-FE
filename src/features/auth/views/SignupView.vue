@@ -1,11 +1,42 @@
 <script setup>
-// 회원가입 관련 로직
+import { signup } from "@/api/member.js";
+import { useRouter } from "vue-router";
+import SignupForm from "@/features/auth/components/SignupForm.vue";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
+
+const router = useRouter();
+
+const handleRegister = async (payload) => {
+  try {
+    await signup(payload);
+    showSuccessToast("회원가입이 완료되었습니다.");
+    await router.push("/login");
+  } catch (error) {
+    console.error("회원 가입 실패:", error);
+    showErrorToast("회원가입에 실패했습니다. 다시 시도해주세요.");
+  }
+};
 </script>
 
 <template>
-  <section class="p-6">
-    <h1 class="text-2xl font-bold">SignupView</h1>
-  </section>
+  <div class="register-container">
+    <div class="logo-wrapper">
+      <img src="@/assets/sion-logo.svg" alt="SION Logo" class="logo" />
+    </div>
+    <SignupForm @submit="handleRegister" />
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.register-container {
+  @apply flex flex-col items-center justify-center min-h-screen pb-28;
+}
+
+.logo-wrapper {
+  @apply mb-8;
+}
+
+.logo {
+  @apply w-[250px];
+}
+</style>
