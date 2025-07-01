@@ -9,6 +9,7 @@ export const useAuthStore = defineStore(
     const accessToken = ref(null);
     const expirationTime = ref(null);
     const memberId = ref(null);
+    const memberRole = ref(null);
 
     const isAuthenticated = computed(
       () => !!accessToken.value && Date.now() < (expirationTime.value || 0),
@@ -20,8 +21,10 @@ export const useAuthStore = defineStore(
       try {
         const payload = JSON.parse(atob(at.split(".")[1]));
         if (!payload.exp) throw new Error("만료 시간 없음");
+        console.log("payload", payload);
         expirationTime.value = payload.exp * 1000;
         memberId.value = payload.sub;
+        memberRole.value = payload.role;
       } catch (e) {
         clearAuth(); // 파싱 실패 시 초기화
       }
@@ -37,6 +40,7 @@ export const useAuthStore = defineStore(
       accessToken,
       expirationTime,
       memberId,
+      memberRole,
       isAuthenticated,
       setAuth,
       clearAuth,
