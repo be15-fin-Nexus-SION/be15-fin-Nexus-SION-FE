@@ -1,7 +1,18 @@
+<script setup>
+import { useAuthStore } from "@/stores/auth.js";
+
+const authStore = useAuthStore();
+</script>
+
 <template>
   <div class="auth-container">
-    <router-link to="/login" class="auth-text">로그인</router-link>
-    <router-link to="/signup" class="auth-text">회원가입</router-link>
+    <template v-if="authStore.isAuthenticated">
+      <router-link to="/logout" class="auth-text">로그아웃</router-link>
+    </template>
+    <template v-else>
+      <router-link to="/login" class="auth-text">로그인</router-link>
+      <router-link to="/signup" class="auth-text">회원가입</router-link>
+    </template>
     <!-- 또는 설정/로그아웃 -->
   </div>
 </template>
