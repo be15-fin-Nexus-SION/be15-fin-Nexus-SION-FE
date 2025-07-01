@@ -20,7 +20,7 @@ export function useValidation() {
     return true;
   }
 
-  function isPhonenumberValid(phoneNumber) {
+  function isPhoneNumberValid(phoneNumber) {
     if (!phoneNumber) {
       phoneError.value = "전화번호를 입력해주세요.";
       return false;
@@ -50,7 +50,7 @@ export function useValidation() {
 
   function validateAll(form) {
     const isPasswordOk = isPasswordValid(form.password);
-    const isPhoneOk = isPhonenumberValid(form.phoneNumber);
+    const isPhoneOk = isPhoneNumberValid(form.phoneNumber);
     const isEmailOk = isEmailValid(form.email);
 
     return isPasswordOk && isPhoneOk && isEmailOk;
@@ -61,7 +61,7 @@ export function useValidation() {
     phoneError,
     emailError,
     isPasswordValid,
-    isPhonenumberValid,
+    isPhoneNumberValid,
     isEmailValid,
     validateAll,
   };

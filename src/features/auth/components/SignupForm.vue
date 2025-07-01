@@ -31,14 +31,14 @@ const {
   phoneError,
   emailError,
   isPasswordValid,
-  isPhonenumberValid,
+  isPhoneNumberValid,
   isEmailValid,
   validateAll,
 } = useValidation();
 
 function handleBlur(fieldKey) {
   if (fieldKey === "password") return isPasswordValid(form.password);
-  if (fieldKey === "phoneNumber") return isPhonenumberValid(form.phoneNumber);
+  if (fieldKey === "phoneNumber") return isPhoneNumberValid(form.phoneNumber);
   if (fieldKey === "email") return isEmailValid(form.email);
 }
 
