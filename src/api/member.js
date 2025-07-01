@@ -51,3 +51,15 @@ export function fetchTechStacksByEmployeeId(employeeId) {
 export function fetchDeveloperDetail(employeeId) {
     return api.get(`/members/${employeeId}`);
 }
+
+export function registerDevelopers(developers) {
+    return api.post("/members", developers);
+}
+
+export function fetchPositionList() {
+    return api.get("/positions");
+}
+
+export function fetchDepartmentList() {
+    return api.get("/departments");
+}
