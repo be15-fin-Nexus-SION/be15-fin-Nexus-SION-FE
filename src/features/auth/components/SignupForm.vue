@@ -3,6 +3,7 @@ import { reactive, ref } from "vue";
 import { useValidation } from "@/composable/useValidation.js";
 import ShowIcon from "@/assets/icons/Show.svg";
 import HideIcon from "@/assets/icons/Hide.svg";
+import Close_LG from "@/assets/icons/Close_LG.svg";
 
 const emit = defineEmits(["submit"]);
 
@@ -58,40 +59,46 @@ function onSubmit() {
 <template>
   <form class="register-form" @submit.prevent="onSubmit">
     <div class="input-wrapper" v-for="field in fields" :key="field.key">
-      <input
-        :type="
-          field.key === 'password'
-            ? showPassword
-              ? 'text'
-              : 'password'
-            : field.type
-        "
-        v-model="form[field.key]"
-        :placeholder="field.placeholder"
-        @blur="handleBlur(field.key)"
-      />
-
-      <button
-        v-if="field.key === 'password'"
-        type="button"
-        class="eye-btn"
-        @click="showPassword = !showPassword"
-      >
-        <img
-          :src="showPassword ? HideIcon : ShowIcon"
-          alt="비밀번호 보기 토글"
-          class="eye-icon"
+      <div class="input-flex">
+        <input
+          :type="
+            field.key === 'password'
+              ? showPassword
+                ? 'text'
+                : 'password'
+              : field.type
+          "
+          v-model="form[field.key]"
+          :placeholder="field.placeholder"
+          @blur="handleBlur(field.key)"
         />
-      </button>
 
-      <button
-        type="button"
-        class="clear-btn"
-        v-if="form[field.key]"
-        @click="form[field.key] = ''"
-      >
-        ×
-      </button>
+        <!-- 비밀번호 보기 버튼 -->
+        <button
+          v-if="field.key === 'password'"
+          type="button"
+          class="eye-btn"
+          @click="showPassword = !showPassword"
+        >
+          <img
+            :src="showPassword ? HideIcon : ShowIcon"
+            alt="비밀번호 보기 토글"
+            class="eye-icon"
+          />
+        </button>
+
+        <!-- 입력값 지우기 버튼 -->
+        <button
+          v-if="form[field.key]"
+          type="button"
+          class="clear-btn"
+          @click="form[field.key] = ''"
+        >
+          <img :src="Close_LG" alt="닫기 버튼" class="close-icon" />
+        </button>
+      </div>
+
+      <!-- 에러 메시지 -->
       <p v-if="field.key === 'password' && passwordError" class="error-msg">
         {{ passwordError }}
       </p>
@@ -112,19 +119,31 @@ function onSubmit() {
 }
 
 .input-wrapper {
-  @apply relative mb-2;
+  @apply mb-4;
 }
 
-.input-wrapper input {
-  @apply w-full py-3 pr-8 pl-3 border border-gray-300 rounded;
+.input-flex {
+  @apply border border-gray-300 rounded m-1 flex items-center justify-between;
+}
+
+.input-flex input {
+  @apply pl-3 py-3 pr-3 rounded w-full;
+}
+
+.eye-btn {
+  @apply pr-3 bg-transparent border-none cursor-pointer;
+}
+
+.eye-icon {
+  @apply w-5 h-5;
 }
 
 .clear-btn {
-  @apply absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-[1.2rem] cursor-pointer text-gray-500;
+  @apply pr-3 bg-transparent border-none cursor-pointer;
 }
 
-.clear-btn:hover {
-  @apply text-gray-800;
+.close-icon {
+  @apply w-4 h-4;
 }
 
 .register-form button[type="submit"] {
@@ -136,14 +155,6 @@ function onSubmit() {
 }
 
 .error-msg {
-  @apply text-semantic-warning text-caption mt-2;
-}
-
-.eye-btn {
-  @apply absolute right-10 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer;
-}
-
-.eye-icon {
-  @apply w-5 h-5;
+  @apply text-semantic-warning text-caption mt-1;
 }
 </style>

@@ -102,7 +102,7 @@ function onSubmit() {
 }
 
 .clear-btn {
-  @apply absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none text-[1.2rem] cursor-pointer text-gray-500;
+  @apply absolute right-4 top-3 bg-transparent border-none text-[1.2rem] cursor-pointer text-gray-500;
 }
 
 .clear-btn:hover {
@@ -122,7 +122,7 @@ function onSubmit() {
 }
 
 .eye-btn {
-  @apply absolute right-10 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer;
+  @apply absolute right-10 top-4 bg-transparent border-none cursor-pointer;
 }
 
 .eye-icon {

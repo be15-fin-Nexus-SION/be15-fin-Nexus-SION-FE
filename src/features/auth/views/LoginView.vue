@@ -1,6 +1,5 @@
 <script setup>
 // 로그인 관련 로직
-import SignupForm from "@/features/auth/components/SignupForm.vue";
 import { login } from "@/api/member.js";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import { useRouter } from "vue-router";
@@ -14,8 +13,8 @@ const handleLogin = async (payload) => {
     showSuccessToast("로그인이 완료되었습니다.");
     await router.push("/");
   } catch (error) {
-    console.error("회원 가입 실패:", error);
-    showErrorToast("회원가입에 실패했습니다. 다시 시도해주세요.");
+    console.error("로그인 실패:", error);
+    showErrorToast("로그인에 실패했습니다. 다시 시도해주세요.");
   }
 };
 </script>
