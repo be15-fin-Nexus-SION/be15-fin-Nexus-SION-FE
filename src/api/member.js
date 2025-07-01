@@ -53,3 +53,15 @@ export function fetchDeveloperDetail(employeeId) {
 export function signup(payload) {
   return api.post("/members/signup", payload);
 }
+
+export function registerDevelopers(developers) {
+    return api.post("/members", developers);
+}
+
+export function fetchPositionList() {
+    return api.get("/positions");
+}
+
+export function fetchDepartmentList() {
+    return api.get("/departments");
+}
