@@ -15,4 +15,12 @@ export const adminRoutes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "/admin/tech-stacks",
+    name: "AdminTechStacksView",
+    component: () => import("./views/AdminTechStacksView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];

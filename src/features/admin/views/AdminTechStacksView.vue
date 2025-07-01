@@ -5,90 +5,95 @@ import { getInitialConsonant, isChoseong } from "@/utills/hangul.js";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import InputBox from "@/components/input/InputBox.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
-import AdminDomainsList from "@/features/admin/components/AdminDomainsList.vue";
 import NameIndexBar from "@/components/searchBar/NameIndexBar.vue";
-import { getAllDomains, addDomain, deleteDomain } from "@/api/admin.js";
+import {
+  getAllTechStacks,
+  addTechStack,
+  deleteTechStack,
+} from "@/api/admin.js";
+import AdminTechStacksList from "@/features/admin/components/AdminTechStacksList.vue";
 
-const domainName = ref("");
-const domainList = ref([]);
-const domainListRef = ref(null);
+const techStackName = ref("");
+const techStackList = ref([]);
+const techStackListRef = ref(null);
 
 // ---- 데이터 불러오기 ----
-async function fetchDomains() {
+async function fetchTechStacks() {
   try {
-    const res = await getAllDomains();
-    domainList.value = res.data.data.domains;
+    const res = await getAllTechStacks();
+    techStackList.value = res.data.data.techStacks;
   } catch (e) {
-    const errorMessage = e.response?.data?.message || "도메인 목록 조회 실패";
-    showSuccessToast(errorMessage);
+    const errorMessage =
+      e.response?.data?.message || "기술 스택 목록 조회 실패";
+    showErrorToast(errorMessage);
   }
 }
 
 // ---- 직무 추가 ----
 async function handleAdd() {
-  if (!domainName.value.trim()) {
-    showErrorToast("도메인을 입력해주세요.");
+  if (!techStackName.value.trim()) {
+    showErrorToast("기술 스택을 입력해주세요.");
     return;
   }
   try {
-    await addDomain(domainName.value.trim());
-    await fetchDomains();
-    domainName.value = "";
-    showSuccessToast("도메인이 등록되었습니다.");
+    await addTechStack(techStackName.value.trim());
+    await fetchTechStacks();
+    techStackName.value = "";
+    showSuccessToast("기술 스택이 등록되었습니다.");
   } catch (e) {
     const errorMessage =
-      e.response?.data?.message || "도메인 등록에 실패했습니다.";
+      e.response?.data?.message || "기술 스택 등록에 실패했습니다.";
     showErrorToast(errorMessage);
   }
 }
 
 // ---- 직무 삭제 ----
-async function handleDelete(domain) {
+async function handleDelete(techStack) {
   try {
-    await deleteDomain(domain);
-    await fetchDomains();
-    showSuccessToast("도메인이 삭제되었습니다.");
+    await deleteTechStack(techStack);
+    await fetchTechStacks();
+    showSuccessToast("기술 스택이 삭제되었습니다.");
   } catch (e) {
     const errorMessage =
-      e.response?.data?.message || "도메인 삭제에 실패했습니다.";
+      e.response?.data?.message || "기술 스택 삭제에 실패했습니다.";
     showErrorToast(errorMessage);
   }
 }
 
 // ---- 스크롤 이동 ----
 function onInitialSelect(letter) {
-  domainListRef.value?.scrollToLetter(letter);
+  techStackListRef.value?.scrollToLetter(letter);
 }
 
 // ---- 초성 필터 ----
 const availableKoreanInitials = computed(() => {
-  const initials = domainList.value
-    .map((domain) => getInitialConsonant(domain.trim()[0]))
+  const initials = techStackList.value
+    .map((techStack) => getInitialConsonant(techStack.trim()[0]))
     .filter(isChoseong);
   return [...new Set(initials)];
 });
 
 const availableEnglishInitials = computed(() => {
-  const initials = domainList.value
-    .map((domain) => getInitialConsonant(domain.trim()[0]))
+  const initials = techStackList.value
+    .map((techStack) => getInitialConsonant(techStack.trim()[0]))
     .filter((i) => /^[A-Z]$/.test(i));
   return [...new Set(initials)];
 });
 
-onMounted(fetchDomains);
+onMounted(fetchTechStacks);
 </script>
 
 <template>
   <div class="page-layout">
     <SidebarWrapper viewType="adminSetting" />
     <div class="content-wrapper">
-      <h1 class="page-title">도메인 관리</h1>
+      <h1 class="page-title">기술 스택 관리</h1>
       <div class="body">
         <div class="body-main">
           <div class="input-add">
             <InputBox
-              v-model="domainName"
-              placeholder="예: 영업"
+              v-model="techStackName"
+              placeholder="예: Java"
               @enter="handleAdd"
             />
             <PrimaryButton
@@ -97,10 +102,10 @@ onMounted(fetchDomains);
               :onClick="handleAdd"
             />
           </div>
-          <AdminDomainsList
-            ref="domainListRef"
-            :domainList="domainList"
-            @deleteDomain="handleDelete"
+          <AdminTechStacksList
+            ref="techStackListRef"
+            :techStackList="techStackList"
+            @deleteTechStack="handleDelete"
           />
         </div>
         <div class="body-side">

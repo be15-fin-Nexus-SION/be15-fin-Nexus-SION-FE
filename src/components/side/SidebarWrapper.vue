@@ -20,7 +20,7 @@ const route = useRoute();
 const rawItems = computed(() => {
   return props.viewType === "adminSetting"
     ? [
-        { label: "기술 스택 관리", to: "/admin/users" },
+        { label: "기술 스택 관리", to: "/admin/tech-stacks" },
         { label: "도메인 관리", to: "/admin/domains" },
         { label: "고객사 관리", to: "/admin/tech-stack" },
         { label: "직무 관리", to: "/admin/jobs" },

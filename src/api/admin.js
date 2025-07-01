@@ -27,3 +27,17 @@ export function addDomain(name) {
 export function deleteDomain(name) {
   return api.delete(`/domains/${encodeURIComponent(name)}`);
 }
+
+export function getAllTechStacks() {
+  return api.get("/tech-stack");
+}
+
+export function addTechStack(techStackName) {
+  return api.post("/tech-stack", {
+    techStackName,
+  });
+}
+
+export function deleteTechStack(name) {
+  return api.delete(`/tech-stack/${encodeURIComponent(name)}`);
+}
