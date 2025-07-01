@@ -192,18 +192,21 @@ const firstErrorMessage = computed(() => {
 });
 
 onMounted(async () => {
-  try {
-    const posRes = await fetchPositionList();
-    positionOptions.value = posRes.data.data.map(p => p.positionName);
-  } catch (e) {
-    console.error('직급 목록 조회 실패', e);
+  const [posResult, deptResult] = await Promise.allSettled([
+    fetchPositionList(),
+    fetchDepartmentList()
+  ]);
+
+  if (posResult.status === 'fulfilled') {
+    positionOptions.value = posResult.value.data.data.map(p => p.positionName);
+  } else {
+    console.error('직급 목록 조회 실패', posResult.reason);
   }
 
-  try {
-    const deptRes = await fetchDepartmentList();
-    departmentOptions.value = deptRes.data.data.map(d => d.departmentName);
-  } catch (e) {
-    console.error('부서 목록 조회 실패', e);
+  if (deptResult.status === 'fulfilled') {
+    departmentOptions.value = deptResult.value.data.data.map(d => d.departmentName);
+  } else {
+    console.error('부서 목록 조회 실패', deptResult.reason);
   }
 });
 </script>
