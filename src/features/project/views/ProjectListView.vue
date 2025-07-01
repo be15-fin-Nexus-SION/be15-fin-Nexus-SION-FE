@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from "vue";
 import FilterSidebar from "@/features/project/components/FilterSidebar.vue";
 import ProjectCard from "@/features/project/components/ProjectCard.vue";
-import BasePagination from "@/components/BasePagination.vue";
+import Pagination from "@/components/Pagination.vue";
 
 const allProjects = ref([]);
 const currentPage = ref(1);
@@ -64,7 +64,7 @@ onMounted(() => fetchProjects({}));
       </div>
 
       <div class="mt-10 flex justify-center">
-        <BasePagination
+        <Pagination
           :current-page="currentPage"
           :total-pages="totalPages"
           @change="goToPage"

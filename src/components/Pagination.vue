@@ -1,6 +1,10 @@
 <script setup>
 import { computed } from "vue";
 
+defineOptions({
+  name: "BasePagination",
+});
+
 const props = defineProps({
   currentPage: {
     type: Number,
