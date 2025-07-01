@@ -3,6 +3,7 @@ import { reactive, ref } from "vue";
 import { useValidation } from "@/composable/useValidation.js";
 import ShowIcon from "@/assets/icons/Show.svg";
 import HideIcon from "@/assets/icons/Hide.svg";
+import { showErrorToast } from "@/utills/toast.js";
 
 const emit = defineEmits(["submit"]);
 
@@ -47,7 +48,7 @@ function onSubmit() {
   const payload = { ...form, birthday: birthFormatted };
 
   if (!validateAll(payload)) {
-    console.log("유효성 검사 실패");
+    showErrorToast("입력값을 확인해주세요.");
     return;
   }
 
