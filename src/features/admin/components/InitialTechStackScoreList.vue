@@ -15,7 +15,13 @@ const localScores = computed(() => props.scores); // 단순히 바인딩만
 
 function addNewRow() {
   const lastItem = props.scores[props.scores.length - 1];
-  const newMinYears = lastItem?.maxYears != null ? lastItem.maxYears + 1 : 0;
+  const newMinYears =
+    lastItem?.maxYears != null ? lastItem.maxYears + 1 : lastItem.minYears + 1;
+
+  if (lastItem.maxYears == null) {
+    lastItem.maxYears = lastItem.minYears;
+    emit("update", lastItem);
+  }
 
   const newItem = {
     id: Date.now(), // id 없으면 고유 식별용
