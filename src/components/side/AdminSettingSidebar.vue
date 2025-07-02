@@ -8,6 +8,7 @@
         :key="index"
         :label="item.label"
         :highlighted="item.highlighted"
+        :to="item.to"
       />
     </div>
   </aside>

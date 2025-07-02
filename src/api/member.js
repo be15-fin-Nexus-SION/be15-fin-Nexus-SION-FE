@@ -1,18 +1,18 @@
 import api from "./axios.js";
 
 export function reissueAccessToken() {
-  return api.get("/members/token");
+  return api.get("/members/refresh");
 }
 
 export function fetchDeveloperList({
-                                     page = 0,
-                                     size = 10,
-                                     status,
-                                     nameInitial,
-                                     sortBy,
-                                     sortDir,
-    keyword,
-                                   } = {}) {
+  page = 0,
+  size = 10,
+  status,
+  nameInitial,
+  sortBy,
+  sortDir,
+  keyword,
+} = {}) {
   const query = { page, size };
 
   if (status) query.status = status;
@@ -24,40 +24,47 @@ export function fetchDeveloperList({
   return api.get("/members", { params: query });
 }
 
-export function searchDeveloperList({
-                                        keyword,
-                                        page = 0,
-                                        size = 10
-                                    }) {
-    return api.get("/members/search", {
-        params: {
-            keyword,
-            page,
-            size
-        }
-    });
+export function searchDeveloperList({ keyword, page = 0, size = 10 }) {
+  console.log("search 호출, " + keyword);
+  return api.get("/members/search", {
+    params: {
+      keyword,
+      page,
+      size,
+    },
+  });
 }
 
 export const updateMemberStatus = (employeeId, status) => {
-    return api.patch(`members/${employeeId}/status`, {
-        status: status,
-    });
+  return api.patch(`members/${employeeId}/status`, {
+    status: status,
+  });
 };
 
 export function fetchTechStacksByEmployeeId(employeeId) {
-    return api.get(`/members/${employeeId}/tech-stacks`);
+  return api.get(`/members/${employeeId}/tech-stacks`);
 }
 
 export function fetchDeveloperDetail(employeeId) {
-    return api.get(`/members/${employeeId}`);
+  return api.get(`/members/${employeeId}`);
+}
+
+/* 회원 가입 */
+export function signup(payload) {
+  return api.post("/members/signup", payload);
+}
+
+/* 로그인 */
+export function login(payload) {
+  return api.post("/members/login", payload);
 }
 
 export function registerDevelopers(developers) {
-    return api.post("/members", developers);
+  return api.post("/members", developers);
 }
 
 export function fetchPositionList() {
-    return api.get("/positions");
+  return api.get("/positions");
 }
 
 export function fetchDepartmentList() {
@@ -67,3 +74,4 @@ export function fetchDepartmentList() {
 export function updateDeveloper(employeeId, updateRequest) {
     return api.put(`/members/${employeeId}`, updateRequest);
 }
+

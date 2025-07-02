@@ -20,12 +20,12 @@ const route = useRoute();
 const rawItems = computed(() => {
   return props.viewType === "adminSetting"
     ? [
-        { label: "기술 스택 설정", to: "/admin/users" },
-        { label: "도메인 설정", to: "/admin/projects" },
-        { label: "고객사 설정", to: "/admin/tech-stack" },
-        { label: "직무 설정", to: "/admin/jobs" },
-        { label: "구간별 단가 설정", to: "/admin/logs" },
-        { label: "초기 스택 점수 설정", to: "/admin/logs" },
+        { label: "기술 스택 관리", to: "/admin/tech-stacks" },
+        { label: "도메인 관리", to: "/admin/domains" },
+        { label: "고객사 관리", to: "/admin/tech-stack" },
+        { label: "직무 관리", to: "/admin/jobs" },
+        { label: "구간별 단가 관리", to: "/admin/logs" },
+        { label: "초기 스택 점수 관리", to: "/admin/logs" },
       ]
     : [
         { label: "기술 스택별 구성원", to: "/statistics/stack/member-count" },

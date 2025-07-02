@@ -9,24 +9,24 @@
 
     <!-- 개발자 카드 목록 -->
     <div
-        v-for="(dev, index) in developers"
-        :key="dev.id"
-        class="w-full max-w-4xl mx-auto"
+      v-for="(dev, index) in developers"
+      :key="dev.id"
+      class="w-full max-w-4xl mx-auto"
     >
       <DeveloperFormCard
-          class="mx-auto"
-          v-model="developers[index]"
-          :errorMessages="errors[index]"
-          @remove="removeDeveloper(index)"
-          @open-tech-modal="openTechModal(index)"
+        class="mx-auto"
+        v-model="developers[index]"
+        :errorMessages="errors[index]"
+        @remove="removeDeveloper(index)"
+        @open-tech-modal="openTechModal(index)"
       />
     </div>
 
     <!-- + 버튼 -->
     <div class="flex justify-center">
       <button
-          @click="addDeveloper"
-          class="w-14 h-14 flex items-center justify-center bg-primary text-white text-2xl rounded-full shadow-md"
+        @click="addDeveloper"
+        class="w-14 h-14 flex items-center justify-center bg-primary text-white text-2xl rounded-full shadow-md"
       >
         +
       </button>
@@ -34,11 +34,11 @@
 
     <!-- 기술스택 선택 모달 -->
     <TechStackSelectModal
-        v-if="isModalOpen"
-        :all-tech-stacks="allTechStacks"
-        :initial-selected="selectedTechStacks"
-        @apply="applyTechStacks"
-        @close="isModalOpen = false"
+      v-if="isModalOpen"
+      :all-tech-stacks="allTechStacks"
+      :initial-selected="selectedTechStacks"
+      @apply="applyTechStacks"
+      @close="isModalOpen = false"
     />
 
     <!-- 등록 확인 모달 -->
@@ -82,9 +82,9 @@ function createNewDeveloper() {
     joinedAt: '',
     careerYears: '',
     profileImageUrl: null,
-    positionName: '',
-    departmentName: '',
-    salary: '',
+    positionName: "",
+    departmentName: "",
+    salary: "",
     techStackNames: [],
   };
 }
@@ -94,7 +94,7 @@ onMounted(async () => {
     const response = await fetchAllTechStacks();
     allTechStacks.value = response.data.data.techStacks;
   } catch (e) {
-    console.error('기술 스택 목록 조회 실패', e);
+    console.error("기술 스택 목록 조회 실패", e);
   }
 });
 
@@ -141,27 +141,27 @@ async function submit() {
   showConfirm.value = false;
   if (hasError) return;
   try {
-    const payload = developers.map(dev => ({
+    const payload = developers.map((dev) => ({
       employeeIdentificationNumber: dev.employeeIdentificationNumber?.trim(),
       employeeName: dev.employeeName?.trim(),
       phoneNumber: dev.phoneNumber?.trim(),
       email: dev.email?.trim(),
       birthday: dev.birthday || null,
       joinedAt: dev.joinedAt || null,
-      careerYears: dev.careerYears !== '' ? Number(dev.careerYears) : null,
+      careerYears: dev.careerYears !== "" ? Number(dev.careerYears) : null,
       positionName: dev.positionName || null,
       departmentName: dev.departmentName || null,
       profileImageUrl: dev.profileImageUrl || null,
-      salary: dev.salary !== '' ? Number(dev.salary) : null,
+      salary: dev.salary !== "" ? Number(dev.salary) : null,
       techStackNames: dev.techStackNames || [],
     }));
 
     await registerDevelopers(payload);
-    alert('등록에 성공했습니다.');
-    await router.push({ name: 'developer-list' });
+    alert("등록에 성공했습니다.");
+    await router.push({ name: "developer-list" });
   } catch (e) {
     console.error(e);
-    alert('등록에 실패했습니다.');
+    alert("등록에 실패했습니다.");
   }
 }
 </script>
