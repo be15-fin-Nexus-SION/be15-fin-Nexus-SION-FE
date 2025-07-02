@@ -76,8 +76,7 @@ function triggerSearch() {
 function selectOption(option) {
   const parts = searchInput.value.split(",");
   parts[parts.length - 1] = option;
-  const newValue = parts.map((p) => p.trim()).join(", ");
-  searchInput.value = newValue;
+  searchInput.value = parts.map((p) => p.trim()).join(", ");
   emit("search", option);
   showDropdown.value = false;
 }
