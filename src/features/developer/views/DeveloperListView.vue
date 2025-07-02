@@ -81,9 +81,11 @@
           <td class="p-4 text-center text-xs font-medium">
             <div class="flex justify-center">
               <TechBadge
+                  v-if="developer.topTechStackName"
                   class="p-2 text-xs font-medium"
                   :label="developer.topTechStackName"
               />
+              <span v-else>-</span>
             </div>
           </td>
 
