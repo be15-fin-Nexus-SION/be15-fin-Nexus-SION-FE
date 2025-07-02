@@ -41,3 +41,13 @@ export function addTechStack(techStackName) {
 export function deleteTechStack(name) {
   return api.delete(`/tech-stack/${encodeURIComponent(name)}`);
 }
+
+export function getAllInitialScores() {
+  return api.get("/initial-scores");
+}
+
+export function setInitialScores(initialScores) {
+  console.log(initialScores);
+
+  return api.post("/initial-scores", initialScores);
+}
