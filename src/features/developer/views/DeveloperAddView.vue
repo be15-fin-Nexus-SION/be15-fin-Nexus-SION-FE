@@ -4,7 +4,7 @@
 
     <!-- 등록 버튼: 카드 리스트 위쪽에 위치 -->
     <div class="w-full max-w-3xl flex justify-end mx-auto">
-      <PrimaryButton label="등록" @click="submit" />
+      <PrimaryButton label="등록" @click="showConfirm = true" />
     </div>
 
     <!-- 개발자 카드 목록 -->
@@ -40,9 +40,17 @@
         @apply="applyTechStacks"
         @close="isModalOpen = false"
     />
+
+    <!-- 등록 확인 모달 -->
+    <ConfirmModal
+        v-if="showConfirm"
+        message="등록하시겠습니까?"
+        confirmText="등록"
+        @confirm="submit"
+        @close="showConfirm = false"
+    />
   </div>
 </template>
-
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
@@ -52,10 +60,12 @@ import TechStackSelectModal from '@/components/TechStackSelectModal.vue';
 import { registerDevelopers } from '@/api/member.js';
 import { fetchAllTechStacks } from '@/api/techstack.js';
 import PrimaryButton from '@/components/button/PrimaryButton.vue';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
 const router = useRouter();
 const developers = reactive([createNewDeveloper()]);
 const isModalOpen = ref(false);
+const showConfirm = ref(false);
 const currentDevIndex = ref(null);
 const selectedTechStacks = ref([]);
 const allTechStacks = ref([]);
@@ -63,7 +73,7 @@ const errors = ref([{}]);
 
 function createNewDeveloper() {
   return {
-    id: Date.now() + Math.random(), // 고유 ID 보장
+    id: Date.now() + Math.random(),
     employeeIdentificationNumber: '',
     employeeName: '',
     phoneNumber: '',
@@ -121,15 +131,15 @@ function validate(dev) {
   else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(dev.email)) errs.email = '이메일 형식이 올바르지 않습니다.';
   if (!dev.birthday) errs.birthday = '생년월일은 필수 입력 사항입니다.';
   if (!dev.joinedAt) errs.joinedAt = '입사일은 필수 입력 사항입니다.';
-  if (dev.careerYears === '') errs.careerYears = '연차는 필수 입력 사항입니다.';
+  if (dev.careerYears === '') errs.careerYears = '년차는 필수 입력 사항입니다.';
   return errs;
 }
 
 async function submit() {
   errors.value = developers.map(validate);
   const hasError = errors.value.some(e => Object.keys(e).length > 0);
+  showConfirm.value = false;
   if (hasError) return;
-
   try {
     const payload = developers.map(dev => ({
       employeeIdentificationNumber: dev.employeeIdentificationNumber?.trim(),
