@@ -4,7 +4,12 @@
     <div class="flex items-center justify-between">
       <div class="text-xl font-semibold">개발자 상세</div>
       <div class="space-x-2">
-        <button class="px-4 py-2 rounded-md bg-primary text-white text-sm">수정</button>
+        <button
+            class="px-4 py-2 rounded-md bg-primary text-white text-sm"
+            @click="goToEdit"
+        >
+          수정
+        </button>
         <button class="px-4 py-2 rounded-md bg-gray-200 text-sm">삭제</button>
       </div>
     </div>
@@ -16,18 +21,18 @@
     >
       <!-- 상태 뱃지: 카드 오른쪽 상단 고정 -->
       <div class="absolute top-6 right-6">
-    <span
-        :class="[
-        'px-4 py-1 rounded-full text-sm font-semibold',
-        developer.status === 'IN_PROJECT'
-          ? 'bg-green-100 text-green-700'
-          : developer.status === 'AVAILABLE'
-            ? 'bg-yellow-100 text-yellow-700'
-            : 'bg-gray-100 text-gray-600'
-      ]"
-    >
-      {{ statusLabel(developer.status) }}
-    </span>
+        <span
+            :class="[
+            'px-4 py-1 rounded-full text-sm font-semibold',
+            developer.status === 'IN_PROJECT'
+              ? 'bg-green-100 text-green-700'
+              : developer.status === 'AVAILABLE'
+                ? 'bg-yellow-100 text-yellow-700'
+                : 'bg-gray-100 text-gray-600'
+          ]"
+        >
+          {{ statusLabel(developer.status) }}
+        </span>
       </div>
 
       <!-- 좌측: 프로필 이미지 및 이름/직급 -->
@@ -103,7 +108,6 @@
         <div class="h-40 flex items-center justify-center">
           <p class="text-gray-400 text-sm">프로젝트 이력이 없습니다.</p>
         </div>
-
       </div>
 
       <!-- Radar 차트 -->
@@ -123,13 +127,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import BarChart from '@/features/developer/components/BarChart.vue';
 import RadarChart from '@/features/developer/components/RadarChart.vue';
 import { fetchDeveloperDetail, fetchTechStacksByEmployeeId } from '@/api/member';
 import TechBadge from "@/components/badge/TechBadge.vue";
 
 const route = useRoute();
+const router = useRouter();
 const employeeId = route.params.employeeId;
 
 const developer = ref(null);
@@ -145,6 +150,10 @@ const statusLabel = (status) => {
     default: return status;
   }
 };
+
+function goToEdit() {
+  router.push({ name: 'developer-edit', params: { employeeId } });
+}
 
 onMounted(async () => {
   try {

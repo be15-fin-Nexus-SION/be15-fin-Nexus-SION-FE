@@ -23,4 +23,9 @@ export const developerRoutes = [
       requiresAuth: true,
     },
   },
+  {
+    path: '/developers/:employeeId/edit',
+    name: 'developer-edit',
+    component: () => import("./views/DeveloperEditView.vue")
+  },
 ];
