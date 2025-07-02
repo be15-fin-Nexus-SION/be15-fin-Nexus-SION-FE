@@ -1,27 +1,38 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { fetchProjectList } from "@/api/project.js";
 import FilterSidebar from "@/features/project/components/FilterSidebar.vue";
 import ProjectCard from "@/features/project/components/ProjectCard.vue";
 import Pagination from "@/components/Pagination.vue";
 
 const allProjects = ref([]);
 const currentPage = ref(1);
+const totalPages = ref(1);
 const perPage = 4;
 const selectedFilter = ref({});
 
-function fetchProjects(filter) {
-  selectedFilter.value = filter;
+async function fetchProjects(filter) {
+  try {
+    selectedFilter.value = filter;
+    const requestPayload = {
+      ...filter,
+      page: currentPage.value - 1,
+      size: perPage,
+      statuses: filter.status ? [filter.status] : [],
+      maxPeriodInMonth: filter.period,
+      maxBudget: filter.budget * 10000,
+      maxNumberOfMembers: filter.memberCount,
+    };
 
-  // 더미 프로젝트 12개 생성
-  allProjects.value = Array.from({ length: 12 }).map((_, i) => ({
-    title: "Project Alpha",
-    startDate: "2025/01/01",
-    endDate: "2025/07/01",
-    description:
-      "사내 직원들의 근무 이력과 프로젝트 배치를 효율적으로 관리할 수 있는 HR 시스템을 구축하는 프로젝트입니다. 연차·직무·기술 스택 기반 자동 매칭 기능이 핵심입니다.",
-    hrCount: 8,
-    status: ["WAITING", "IN_PROGRESS", "COMPLETE", "INCOMPLETE"][i % 4],
-  }));
+    const response = await fetchProjectList(requestPayload);
+
+    // ✅ 수정된 부분: 실제 content 위치는 data.data.content
+    const pageData = response.data?.data;
+    allProjects.value = pageData?.content ?? [];
+    totalPages.value = pageData?.totalPages ?? 1;
+  } catch (error) {
+    console.error("❌ 프로젝트 목록 조회 실패: ", error);
+  }
 }
 
 function handleFilterChange(filter) {
@@ -31,39 +42,48 @@ function handleFilterChange(filter) {
 
 function goToPage(page) {
   currentPage.value = page;
+  fetchProjects(selectedFilter.value);
 }
 
-const pagedProjects = computed(() => {
-  const start = (currentPage.value - 1) * perPage;
-  return allProjects.value.slice(start, start + perPage);
+const pagedProjects = computed(() => allProjects.value ?? []);
+const hasNoProjects = computed(() => pagedProjects.value.length === 0);
+
+onMounted(() => {
+  fetchProjects({
+    keyword: "",
+    period: 36,
+    budget: 50000,
+    memberCount: 50,
+    status: null,
+  });
 });
-
-const totalPages = computed(() =>
-  Math.ceil(allProjects.value.length / perPage),
-);
-
-onMounted(() => fetchProjects({}));
 </script>
 
 <template>
   <div class="page-layout">
-    <FilterSidebar @filter-change="handleFilterChange" />
+    <div class="py-4">
+      <FilterSidebar @filter-change="handleFilterChange" />
+    </div>
 
     <div class="project-content-wrapper">
       <div class="flex justify-between items-center mb-6">
-        <h1 class="text-headlineMd font-bold">프로젝트 목록</h1>
+        <h1 class="text-2xl font-bold">프로젝트 목록</h1>
         <button class="bg-primary px-5 py-2 text-white rounded-md">등록</button>
       </div>
 
-      <div class="flex flex-col gap-4">
+      <div v-if="hasNoProjects" class="text-center text-gray-500 mt-10">
+        조건에 맞는 프로젝트가 없습니다.
+      </div>
+
+      <div v-else class="flex flex-col gap-4">
         <ProjectCard
-          v-for="(project, index) in pagedProjects"
-          :key="index"
+          v-for="project in pagedProjects"
+          :key="project.projectCode"
           :project="project"
         />
       </div>
 
-      <div class="mt-10 flex justify-center">
+      <div v-if="!hasNoProjects" class="mt-10 flex justify-center">
         <Pagination
           :current-page="currentPage"
           :total-pages="totalPages"
@@ -78,8 +98,7 @@ onMounted(() => fetchProjects({}));
 .page-layout {
   @apply flex relative;
 }
-
 .project-content-wrapper {
-  @apply flex-1 px-16 py-12 max-w-[970px];
+  @apply flex-1 px-6 py-10 max-w-[970px];
 }
 </style>

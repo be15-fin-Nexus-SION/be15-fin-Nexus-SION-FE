@@ -1,14 +1,14 @@
 <script setup>
-import { ref, watchEffect } from "vue";
+import { ref, computed } from "vue";
 
 const emit = defineEmits(["filter-change"]);
 
 const selectedFilters = ref({
   keyword: "",
-  period: 18,
-  budget: 29000,
-  memberCount: 20,
-  status: null, // ✅ 단일 선택으로 변경
+  period: 36,
+  budget: 50000,
+  memberCount: 50,
+  status: null,
 });
 
 const statusOptions = [
@@ -18,73 +18,94 @@ const statusOptions = [
   { label: "시작 전", value: "WAITING", color: "#FFD700" },
 ];
 
-// ✅ 체크박스처럼 보이지만 하나만 선택되도록 처리
+const periodFill = computed(
+  () => `${(selectedFilters.value.period / 36) * 100}%`,
+);
+const budgetFill = computed(
+  () => `${((selectedFilters.value.budget - 1000) / 49000) * 100}%`,
+);
+const memberFill = computed(
+  () => `${(selectedFilters.value.memberCount / 50) * 100}%`,
+);
+
 function handleStatusClick(value) {
   selectedFilters.value.status =
     selectedFilters.value.status === value ? null : value;
 }
 
-watchEffect(() => {
+function handleSearchClick() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
   emit("filter-change", selectedFilters.value);
-});
+}
 </script>
 
 <template>
   <aside class="sidebar-filter">
     <div class="filter-card">
-      <!-- 검색 -->
       <div class="mb-6">
-        <input
-          type="text"
-          v-model="selectedFilters.keyword"
-          placeholder="검색어 입력"
-          class="search-input"
-        />
-        <button class="search-button">검색</button>
+        <div class="flex gap-2">
+          <input
+            type="text"
+            v-model="selectedFilters.keyword"
+            placeholder="검색어 입력"
+            class="search-input"
+          />
+          <button class="search-button" @click="handleSearchClick">검색</button>
+        </div>
       </div>
 
-      <!-- 슬라이더 필터 -->
       <div class="space-y-6">
         <!-- 기간 -->
         <div>
-          <label class="filter-label">기간 (개월)</label>
+          <p class="text-sm font-semibold text-gray-900 mb-1">
+            {{ Math.floor(selectedFilters.period / 12) }} 년
+            {{ selectedFilters.period % 12 }} 개월 이하
+          </p>
           <input
             type="range"
             min="1"
             max="36"
             v-model="selectedFilters.period"
-            class="slider"
+            class="custom-slider"
+            :style="{
+              background: `linear-gradient(to right, #111 0%, #111 ${periodFill}, #e5e7eb ${periodFill}, #e5e7eb 100%)`,
+            }"
           />
-          <p class="slider-value">{{ selectedFilters.period }}개월 미만</p>
         </div>
 
         <!-- 예산 -->
         <div>
-          <label class="filter-label">예산 (만원)</label>
+          <p class="text-sm font-semibold text-gray-900 mb-1">
+            {{ selectedFilters.budget.toLocaleString() }} 만원 이하
+          </p>
           <input
             type="range"
             min="1000"
             max="50000"
             step="1000"
             v-model="selectedFilters.budget"
-            class="slider"
+            class="custom-slider"
+            :style="{
+              background: `linear-gradient(to right, #111 0%, #111 ${budgetFill}, #e5e7eb ${budgetFill}, #e5e7eb 100%)`,
+            }"
           />
-          <p class="slider-value">
-            {{ selectedFilters.budget.toLocaleString() }} 만원 미만
-          </p>
         </div>
 
         <!-- 인원 -->
         <div>
-          <label class="filter-label">인원 (명)</label>
+          <p class="text-sm font-semibold text-gray-900 mb-1">
+            {{ selectedFilters.memberCount }} 명 이하
+          </p>
           <input
             type="range"
             min="1"
             max="50"
             v-model="selectedFilters.memberCount"
-            class="slider"
+            class="custom-slider"
+            :style="{
+              background: `linear-gradient(to right, #111 0%, #111 ${memberFill}, #e5e7eb ${memberFill}, #e5e7eb 100%)`,
+            }"
           />
-          <p class="slider-value">{{ selectedFilters.memberCount }} 명 미만</p>
         </div>
 
         <!-- 상태 -->
@@ -119,34 +140,76 @@ watchEffect(() => {
 
 <style scoped>
 .sidebar-filter {
-  @apply w-72 p-6;
+  @apply w-80 pr-4 py-6;
   position: sticky;
   top: 0;
   height: fit-content;
 }
 
 .filter-card {
-  @apply bg-white shadow-md rounded-lg p-6;
-  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.25);
+  @apply bg-white rounded-xl;
+  padding: 16px;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.25);
 }
 
+/* 검색창 input */
 .search-input {
-  @apply w-full border border-gray-300 rounded px-3 py-2 text-sm;
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #f1f3f6;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #334155;
+  outline: none;
 }
 
+/* 검색 버튼 */
 .search-button {
-  @apply mt-2 w-full bg-gray-100 hover:bg-gray-200 text-sm py-2 rounded;
+  background-color: #e7e9f9;
+  color: #1e293b;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.search-button:hover {
+  background-color: #d8daef;
 }
 
+/* 라벨 공통 */
 .filter-label {
-  @apply block mb-2 text-sm font-semibold text-gray-700;
+  @apply block mb-2 text-sm font-bold text-black;
 }
 
-.slider {
-  @apply w-full;
+/* 슬라이더 */
+.custom-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+  background-color: #e5e7eb;
 }
 
-.slider-value {
-  @apply text-xs text-gray-500 mt-1;
+/* WebKit (Chrome, Safari) */
+.custom-slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 0;
+  width: 0;
+  opacity: 0;
+  pointer-events: auto;
+}
+
+/* Firefox */
+.custom-slider::-moz-range-thumb {
+  height: 0;
+  width: 0;
+  opacity: 0;
+  pointer-events: auto;
 }
 </style>

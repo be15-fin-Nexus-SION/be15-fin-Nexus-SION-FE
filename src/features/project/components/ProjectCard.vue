@@ -1,13 +1,13 @@
 <script setup>
-defineProps({
+const props = defineProps({
   project: Object,
 });
 
 const statusColorMap = {
-  WAITING: "#FFD700", // 노랑
-  IN_PROGRESS: "#00C851", // 초록
-  COMPLETE: "#FF4444", // 빨강
-  INCOMPLETE: "#9e9e9e", // 회색
+  WAITING: "#FFD700",
+  IN_PROGRESS: "#00C851",
+  COMPLETE: "#FF4444",
+  INCOMPLETE: "#9e9e9e",
 };
 </script>
 
@@ -32,7 +32,7 @@ const statusColorMap = {
 
     <div class="mt-4">
       <span class="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full">
-        HR 시스템 {{ project.hrCount }}명
+        {{ project.domainName }} {{ project.hrCount ?? 0 }}명
       </span>
     </div>
   </div>
