@@ -83,10 +83,10 @@
         />
       </div>
 
-      <!-- 연차 -->
+      <!-- 년차 -->
       <div>
         <label class="text-sm text-gray-600 block mb-3">
-          연차<span class="text-red-500 ml-1">*</span>
+          년차<span class="text-red-500 ml-1">*</span>
         </label>
         <input
           v-model.number="form.careerYears"
