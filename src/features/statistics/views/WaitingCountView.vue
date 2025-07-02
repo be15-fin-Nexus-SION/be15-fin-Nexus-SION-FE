@@ -4,6 +4,7 @@ import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import { getWaitingCountByGrade } from "@/api/statistics";
 import WaitingCountList from "@/features/statistics/components/WaitingCountList.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const chartRef = ref(null);
 const stats = ref([]);
@@ -16,8 +17,10 @@ async function fetchStats() {
   try {
     const response = await getWaitingCountByGrade();
     stats.value = response.data.data;
-  } catch (error) {
-    console.error("등급별 대기 인원 통계 조회 실패:", error);
+  } catch (e) {
+    const errorMessage =
+      e.response?.data?.message || "등급별 대기 인원 통계 조회 실패";
+    showErrorToast(errorMessage);
   }
 }
 

@@ -59,6 +59,7 @@ import { Chart } from "chart.js/auto";
 import { getStackMemberCounts, getAllTechStacks } from "@/api/statistics.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import DevList from "@/features/statistics/components/DevList.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const chartRef = ref(null);
 let chartInstance = null;
@@ -135,7 +136,8 @@ async function fetchChartData() {
     const values = data.map((item) => item.count);
     renderChart(labels, values);
   } catch (e) {
-    console.error("차트 데이터 조회 실패:", e);
+    const errorMessage = e.response?.data?.message || "차트 데이터 조회 실패";
+    showErrorToast(errorMessage);
   }
 }
 
@@ -192,7 +194,9 @@ onMounted(async () => {
     const res = await getAllTechStacks();
     allStacks.value = res.data.data;
   } catch (e) {
-    console.error("기술 스택 목록 조회 실패:", e);
+    const errorMessage =
+      e.response?.data?.message || "기술 스택 목록 조회 실패";
+    showErrorToast(errorMessage);
   }
 
   renderChart();

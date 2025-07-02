@@ -56,7 +56,7 @@
 import { reactive, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import DeveloperFormCard from "../components/DeveloperFormCard.vue";
-import TechStackSelectModal from "@/components/TechStackSelectModal.vue";
+import TechStackSelectModal from "@/components/modal/TechStackSelectModal.vue";
 import { registerDevelopers } from "@/api/member.js";
 import { fetchAllTechStacks } from "@/api/techstack.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";

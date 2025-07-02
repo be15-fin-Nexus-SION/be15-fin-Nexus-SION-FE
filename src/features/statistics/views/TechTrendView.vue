@@ -5,6 +5,7 @@ import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import TechList from "@/features/statistics/components/TechList.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const chartRef = ref(null);
 let chartInstance = null;
@@ -22,8 +23,9 @@ onMounted(async () => {
       year.value = years[0];
       await fetchTrendData();
     }
-  } catch (err) {
-    console.error("연도 목록 로딩 실패:", err);
+  } catch (e) {
+    const errorMessage = e.response?.data?.message || "연도 목록 로딩 실패";
+    showErrorToast(errorMessage);
   }
 });
 
@@ -87,8 +89,9 @@ async function fetchTrendData() {
     });
 
     renderLineChart(quarterLabels, datasets);
-  } catch (err) {
-    console.error("도입률 데이터 조회 실패:", err);
+  } catch (e) {
+    const errorMessage = e.response?.data?.message || "도입률 데이터 조회 실패";
+    showErrorToast(errorMessage);
     contentList.value = [];
     renderLineChart([], []);
   }
