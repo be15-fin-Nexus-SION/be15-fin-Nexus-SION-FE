@@ -75,3 +75,7 @@ export function updateDeveloper(employeeId, updateRequest) {
     return api.put(`/members/${employeeId}`, updateRequest);
 }
 
+export function deleteDeveloper(employeeId) {
+  return api.delete(`/members/${employeeId}`);
+}
+
