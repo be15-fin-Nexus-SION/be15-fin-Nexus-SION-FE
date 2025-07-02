@@ -242,7 +242,7 @@ function cancel() {
 
 onMounted(async () => {
   try {
-    const [detailRes, techRes, allTechRes, posRes, deptRes] = await Promise.all([
+    const [detailRes, techRes, allTechRes, posRes, deptRes] = await Promise.allSettled([
       fetchDeveloperDetail(employeeId),
       fetchTechStacksByEmployeeId(employeeId),
       fetchAllTechStacks(),
