@@ -49,10 +49,10 @@
         <input v-model="form.birthday" type="date" class="w-full border rounded-md p-2 text-sm" required />
       </div>
 
-      <!-- 연차 -->
+      <!-- 년차 -->
       <div>
         <label class="text-sm text-gray-600 block mb-3">
-          연차<span class="text-red-500 ml-1">*</span>
+          년차<span class="text-red-500 ml-1">*</span>
         </label>
         <input v-model.number="form.careerYears" type="number" class="w-full border rounded-md p-2 text-sm" required />
       </div>
