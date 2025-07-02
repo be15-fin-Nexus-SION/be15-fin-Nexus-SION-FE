@@ -177,6 +177,7 @@ function formatDate(isoString) {
 }
 
 function validate() {
+  Object.keys(errors).forEach(key => delete errors[key]);
   const errs = {};
   if (!form.employeeName) errs.employeeName = '이름은 필수 입력 사항입니다.';
   if (!form.phoneNumber) errs.phoneNumber = '전화번호는 필수 입력 사항입니다.';
