@@ -63,3 +63,7 @@ export function fetchPositionList() {
 export function fetchDepartmentList() {
     return api.get("/departments");
 }
+
+export function updateDeveloper(employeeId, updateRequest) {
+    return api.put(`/members/${employeeId}`, updateRequest);
+}
