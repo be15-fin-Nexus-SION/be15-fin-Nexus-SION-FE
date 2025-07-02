@@ -4,56 +4,38 @@ import { useValidation } from "@/composable/useValidation.js";
 import ShowIcon from "@/assets/icons/Show.svg";
 import HideIcon from "@/assets/icons/Hide.svg";
 import Close_LG from "@/assets/icons/Close_LG.svg";
-import { showErrorToast } from "@/utills/toast.js";
 
 const emit = defineEmits(["submit"]);
 
 const showPassword = ref(false);
 
+const { passwordError, isPasswordValid } = useValidation();
+
 const form = reactive({
   employeeIdentificationNumber: "",
   password: "",
-  birthday: "",
-  email: "",
-  phoneNumber: "",
-  employeeName: "",
 });
 
 const fields = [
   { key: "employeeIdentificationNumber", type: "text", placeholder: "사번" },
   { key: "password", type: "password", placeholder: "비밀번호" },
-  { key: "birthday", type: "date", placeholder: "생년월일" },
-  { key: "email", type: "email", placeholder: "이메일" },
-  { key: "phoneNumber", type: "tel", placeholder: "전화번호" },
-  { key: "employeeName", type: "text", placeholder: "이름" },
 ];
 
-const {
-  passwordError,
-  phoneError,
-  emailError,
-  isPasswordValid,
-  isPhoneNumberValid,
-  isEmailValid,
-  validateAll,
-} = useValidation();
-
 function handleBlur(fieldKey) {
-  if (fieldKey === "password") return isPasswordValid(form.password);
-  if (fieldKey === "phoneNumber") return isPhoneNumberValid(form.phoneNumber);
-  if (fieldKey === "email") return isEmailValid(form.email);
+  if (fieldKey === "password") {
+    isPasswordValid(form.password, true);
+  }
 }
 
 function onSubmit() {
-  const birthFormatted = form.birthday ? form.birthday.replaceAll("-", "") : "";
-  const payload = { ...form, birthday: birthFormatted };
+  const isValid = isPasswordValid(form.password, true);
 
-  if (!validateAll(payload)) {
-    showErrorToast("입력값을 확인해주세요.");
+  if (!isValid) {
+    console.log("유효성 검사 실패");
     return;
   }
 
-  emit("submit", payload);
+  emit("submit", form);
 }
 </script>
 
@@ -103,14 +85,8 @@ function onSubmit() {
       <p v-if="field.key === 'password' && passwordError" class="error-msg">
         {{ passwordError }}
       </p>
-      <p v-if="field.key === 'phoneNumber' && phoneError" class="error-msg">
-        {{ phoneError }}
-      </p>
-      <p v-if="field.key === 'email' && emailError" class="error-msg">
-        {{ emailError }}
-      </p>
     </div>
-    <button type="submit">회원가입</button>
+    <button type="submit">로그인</button>
   </form>
 </template>
 

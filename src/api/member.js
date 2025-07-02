@@ -54,14 +54,27 @@ export function signup(payload) {
   return api.post("/members/signup", payload);
 }
 
+/* 로그인 */
+export function login(payload) {
+  return api.post("/members/login", payload);
+}
+
 export function registerDevelopers(developers) {
-    return api.post("/members", developers);
+  return api.post("/members", developers);
 }
 
 export function fetchPositionList() {
-    return api.get("/positions");
+  return api.get("/positions");
 }
 
 export function fetchDepartmentList() {
-    return api.get("/departments");
+  return api.get("/departments");
+}
+
+export function updateDeveloper(employeeId, updateRequest) {
+  return api.put(`/members/${employeeId}`, updateRequest);
+}
+
+export function deleteDeveloper(employeeId) {
+  return api.delete(`/members/${employeeId}`);
 }
