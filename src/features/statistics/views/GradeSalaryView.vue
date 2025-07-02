@@ -4,7 +4,7 @@ import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import { getSalaryByGrade } from "@/api/statistics";
 import SalaryList from "@/features/statistics/components/SalaryList.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 
 const chartRef = ref(null);
 const stats = ref([]);

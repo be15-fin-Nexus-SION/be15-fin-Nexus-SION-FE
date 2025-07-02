@@ -10,7 +10,7 @@
 
       <div class="search-section">
         <div class="search-bar">
-          <SearchBar
+          <AutoCompleteSearchBar
             placeholder="기술 스택 검색"
             :options="allStacks"
             @search="handleStackSearch"
@@ -53,7 +53,7 @@
 <script setup>
 import { ref, onMounted, computed, nextTick } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import SearchBar from "@/components/searchBar/TechStackSearchBar.vue";
+import AutoCompleteSearchBar from "@/components/searchBar/AutoCompleteSearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { Chart } from "chart.js/auto";
 import { getStackMemberCounts, getAllTechStacks } from "@/api/statistics.js";

@@ -96,11 +96,7 @@ onMounted(fetchTechStacks);
               placeholder="예: Java"
               @enter="handleAdd"
             />
-            <PrimaryButton
-              label="추가"
-              text-color-class="text-white"
-              :onClick="handleAdd"
-            />
+            <PrimaryButton label="추가" :onClick="handleAdd" />
           </div>
           <AdminTechStacksList
             ref="techStackListRef"

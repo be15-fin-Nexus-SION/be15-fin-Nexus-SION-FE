@@ -3,7 +3,7 @@ import { ref, watch, onMounted } from "vue";
 import { getTechAdoptionTrendByYear, getProjectYears } from "@/api/statistics";
 import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import TechList from "@/features/statistics/components/TechList.vue";
 
 const chartRef = ref(null);

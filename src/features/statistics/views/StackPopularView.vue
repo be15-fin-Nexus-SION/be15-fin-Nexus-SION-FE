@@ -4,7 +4,7 @@ import { getPopularTechStacks } from "@/api/statistics";
 import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import PopularList from "@/features/statistics/components/PopularList.vue";
 
 const chartRef = ref(null);

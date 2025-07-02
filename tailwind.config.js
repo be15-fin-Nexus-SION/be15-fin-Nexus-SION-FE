@@ -54,6 +54,9 @@ export default {
           waiting: "#FFD344",
           projecting: "#64CF8B",
         },
+        stroke: {
+          gray: "#EEEEEE",
+        },
       },
       backgroundImage: {
         "gradient-card": "linear-gradient(90deg, #FE8686 0%, #1268DD 100%)",
