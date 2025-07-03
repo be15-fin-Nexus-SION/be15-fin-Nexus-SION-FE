@@ -1,8 +1,8 @@
 <script setup>
 import { computed, ref } from "vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
-import FilterDropdown from "@/features/statistics/components/FilterDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
+import FilterDropdown from "@/components/dropdown/FilterDropdown.vue";
 
 const props = defineProps({
   year: {

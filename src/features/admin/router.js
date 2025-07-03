@@ -39,4 +39,12 @@ export const adminRoutes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "/admin/clients",
+    name: "AdminClientsView",
+    component: () => import("./views/AdminClientsView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];

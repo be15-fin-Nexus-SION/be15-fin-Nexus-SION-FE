@@ -4,8 +4,9 @@ import { getPopularTechStacks } from "@/api/statistics";
 import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import PopularList from "@/features/statistics/components/PopularList.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const chartRef = ref(null);
 let chartInstance = null;
@@ -110,7 +111,8 @@ async function renderInitialChartData() {
 
     renderMultiLineChart(xLabels, datasets);
   } catch (e) {
-    console.error("차트 데이터 조회 실패:", e);
+    const errorMessage = e.response?.data?.message || "차트 데이터 조회 실패";
+    showErrorToast(errorMessage);
     contentList.value = [];
     renderMultiLineChart([], []);
   }
