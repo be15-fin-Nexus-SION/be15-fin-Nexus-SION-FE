@@ -65,7 +65,7 @@ onBeforeUnmount(() => {
       <template v-if="editing">
         <input
           type="text"
-          v-model="tempItem.productivity"
+          v-model.number="tempItem.productivity"
           class="border rounded px-2 py-1 w-full text-center"
           placeholder="생산성"
           :disabled="tempItem.gradeCode === 'D'"
@@ -80,7 +80,7 @@ onBeforeUnmount(() => {
       <template v-if="editing">
         <input
           type="text"
-          v-model="tempItem.monthlyUnitPrice"
+          v-model.number="tempItem.monthlyUnitPrice"
           class="border rounded px-2 py-1 w-full text-center"
           placeholder="단가"
           @keyup.enter="stopEditing"
