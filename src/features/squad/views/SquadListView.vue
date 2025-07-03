@@ -52,6 +52,8 @@ import ProjectListModal from "@/features/squad/components/ProjectListModal.vue";
 import { getSquadList, deleteSquadByCode } from "@/api/squad";
 import { fetchProjectList } from "@/api/project";
 
+const totalCount = ref(0); // 총 스쿼드 수
+
 const showMoreModal = ref(false);
 const selectedMoreType = ref(""); // 예: 'waiting', 'inprogress', 'complete'
 
@@ -79,22 +81,16 @@ const deleteSquad = async (squadCode) => {
   try {
     await deleteSquadByCode(squadCode);
 
-    // 전체 스쿼드 수 조회
-    const totalResponse = await getSquadList({
-      projectCode: selectedProjectCode.value,
-      page: 0,
-      size: 1,
-    });
+    // 총 개수 감소
+    totalCount.value = Math.max(0, totalCount.value - 1);
 
-    const totalCount = totalResponse.data?.data?.totalCount ?? 0;
-    const newTotalPages = Math.max(1, Math.ceil(totalCount / size));
-
-    // 페이지 번호 보정
-    if (page.value > newTotalPages) {
-      page.value = newTotalPages;
+    // 페이지 보정 (현재 페이지가 비게 되면 한 페이지 앞으로 이동)
+    const isLastItemOnPage = squads.value.length === 1;
+    if (isLastItemOnPage && page.value > 1) {
+      page.value -= 1;
     }
 
-    totalPages.value = newTotalPages;
+    totalPages.value = Math.max(1, Math.ceil(totalCount.value / size));
 
     // 삭제 후 목록 새로고침
     await fetchSquads();
@@ -159,8 +155,6 @@ const fetchProjects = async () => {
 const fetchSquads = async () => {
   if (!selectedProjectCode.value) return;
 
-  console.log("📌 요청 보낼 projectCode:", selectedProjectCode.value);
-
   const response = await getSquadList({
     projectCode: selectedProjectCode.value,
     page: page.value - 1,
@@ -169,14 +163,9 @@ const fetchSquads = async () => {
 
   const squadData = response.data?.data ?? response.data ?? {};
   squads.value = squadData.content ?? [];
-  totalPages.value = Math.ceil((squadData.totalCount ?? 0) / size);
 
-  // 🔍 여기서 콘솔로 확인
-  console.log("📦 Squad 목록 확인:", squads.value);
-  squads.value.forEach((s, i) => {
-    console.log(`[${i}] aiRecommended:`, s.aiRecommended);
-    console.log(`[${i}] squadCode:`, s.squadCode);
-  });
+  totalCount.value = squadData.totalCount ?? 0;
+  totalPages.value = Math.max(1, Math.ceil(totalCount.value / size));
 };
 
 const goToPage = (p) => {
