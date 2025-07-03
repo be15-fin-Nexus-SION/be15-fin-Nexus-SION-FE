@@ -22,8 +22,8 @@ export const developerRoutes = [
     component: () => import("./views/DeveloperAddView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
-    roles: ["ADMIN"],
   },
   {
     path: "/developers/:employeeId/edit",
