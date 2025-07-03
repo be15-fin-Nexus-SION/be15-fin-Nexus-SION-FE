@@ -87,3 +87,7 @@ export function deleteDeveloper(employeeId) {
 export function getUnitPriceByGrade() {
   return api.get(`/grades`);
 }
+
+export function setUnitPriceByGrade(grades) {
+  return api.post(`/grades`, grades);
+}
