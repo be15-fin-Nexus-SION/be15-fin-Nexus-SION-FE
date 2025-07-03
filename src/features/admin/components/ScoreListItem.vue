@@ -35,7 +35,6 @@ function stopEditing() {
     tempItem.value.score !== props.item.score
   ) {
     const updatedItem = { ...tempItem.value, edited: true };
-    emit("update:item", updatedItem);
     emit("update", updatedItem);
   }
   editing.value = false;
