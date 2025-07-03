@@ -94,7 +94,7 @@ function validateInitialScores() {
     // 점수 오름차순 체크
     if (i > 0 && scores[i - 1].score >= score) {
       showErrorToast(
-        `점수는 오름차순이어야 합니다. 이전 점수(${scores[i - 1].score}) >= 현재 점수(${score})`,
+        `초기 점수는 오름차순이어야 합니다. 이전 점수(${scores[i - 1].score}) >= 현재 점수(${score})`,
       );
       return false;
     }
