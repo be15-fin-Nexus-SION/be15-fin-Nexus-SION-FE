@@ -1,5 +1,5 @@
 <template>
-  <aside class="w-64 h-screen bg-gray-100 p-4 border-r overflow-y-auto">
+  <aside class="w-64 h-screen bg-white p-4 border-r overflow-y-auto">
     <!-- 진행 전 프로젝트 관리 -->
     <div class="mb-4">
       <SquadSidebarSection
@@ -55,15 +55,26 @@
     </div>
 
     <!-- 프로젝트 추가 버튼 -->
-    <button class="w-full mt-6 bg-indigo-600 text-white py-2 rounded">
+    <button
+      class="w-full mt-6 bg-primary hover:bg-primary-hover text-white py-2 rounded-sm"
+      @click="showProjectAddModal = true"
+    >
       + 프로젝트 추가
     </button>
+
+    <!-- 프로젝트 추가 확인 모달 -->
+    <ProjectAddConfirmModal
+      v-if="showProjectAddModal"
+      @close="showProjectAddModal = false"
+      @confirm="confirmAddProject"
+    />
   </aside>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import SquadSidebarSection from "./SquadSidebarSection.vue";
+import ProjectAddConfirmModal from "./ProjectAddConfirmModal.vue"; // 경로는 구조에 맞게 수정
 
 const props = defineProps({
   projectGroups: Object,
@@ -76,10 +87,21 @@ const emit = defineEmits(["select", "more"]);
 const onSelect = (code) => emit("select", code);
 const onMore = (type) => emit("more", type);
 
+// 🔹 모달 상태
+const showProjectAddModal = ref(false);
+
+// 🔹 프로젝트 추가 시 실행할 함수
+const confirmAddProject = () => {
+  showProjectAddModal.value = false;
+  console.log("✅ 프로젝트 추가 확인됨");
+  // 👉 여기에 실제 프로젝트 추가 로직 or 이동 처리 작성
+};
+
 onMounted(() => {
   console.log("✅ props.projectGroups:", props.projectGroups);
   console.log("✅ 진행중 length:", props.projectGroups?.inprogress?.length);
   console.log("✅ projectGroups.waiting:", props.projectGroups?.waiting);
   console.log("✅ projectMap:", props.projectMap);
+  console.log("✅ props.projectGroups:", props.projectGroups);
 });
 </script>
