@@ -33,6 +33,7 @@
           v-for="squad in squads"
           :key="squad.squadCode"
           :squad="squad"
+          @delete="deleteSquad"
         />
       </div>
 
@@ -48,8 +49,8 @@ import SquadCard from "@/features/squad/components/SquadCard.vue";
 import SquadDropdown from "@/features/squad/components/SquadDropdown.vue";
 import SquadPagination from "@/features/squad/components/SquadPagination.vue";
 import ProjectListModal from "@/features/squad/components/ProjectListModal.vue";
-import { getSquadList } from "@/api/squad";
-import { getProjectList } from "@/api/project";
+import { getSquadList, deleteSquadByCode } from "@/api/squad";
+import { fetchProjectList } from "@/api/project";
 
 const showMoreModal = ref(false);
 const selectedMoreType = ref(""); // 예: 'waiting', 'inprogress', 'complete'
@@ -74,8 +75,37 @@ const selectProjectAndClose = (projectCode) => {
   showMoreModal.value = false;
 };
 
+const deleteSquad = async (squadCode) => {
+  try {
+    await deleteSquadByCode(squadCode);
+
+    // 전체 스쿼드 수 조회
+    const totalResponse = await getSquadList({
+      projectCode: selectedProjectCode.value,
+      page: 0,
+      size: 1,
+    });
+
+    const totalCount = totalResponse.data?.data?.totalCount ?? 0;
+    const newTotalPages = Math.max(1, Math.ceil(totalCount / size));
+
+    // 페이지 번호 보정
+    if (page.value > newTotalPages) {
+      page.value = newTotalPages;
+    }
+
+    totalPages.value = newTotalPages;
+
+    // 삭제 후 목록 새로고침
+    await fetchSquads();
+  } catch (e) {
+    console.error("❌ 스쿼드 삭제 실패:", e);
+    alert("스쿼드 삭제에 실패했습니다.");
+  }
+};
+
 const fetchProjects = async () => {
-  const response = await getProjectList({ page: 0, size: 100 });
+  const response = await fetchProjectList({ page: 0, size: 100 });
   const content = response.data.data?.content ?? [];
 
   console.log("✅ 프로젝트 배열:", content);
