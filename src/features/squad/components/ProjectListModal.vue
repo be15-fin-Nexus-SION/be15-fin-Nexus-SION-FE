@@ -20,7 +20,7 @@ const typeLabel = computed(() => typeLabelMap[props.type] || "전체");
 const projects = computed(() =>
   Array.isArray(props.projectCodes)
     ? props.projectCodes
-        .map((code) => props.projectMap[String(code)]) // 여기!
+        .map((code) => props.projectMap?.[String(code)])
         .filter(Boolean)
     : [],
 );
