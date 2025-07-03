@@ -44,7 +44,6 @@ const props = defineProps({
   }
 });
 
-// 🔹 원본 label 개수 기준으로 조건 분기
 const originalLabelCount = computed(() => props.data?.labels?.length ?? 0);
 
 const paddedRadarData = ref({ labels: [], datasets: [] });
