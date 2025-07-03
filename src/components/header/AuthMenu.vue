@@ -2,7 +2,7 @@
 import { useAuthStore } from "@/stores/auth.js";
 import { useRouter } from "vue-router";
 import { logout } from "@/api/member.js";
-import { showSuccessToast } from "@/utills/toast.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -10,13 +10,15 @@ const authStore = useAuthStore();
 const handleLogout = async () => {
   try {
     await logout();
-    showSuccessToast("로그아웃이 완료되었습니다.");
-    authStore.clearAuth();
-    await router.push("/login");
   } catch (e) {
     console.error("로그아웃 API 실패", e);
-    showSuccessToast("로그아웃이 실패했습니다. 다시 시도해주세요.");
+    showErrorToast("로그아웃이 실패했습니다. 다시 시도해주세요.");
+    return;
   }
+
+  showSuccessToast("로그아웃이 완료되었습니다.");
+  authStore.clearAuth();
+  await router.push("/login");
 };
 </script>
 
