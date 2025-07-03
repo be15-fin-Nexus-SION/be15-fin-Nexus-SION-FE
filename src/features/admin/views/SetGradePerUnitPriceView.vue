@@ -6,6 +6,12 @@ import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import UnitPricePerGradeList from "@/features/admin/components/UnitPricePerGradeList.vue";
 
+// ✅ [1] 상수 선언
+const GRADE_CODES = Object.freeze(["S", "A", "B", "C", "D"]);
+const DEFAULT_RATIO = "0.2";
+const FIXED_PRODUCTIVITY_GRADE = "D";
+const FIXED_PRODUCTIVITY_VALUE = 1;
+
 const unitPricePerGrades = ref([]);
 
 async function fetchGradeList() {
@@ -14,10 +20,11 @@ async function fetchGradeList() {
     unitPricePerGrades.value = res.data.data;
 
     if (unitPricePerGrades.value.length === 0) {
-      unitPricePerGrades.value = ["S", "A", "B", "C", "D"].map((code) => ({
+      unitPricePerGrades.value = GRADE_CODES.map((code) => ({
         gradeCode: code,
-        ratio: "0.2",
-        productivity: code === "D" ? 1 : null,
+        ratio: DEFAULT_RATIO,
+        productivity:
+          code === FIXED_PRODUCTIVITY_GRADE ? FIXED_PRODUCTIVITY_VALUE : null,
         monthlyUnitPrice: null,
       }));
     }
@@ -52,23 +59,32 @@ async function handleSave() {
 }
 
 function validate() {
-  // 1. 모든 값은 null이면 안 됨
-  for (const grade of unitPricePerGrades.value) {
+  const grades = unitPricePerGrades.value;
+
+  // 1. 모든 값이 유효한 숫자인지, 비어있지 않은지 확인
+  for (const grade of grades) {
     if (
       grade.productivity === null ||
-      grade.productivity === undefined ||
-      grade.monthlyUnitPrice === null ||
-      grade.monthlyUnitPrice === undefined
+      String(grade.productivity).trim() === "" ||
+      isNaN(Number(grade.productivity))
     ) {
-      showErrorToast(`등급 ${grade.gradeCode}의 값이 비어있습니다.`);
+      showErrorToast(
+        `등급 ${grade.gradeCode}의 생산성 값이 유효하지 않습니다.`,
+      );
+      return false;
+    }
+    if (
+      grade.monthlyUnitPrice === null ||
+      String(grade.monthlyUnitPrice).trim() === "" ||
+      isNaN(Number(grade.monthlyUnitPrice))
+    ) {
+      showErrorToast(`등급 ${grade.gradeCode}의 단가 값이 유효하지 않습니다.`);
       return false;
     }
   }
 
   // 2. 생산성 내림차순 (S, A, B, C, D 순서)
-  const productivityList = unitPricePerGrades.value.map((g) =>
-    Number(g.productivity),
-  );
+  const productivityList = grades.map((g) => Number(g.productivity));
   for (let i = 0; i < productivityList.length - 1; i++) {
     if (productivityList[i] < productivityList[i + 1]) {
       showErrorToast("생산성은 S부터 내림차순이어야 합니다.");
@@ -77,9 +93,7 @@ function validate() {
   }
 
   // 3. 단가 내림차순
-  const priceList = unitPricePerGrades.value.map((g) =>
-    Number(g.monthlyUnitPrice),
-  );
+  const priceList = grades.map((g) => Number(g.monthlyUnitPrice));
   for (let i = 0; i < priceList.length - 1; i++) {
     if (priceList[i] < priceList[i + 1]) {
       showErrorToast("단가는 S부터 내림차순이어야 합니다.");
