@@ -240,7 +240,7 @@ import {
 import { fetchAllTechStacks } from "@/api/techstack.js";
 import { uploadImage } from "@/api/image.js";
 import TechBadge from "@/components/badge/TechBadge.vue";
-import TechStackSelectModal from "@/components/TechStackSelectModal.vue";
+import TechStackSelectModal from "@/components/modal/TechStackSelectModal.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 
 const route = useRoute();
