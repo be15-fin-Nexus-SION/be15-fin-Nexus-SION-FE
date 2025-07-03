@@ -62,9 +62,11 @@
       + 프로젝트 추가
     </button>
 
-    <!-- 프로젝트 추가 확인 모달 -->
-    <ProjectAddConfirmModal
+    <!-- ✅ 공통 ConfirmDeleteModal로 대체 -->
+    <ConfirmDeleteModal
       v-if="showProjectAddModal"
+      :message="'새 프로젝트를 추가하시겠습니까?'"
+      confirmText="확인"
       @close="showProjectAddModal = false"
       @confirm="confirmAddProject"
     />
@@ -74,7 +76,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import SquadSidebarSection from "./SquadSidebarSection.vue";
-import ProjectAddConfirmModal from "./ProjectAddConfirmModal.vue"; // 경로는 구조에 맞게 수정
+import ConfirmDeleteModal from "@/features/squad/components/ConfirmDeleteModal.vue";
 
 const props = defineProps({
   projectGroups: Object,
