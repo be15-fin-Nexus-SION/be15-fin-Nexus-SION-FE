@@ -44,6 +44,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useToast } from "vue-toastification";
 import SquadSidebar from "@/features/squad/components/SquadSidebar.vue";
 import SquadCard from "@/features/squad/components/SquadCard.vue";
 import SquadDropdown from "@/features/squad/components/SquadDropdown.vue";
@@ -53,6 +54,8 @@ import { getSquadList, deleteSquadByCode } from "@/api/squad";
 import { fetchProjectList } from "@/api/project";
 
 const totalCount = ref(0); // 총 스쿼드 수
+
+const toast = useToast();
 
 const showMoreModal = ref(false);
 const selectedMoreType = ref(""); // 예: 'waiting', 'inprogress', 'complete'
@@ -81,22 +84,17 @@ const deleteSquad = async (squadCode) => {
   try {
     await deleteSquadByCode(squadCode);
 
-    // 총 개수 감소
     totalCount.value = Math.max(0, totalCount.value - 1);
-
-    // 페이지 보정 (현재 페이지가 비게 되면 한 페이지 앞으로 이동)
-    const isLastItemOnPage = squads.value.length === 1;
-    if (isLastItemOnPage && page.value > 1) {
+    if (squads.value.length === 1 && page.value > 1) {
       page.value -= 1;
     }
-
     totalPages.value = Math.max(1, Math.ceil(totalCount.value / size));
 
-    // 삭제 후 목록 새로고침
     await fetchSquads();
+    toast.success("✅ 스쿼드가 성공적으로 삭제되었습니다.");
   } catch (e) {
     console.error("❌ 스쿼드 삭제 실패:", e);
-    alert("스쿼드 삭제에 실패했습니다.");
+    toast.error("스쿼드 삭제에 실패했습니다.");
   }
 };
 
