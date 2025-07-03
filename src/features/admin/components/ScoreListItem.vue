@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .content {
-  @apply py-4 px-4 text-center;
+  @apply items-center text-center h-16 px-4;
   cursor: pointer;
 }
 </style>
