@@ -15,4 +15,17 @@ export const developerRoutes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "developers/add",
+    name: "developer-add",
+    component: () => import("./views/DeveloperAddView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/developers/:employeeId/edit',
+    name: 'developer-edit',
+    component: () => import("./views/DeveloperEditView.vue")
+  },
 ];

@@ -1,5 +1,23 @@
-import axios from "./axios";
+import api from "./axios";
 
-export const getProjectList = (params) => {
-  return axios.post("/projects/list", params);
-};
+export function fetchProjectList({
+  keyword,
+  maxBudget,
+  maxPeriodInMonth,
+  maxNumberOfMembers,
+  statuses,
+  page = 0,
+  size = 4,
+}) {
+  const payload = {
+    keyword,
+    maxBudget,
+    maxPeriodInMonth,
+    maxNumberOfMembers,
+    statuses,
+    page,
+    size,
+  };
+
+  return api.post("/projects/list", payload);
+}

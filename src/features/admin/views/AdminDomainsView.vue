@@ -5,90 +5,90 @@ import { getInitialConsonant, isChoseong } from "@/utills/hangul.js";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import InputBox from "@/components/input/InputBox.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
-import AdminJobsList from "@/features/admin/components/AdminJobsList.vue";
+import AdminDomainsList from "@/features/admin/components/AdminDomainsList.vue";
 import NameIndexBar from "@/components/searchBar/NameIndexBar.vue";
-import { getAllJobs, addJob, deleteJob } from "@/api/admin.js";
+import { getAllDomains, addDomain, deleteDomain } from "@/api/admin.js";
 
-const jobName = ref("");
-const jobList = ref([]);
-const jobListRef = ref(null);
+const domainName = ref("");
+const domainList = ref([]);
+const domainListRef = ref(null);
 
 // ---- 데이터 불러오기 ----
-async function fetchJobs() {
+async function fetchDomains() {
   try {
-    const res = await getAllJobs();
-    jobList.value = res.data.data.jobs;
+    const res = await getAllDomains();
+    domainList.value = res.data.data.domains;
   } catch (e) {
-    const errorMessage = e.response?.data?.message || "직무 목록 조회 실패";
-    showErrorToast(errorMessage);
+    const errorMessage = e.response?.data?.message || "도메인 목록 조회 실패";
+    showSuccessToast(errorMessage);
   }
 }
 
 // ---- 직무 추가 ----
 async function handleAdd() {
-  if (!jobName.value.trim()) {
-    showErrorToast("직무명을 입력해주세요.");
+  if (!domainName.value.trim()) {
+    showErrorToast("도메인을 입력해주세요.");
     return;
   }
   try {
-    await addJob(jobName.value.trim());
-    await fetchJobs();
-    jobName.value = "";
-    showSuccessToast("직무가 등록되었습니다.");
+    await addDomain(domainName.value.trim());
+    await fetchDomains();
+    domainName.value = "";
+    showSuccessToast("도메인이 등록되었습니다.");
   } catch (e) {
     const errorMessage =
-      e.response?.data?.message || "직무 등록에 실패했습니다.";
+      e.response?.data?.message || "도메인 등록에 실패했습니다.";
     showErrorToast(errorMessage);
   }
 }
 
 // ---- 직무 삭제 ----
-async function handleDelete(job) {
+async function handleDelete(domain) {
   try {
-    await deleteJob(job);
-    await fetchJobs();
-    showSuccessToast("직무가 삭제되었습니다.");
+    await deleteDomain(domain);
+    await fetchDomains();
+    showSuccessToast("도메인이 삭제되었습니다.");
   } catch (e) {
     const errorMessage =
-      e.response?.data?.message || "직무 삭제에 실패했습니다.";
+      e.response?.data?.message || "도메인 삭제에 실패했습니다.";
     showErrorToast(errorMessage);
   }
 }
 
 // ---- 스크롤 이동 ----
 function onInitialSelect(letter) {
-  jobListRef.value?.scrollToLetter(letter);
+  domainListRef.value?.scrollToLetter(letter);
 }
 
 // ---- 초성 필터 ----
 const availableKoreanInitials = computed(() => {
-  const initials = jobList.value
-    .map((job) => getInitialConsonant(job.trim()[0]))
+  const initials = domainList.value
+    .map((domain) => getInitialConsonant(domain.trim()[0]))
     .filter(isChoseong);
   return [...new Set(initials)];
 });
 
 const availableEnglishInitials = computed(() => {
-  const initials = jobList.value
-    .map((job) => getInitialConsonant(job.trim()[0]))
+  const initials = domainList.value
+    .map((domain) => getInitialConsonant(domain.trim()[0]))
     .filter((i) => /^[A-Z]$/.test(i));
   return [...new Set(initials)];
 });
 
-onMounted(fetchJobs);
+onMounted(fetchDomains);
 </script>
 
 <template>
   <div class="page-layout">
     <SidebarWrapper viewType="adminSetting" />
     <div class="content-wrapper">
-      <h1 class="page-title">직무 관리</h1>
+      <h1 class="page-title">도메인 관리</h1>
       <div class="body">
         <div class="body-main">
           <div class="input-add">
             <InputBox
-              v-model="jobName"
-              placeholder="예: Backend"
+              v-model="domainName"
+              placeholder="예: 영업"
               @enter="handleAdd"
             />
             <PrimaryButton
@@ -97,10 +97,10 @@ onMounted(fetchJobs);
               :onClick="handleAdd"
             />
           </div>
-          <AdminJobsList
-            ref="jobListRef"
-            :jobList="jobList"
-            @deleteJob="handleDelete"
+          <AdminDomainsList
+            ref="domainListRef"
+            :domainList="domainList"
+            @deleteDomain="handleDelete"
           />
         </div>
         <div class="body-side">
