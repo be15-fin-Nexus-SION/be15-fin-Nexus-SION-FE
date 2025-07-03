@@ -43,7 +43,7 @@
 import { defineProps, ref, computed } from "vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import JobBadge from "@/components/badge/JobBadge.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 
 const props = defineProps({
   list: {

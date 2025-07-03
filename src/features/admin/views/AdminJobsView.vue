@@ -91,11 +91,7 @@ onMounted(fetchJobs);
               placeholder="예: Backend"
               @enter="handleAdd"
             />
-            <PrimaryButton
-              label="추가"
-              text-color-class="text-white"
-              :onClick="handleAdd"
-            />
+            <PrimaryButton label="추가" :onClick="handleAdd" />
           </div>
           <AdminJobsList
             ref="jobListRef"

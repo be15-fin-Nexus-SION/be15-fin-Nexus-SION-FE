@@ -28,7 +28,7 @@ const emit = defineEmits(["update:modelValue", "enter"]);
 
 <style scoped>
 .input-tag-wrapper {
-  @apply flex flex-row items-center px-[15px] w-[448px] h-[40px] bg-white border border-[#CFD6E8] rounded-lg box-border;
+  @apply flex flex-row items-center px-[15px] w-[448px] h-[40px] bg-white border border-stroke-gray rounded-lg box-border;
 }
 
 .input-tag-field {

@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted, watch, computed, nextTick } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
-import SearchBar from "@/components/searchBar/TechStackSearchBar.vue";
+import AutoCompleteSearchBar from "@/components/searchBar/AutoCompleteSearchBar.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { Chart } from "chart.js/auto";
 import { getStackAvgCareer, getAllTechStacks } from "@/api/statistics.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import AvgList from "@/features/statistics/components/AvgList.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const barCanvas = ref(null);
 let chartInstance = null;
@@ -88,7 +89,8 @@ async function renderInitialChartData() {
     const values = data.map((item) => item.averageCareer);
     renderChart(labels, values);
   } catch (e) {
-    console.error("차트 데이터 조회 실패:", e);
+    const errorMessage = e.response?.data?.message || "차트 데이터 조회 실패";
+    showErrorToast(errorMessage);
   }
 }
 
@@ -130,7 +132,9 @@ onMounted(async () => {
     const res = await getAllTechStacks();
     allStacks.value = res.data.data || [];
   } catch (e) {
-    console.error("기술 스택 목록 조회 실패:", e);
+    const errorMessage =
+      e.response?.data?.message || "기술 스택 목록 조회 실패";
+    showErrorToast(errorMessage);
   }
   renderChart();
   window.addEventListener("resize", () => {
@@ -154,7 +158,7 @@ onMounted(async () => {
 
       <div class="search-section">
         <div class="search-bar">
-          <SearchBar
+          <AutoCompleteSearchBar
             placeholder="기술 스택 검색"
             :options="allStacks"
             :selectedStacks="selectedStacksForChart"

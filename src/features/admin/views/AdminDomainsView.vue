@@ -20,7 +20,7 @@ async function fetchDomains() {
     domainList.value = res.data.data.domains;
   } catch (e) {
     const errorMessage = e.response?.data?.message || "도메인 목록 조회 실패";
-    showSuccessToast(errorMessage);
+    showErrorToast(errorMessage);
   }
 }
 
@@ -91,11 +91,7 @@ onMounted(fetchDomains);
               placeholder="예: 영업"
               @enter="handleAdd"
             />
-            <PrimaryButton
-              label="추가"
-              text-color-class="text-white"
-              :onClick="handleAdd"
-            />
+            <PrimaryButton label="추가" :onClick="handleAdd" />
           </div>
           <AdminDomainsList
             ref="domainListRef"

@@ -9,7 +9,7 @@ const props = defineProps({
   index: Number,
 });
 
-const emit = defineEmits(["update", "update:item", "delete"]);
+const emit = defineEmits(["update", "delete"]);
 
 const editing = ref(false);
 const tempItem = ref({ ...props.item });
@@ -35,7 +35,6 @@ function stopEditing() {
     tempItem.value.score !== props.item.score
   ) {
     const updatedItem = { ...tempItem.value, edited: true };
-    emit("update:item", updatedItem);
     emit("update", updatedItem);
   }
   editing.value = false;

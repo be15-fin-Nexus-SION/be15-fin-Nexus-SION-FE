@@ -12,7 +12,6 @@ async function fetchInitialScore() {
   try {
     const res = await getAllInitialScores();
     initialScoreList.value = res.data.data;
-    console.log("초기목록조회", initialScoreList.value);
   } catch (e) {
     const errorMessage =
       e.response?.data?.message || "초기 기술스택 점수 목록 조회 실패";
@@ -75,7 +74,6 @@ function validateInitialScores() {
       `첫 번째 항목의 최소 연차(minYears)는 1이어야 하며, 자동으로 수정됩니다.`,
     );
     first.minYears = 1;
-    return false;
   }
 
   for (let i = 0; i < scores.length; i++) {
@@ -117,7 +115,6 @@ function validateInitialScores() {
           `${maxYears} 다음은 ${maxYears + 1} 이어야 하지만, 현재 ${next.minYears}이며, 자동으로 수정됩니다.`,
         );
         next.minYears = maxYears + 1;
-        return false;
       }
 
       if (minYears >= next.minYears) {

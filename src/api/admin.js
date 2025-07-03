@@ -47,7 +47,21 @@ export function getAllInitialScores() {
 }
 
 export function setInitialScores(initialScores) {
-  console.log(initialScores);
-
   return api.post("/initial-scores", initialScores);
+}
+
+export function getAllClients() {
+  return api.get("/client-companies");
+}
+
+export function addClient(data) {
+  return api.post("/client-companies", data);
+}
+
+export function updateClient(clientCode, data) {
+  return api.patch(`/client-companies/${clientCode}`, data);
+}
+
+export function deleteClient(clientCode) {
+  return api.delete(`/client-companies/${clientCode}`);
 }

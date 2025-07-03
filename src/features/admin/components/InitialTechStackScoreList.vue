@@ -14,13 +14,20 @@ const emit = defineEmits(["add", "update", "delete"]);
 const localScores = computed(() => props.scores); // 단순히 바인딩만
 
 function addNewRow() {
-  const lastItem = props.scores[props.scores.length - 1];
-  const newMinYears =
-    lastItem?.maxYears != null ? lastItem.maxYears + 1 : lastItem.minYears + 1;
+  let newMinYears;
 
-  if (lastItem.maxYears == null) {
-    lastItem.maxYears = lastItem.minYears;
-    emit("update", lastItem);
+  if (props.scores.length > 0) {
+    const lastItem = props.scores[props.scores.length - 1];
+    newMinYears =
+      lastItem?.maxYears != null
+        ? lastItem.maxYears + 1
+        : lastItem.minYears + 1;
+
+    if (lastItem.maxYears === null) {
+      emit("update", { ...lastItem, maxYears: lastItem.minYears });
+    }
+  } else {
+    newMinYears = 1;
   }
 
   const newItem = {
@@ -58,7 +65,7 @@ function deleteItem(deletedItem) {
         <ScoreListItem
           v-for="(item, index) in localScores"
           :key="item.id || index"
-          v-model:item="localScores[index]"
+          :item="item"
           :index="index"
           @update="updateItem"
           @delete="deleteItem"

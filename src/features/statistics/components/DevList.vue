@@ -77,8 +77,8 @@ import TechBadge from "@/components/badge/TechBadge.vue";
 import { fetchDevelopers } from "@/api/statistics.js";
 import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
-import FilterDropdown from "@/features/statistics/components/FilterDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
+import FilterDropdown from "@/components/dropdown/FilterDropdown.vue";
 
 const props = defineProps({
   selectedStacks: Array,
