@@ -33,6 +33,7 @@ async function fetchProjects(filter) {
 
 function handleFilterChange(filter) {
   currentPage.value = 1;
+  selectedFilter.value = filter;
   fetchProjects(filter);
 }
 
