@@ -42,6 +42,14 @@ export function deleteTechStack(name) {
   return api.delete(`/tech-stack/${encodeURIComponent(name)}`);
 }
 
+export function getAllInitialScores() {
+  return api.get("/initial-scores");
+}
+
+export function setInitialScores(initialScores) {
+  return api.post("/initial-scores", initialScores);
+}
+
 export function getAllClients() {
   return api.get("/client-companies");
 }

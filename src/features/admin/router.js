@@ -24,6 +24,22 @@ export const adminRoutes = [
     },
   },
   {
+    path: "/admin/grade-per-unit-price",
+    name: "SetGradePerUnitPriceView",
+    component: () => import("./views/SetGradePerUnitPriceView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/admin/initial-tech-stack",
+    name: "SetInitialTechStackScoreView",
+    component: () => import("./views/SetInitialTechStackScoreView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
     path: "/admin/clients",
     name: "AdminClientsView",
     component: () => import("./views/AdminClientsView.vue"),
