@@ -3,7 +3,7 @@
     class="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
   >
     <div
-      class="bg-white p-8 rounded-xl shadow-lg w-[280px] text-center relative"
+      class="bg-white p-8 rounded-xl shadow-lg w-[300px] text-center relative"
     >
       <!-- 닫기 버튼 -->
       <button
