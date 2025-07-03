@@ -1,26 +1,30 @@
 <script setup>
 import { computed } from "vue";
 
-defineOptions({
-  name: "BasePagination",
-});
+defineOptions({ name: "BasePagination" });
 
 const props = defineProps({
-  currentPage: {
-    type: Number,
-    required: true,
-  },
-  totalPages: {
-    type: Number,
-    required: true,
-  },
+  currentPage: { type: Number, required: true },
+  totalPages: { type: Number, required: true },
 });
 
 const emit = defineEmits(["change"]);
 
 const pages = computed(() => {
+  const total = props.totalPages;
+  const current = props.currentPage;
+  const maxVisible = 5;
+
+  let start = Math.max(1, current - Math.floor(maxVisible / 2));
+  let end = start + maxVisible - 1;
+
+  if (end > total) {
+    end = total;
+    start = Math.max(1, end - maxVisible + 1);
+  }
+
   const range = [];
-  for (let i = 1; i <= props.totalPages; i++) {
+  for (let i = start; i <= end; i++) {
     range.push(i);
   }
   return range;
@@ -64,12 +68,18 @@ function goToPage(page) {
 
 <style scoped>
 .page-button {
-  @apply w-8 h-8 rounded text-sm text-gray-700 hover:bg-gray-200 transition;
+  @apply w-8 h-8 rounded text-sm text-gray-400 transition;
 }
+
+.page-button:hover {
+  @apply text-gray-700;
+}
+
 .page-button.active {
-  @apply bg-black text-white font-bold;
+  @apply text-gray-900 font-bold;
 }
+
 .arrow-button {
-  @apply w-8 h-8 rounded text-sm text-gray-500 hover:bg-gray-100 transition disabled:opacity-30;
+  @apply w-8 h-8 rounded text-sm text-gray-400 hover:text-gray-700 transition disabled:opacity-30;
 }
 </style>
