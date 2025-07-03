@@ -59,6 +59,11 @@ export function login(payload) {
   return api.post("/members/login", payload);
 }
 
+/* 로그아웃 */
+export function logout() {
+  return api.post("/members/logout");
+}
+
 export function registerDevelopers(developers) {
   return api.post("/members", developers);
 }
@@ -68,5 +73,14 @@ export function fetchPositionList() {
 }
 
 export function fetchDepartmentList() {
-  return api.get("/departments");
+    return api.get("/departments");
 }
+
+export function updateDeveloper(employeeId, updateRequest) {
+    return api.put(`/members/${employeeId}`, updateRequest);
+}
+
+export function deleteDeveloper(employeeId) {
+  return api.delete(`/members/${employeeId}`);
+}
+
