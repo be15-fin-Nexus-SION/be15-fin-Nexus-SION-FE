@@ -37,9 +37,13 @@
             alt="프로필 이미지"
             class="w-48 h-48 rounded-full object-cover border mb-4"
         />
-        <div class="text-center">
+        <div class="text-center flex flex-col items-center justify-center">
           <div class="text-lg font-bold text-gray-900">{{ developer.name }}</div>
-          <div class="text-sm font-semibold text-gray-500 mt-1">{{ developer.grade || '-' }}</div>
+          <div>
+            <GradeBadge :label="developer.grade" />
+          </div>
+
+<!--          <div class="text-sm font-semibold text-gray-500 mt-1">{{ developer.grade || '-' }}</div>-->
         </div>
       </div>
 
@@ -128,6 +132,7 @@ import BarChart from '@/features/developer/components/BarChart.vue';
 import RadarChart from '@/features/developer/components/RadarChart.vue';
 import { fetchDeveloperDetail, fetchTechStacksByEmployeeId } from '@/api/member';
 import TechBadge from "@/components/badge/TechBadge.vue";
+import GradeBadge from "@/components/badge/GradeBadge.vue";
 
 const route = useRoute();
 const employeeId = route.params.employeeId;

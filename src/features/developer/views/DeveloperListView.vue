@@ -63,12 +63,14 @@
           <td class="p-4 text-center">{{ developer.employeeId }}</td>
 
           <!-- 이름 + 프로필 이미지 -->
-          <td class="p-4 flex items-center justify-center gap-2 text-center">
-            <img
-                :src="developer.profileImageUrl || fallbackImage"
-                class="w-8 h-8 rounded-full object-cover"
-            />
-            {{ developer.name }}
+          <td class="p-4 px-12 text-center align-middle">
+            <div class="flex items-center justify-start gap-3">
+              <img
+                  :src="developer.profileImageUrl || fallbackImage"
+                  class="w-8 h-8 rounded-full object-cover"
+              />
+              <div>{{ developer.name }}</div>
+            </div>
           </td>
 
           <!-- 부서 -->
@@ -90,7 +92,11 @@
           </td>
 
           <!-- 등급 -->
-          <td class="p-4 text-center">{{ developer.grade }}</td>
+          <td class="p-4 text-center">
+            <div class="flex justify-center">
+              <GradeBadge :label="developer.grade" />
+            </div>
+          </td>
 
           <!-- 현재 상태 -->
           <td class="p-4 relative text-center" @click.stop>
@@ -145,6 +151,8 @@ import SortDropdown from '@/components/SortDropdown.vue';
 import SearchBar from '@/components/searchBar/SearchBar.vue';
 import { useRouter } from 'vue-router';
 import TechBadge from "@/components/badge/TechBadge.vue";
+import GradeBadge from "@/components/badge/GradeBadge.vue";
+import StatusBadge from "@/components/badge/StatusBadge.vue";
 
 const router = useRouter();
 const developers = ref([]);
@@ -196,6 +204,7 @@ const fetchDevelopers = async () => {
       employeeId: dev.employeeId,
       grade: dev.grade_code || '-',
       status: statusLabel(dev.status),
+      // status: dev.status,
       profileImageUrl: dev.profileImageUrl,
       topTechStackName: dev.topTechStackName,
       joinedAt: dev.joinedAt || '1900-01-01T00:00:00'
