@@ -53,7 +53,7 @@ router.beforeEach((to, from) => {
   // 1) 인증 필요 페이지인데 비로그인
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     showErrorToast("로그인이 필요한 페이지입니다.");
-    return { name: "Login" };
+    return { path: `/login` };
   }
 
   // 2) 로그인한 상태로 login/signup 접근 금지
