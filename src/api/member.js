@@ -73,14 +73,17 @@ export function fetchPositionList() {
 }
 
 export function fetchDepartmentList() {
-    return api.get("/departments");
+  return api.get("/departments");
 }
 
 export function updateDeveloper(employeeId, updateRequest) {
-    return api.put(`/members/${employeeId}`, updateRequest);
+  return api.put(`/members/${employeeId}`, updateRequest);
 }
 
 export function deleteDeveloper(employeeId) {
   return api.delete(`/members/${employeeId}`);
 }
 
+export function getUnitPriceByGrade() {
+  return api.get(`/grades`);
+}
