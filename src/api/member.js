@@ -83,3 +83,11 @@ export function updateDeveloper(employeeId, updateRequest) {
 export function deleteDeveloper(employeeId) {
   return api.delete(`/members/${employeeId}`);
 }
+
+export function getUnitPriceByGrade() {
+  return api.get(`/grades`);
+}
+
+export function setUnitPriceByGrade(grades) {
+  return api.post(`/grades`, grades);
+}

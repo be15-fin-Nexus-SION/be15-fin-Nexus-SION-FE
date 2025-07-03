@@ -6,10 +6,9 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  index: Number,
 });
 
-const emit = defineEmits(["update", "delete"]);
+const emit = defineEmits(["update"]);
 
 const editing = ref(false);
 const tempItem = ref({ ...props.item });
@@ -30,12 +29,10 @@ function startEditing() {
 
 function stopEditing() {
   if (
-    tempItem.value.minYears !== props.item.minYears ||
-    tempItem.value.maxYears !== props.item.maxYears ||
-    tempItem.value.score !== props.item.score
+    tempItem.value.productivity !== props.item.productivity ||
+    tempItem.value.monthlyUnitPrice !== props.item.monthlyUnitPrice
   ) {
-    const updatedItem = { ...tempItem.value, edited: true };
-    emit("update", updatedItem);
+    emit("update", { ...tempItem.value, edited: true });
   }
   editing.value = false;
 }
@@ -44,6 +41,11 @@ function handleClickOutside(e) {
   if (editing.value && rowRef.value && !rowRef.value.contains(e.target)) {
     stopEditing();
   }
+}
+
+function formatPrice(value) {
+  if (value === null || value === undefined) return "-";
+  return Number(value).toLocaleString();
 }
 
 onMounted(() => {
@@ -56,51 +58,38 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <tr class="border-t" @click="startEditing" ref="rowRef">
+  <tr class="border-t cursor-pointer" @click="startEditing" ref="rowRef">
+    <td class="content">{{ props.item.gradeCode }}</td>
+    <td class="content">{{ props.item.ratio }}</td>
     <td class="content">
       <template v-if="editing">
-        <div class="flex items-center justify-center gap-1">
-          <input
-            type="text"
-            v-model.number="tempItem.minYears"
-            class="border rounded px-2 py-1 w-full text-center"
-            placeholder="min"
-          />
-          <span>-</span>
-          <input
-            type="text"
-            v-model.number="tempItem.maxYears"
-            class="border rounded px-2 py-1 w-full text-center"
-            placeholder="max"
-          />
-        </div>
+        <input
+          type="text"
+          v-model.number="tempItem.productivity"
+          class="border rounded px-2 py-1 w-full text-center"
+          placeholder="생산성"
+          :disabled="tempItem.gradeCode === 'D'"
+          @keyup.enter="stopEditing"
+        />
       </template>
       <template v-else>
-        {{ props.item.minYears }} - {{ props.item.maxYears ?? "이상" }}
+        {{ props.item.productivity ?? "-" }}
       </template>
     </td>
     <td class="content">
       <template v-if="editing">
         <input
           type="text"
-          v-model.number="tempItem.score"
+          v-model.number="tempItem.monthlyUnitPrice"
           class="border rounded px-2 py-1 w-full text-center"
-          placeholder="score"
+          placeholder="단가"
           @keyup.enter="stopEditing"
         />
       </template>
       <template v-else>
-        {{ props.item.score }}
+        {{ formatPrice(props.item.monthlyUnitPrice) }}
         <span v-if="props.item.edited" class="text-red-500">*</span>
       </template>
-    </td>
-    <td class="text-center">
-      <button
-        @click.stop="emit('delete', props.item)"
-        class="text-red-500 hover:text-red-700"
-      >
-        삭제
-      </button>
     </td>
   </tr>
 </template>
@@ -108,6 +97,5 @@ onBeforeUnmount(() => {
 <style scoped>
 .content {
   @apply items-center text-center h-16 px-4;
-  cursor: pointer;
 }
 </style>
