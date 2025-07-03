@@ -14,7 +14,7 @@ const handleLogin = async (payload) => {
     const resp = await login(payload);
     const at = resp.data.data.accessToken;
     authStore.setAuth(at);
-    showSuccessToast("로그인이 완료되었습니다.");
+    showSuccessToast("로그인 되었습니다.");
     await router.push("/");
   } catch (error) {
     console.error("로그인 실패:", error);
