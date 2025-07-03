@@ -49,7 +49,7 @@ import SquadDropdown from "@/features/squad/components/SquadDropdown.vue";
 import SquadPagination from "@/features/squad/components/SquadPagination.vue";
 import ProjectListModal from "@/features/squad/components/ProjectListModal.vue";
 import { getSquadList } from "@/api/squad";
-import { getProjectList } from "@/api/project";
+import { fetchProjectList } from "@/api/project";
 
 const showMoreModal = ref(false);
 const selectedMoreType = ref(""); // 예: 'waiting', 'inprogress', 'complete'
@@ -75,7 +75,7 @@ const selectProjectAndClose = (projectCode) => {
 };
 
 const fetchProjects = async () => {
-  const response = await getProjectList({ page: 0, size: 100 });
+  const response = await fetchProjectList({ page: 0, size: 100 });
   const content = response.data.data?.content ?? [];
 
   console.log("✅ 프로젝트 배열:", content);
