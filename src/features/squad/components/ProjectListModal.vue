@@ -30,7 +30,7 @@ const projects = computed(() =>
   <div
     class="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center"
   >
-    <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg relative">
+    <div class="bg-white rounded-xl p-6 w-[400px] shadow-lg relative">
       <h3 class="text-lg font-semibold mb-4">{{ typeLabel }} 프로젝트 목록</h3>
 
       <!-- ✅ fallback 메시지 추가 -->
@@ -38,7 +38,7 @@ const projects = computed(() =>
         <li
           v-for="project in projects"
           :key="project.projectCode"
-          class="bg-gray-100 px-3 py-2 rounded text-sm cursor-pointer hover:bg-gray-200"
+          class="bg-gray-100 px-3 py-2 rounded text-sm cursor-pointer hover:bg-gray-200 text-center"
           @click="emit('select', project.projectCode)"
         >
           {{ project.title }}
