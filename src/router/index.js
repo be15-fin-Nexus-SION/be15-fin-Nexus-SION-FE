@@ -1,5 +1,8 @@
+// src/router/index.js
+
 import { createRouter, createWebHistory } from "vue-router";
 import AppShell from "@/components/AppShell.vue";
+
 import { developerRoutes } from "@/features/developer/router.js";
 import { projectRoutes } from "@/features/project/router.js";
 import { squadRoutes } from "@/features/squad/router.js";
@@ -8,48 +11,77 @@ import { adminRoutes } from "@/features/admin/router.js";
 import { authRoutes } from "@/features/auth/router.js";
 import { scoreRoutes } from "@/features/score/router.js";
 
+import { useAuthStore } from "@/stores/auth.js";
+import { showErrorToast } from "@/utills/toast.js";
+
+const routes = [
+  {
+    path: "/",
+    name: "home",
+    component: AppShell,
+    redirect: () => {
+      const authStore = useAuthStore();
+      if (!authStore.isAuthenticated) {
+        return { name: "login" }; // 미로그인 시 로그인 페이지로
+      }
+      if (authStore.memberRole === "ADMIN") {
+        return { path: "/developers" }; // 관리자면 도메인 관리로
+      }
+      return { path: `/developers/${authStore.memberId}` }; // 그 외는 자신의 프로필로
+    },
+    children: [
+      ...developerRoutes,
+      ...projectRoutes,
+      ...squadRoutes,
+      ...statisticsRoutes,
+      ...adminRoutes,
+      ...scoreRoutes,
+    ],
+  },
+  ...authRoutes,
+];
+
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      path: "/",
-      redirect: "/developers",
-      component: AppShell,
-      children: [
-        ...developerRoutes,
-        ...projectRoutes,
-        ...squadRoutes,
-        ...statisticsRoutes,
-        ...adminRoutes,
-        ...scoreRoutes,
-      ],
-    },
-    ...authRoutes,
-  ],
+  routes,
 });
 
-// // 전역 가드
-// router.beforeEach((to) => {
-//   const authStore = useAuthStore()
-//
-//   // 인증 필요인데 로그인 안됨
-//   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-//     showErrorToast('로그인이 필요한 페이지입니다.')
-//     setTimeout(() => {
-//       router.push('/developers')
-//     }, 1000)
-//   }
-//
-//   // 로그인된 사용자가 로그인/회원가입 페이지 접근 시
-//   if ((to.name === 'login' || to.name === 'signup') && authStore.isAuthenticated) {
-//     showErrorToast('이미 로그인된 상태입니다.')
-//     return { path: '/developers' }
-//   }
-//
-//   // 게스트 전용 페이지 접근 제한
-//   if (to.meta.guestOnly && authStore.isAuthenticated) {
-//     return { path: '/developers' }
-//   }
-// })
+// 전역 가드: 인증 · 권한 · guestOnly · 로그인/회원가입 접근 제어
+router.beforeEach((to, from) => {
+  const authStore = useAuthStore();
+
+  // 1) 인증 필요 페이지인데 비로그인
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    showErrorToast("로그인이 필요한 페이지입니다.");
+    return { name: "Login" };
+  }
+
+  // 2) 로그인한 상태로 login/signup 접근 금지
+  if (
+    (to.name === "login" || to.name === "signup") &&
+    authStore.isAuthenticated
+  ) {
+    showErrorToast("이미 로그인된 상태입니다.");
+    return { path: `/developers/${authStore.memberId}` };
+  }
+
+  // 3) guestOnly 페이지 접근 금지
+  if (to.meta.guestOnly && authStore.isAuthenticated) {
+    return { path: `/developers/${authStore.memberId}` };
+  }
+
+  // 4) roles 메타로 권한 체크
+  const { roles } = to.meta;
+  if (
+    Array.isArray(roles) &&
+    roles.length > 0 &&
+    !roles.includes(authStore.memberRole)
+  ) {
+    showErrorToast("접근 권한이 없습니다.");
+    return { path: `/developers/${authStore.memberId}` };
+  }
+
+  // 정상 진행
+});
 
 export default router;

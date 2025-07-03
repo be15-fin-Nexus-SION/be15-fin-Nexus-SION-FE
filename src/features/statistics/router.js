@@ -5,6 +5,7 @@ export const statisticsRoutes = [
     component: () => import("./views/StackMemberCountView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 
@@ -14,6 +15,7 @@ export const statisticsRoutes = [
     component: () => import("./views/StackAvgCareerView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 
@@ -23,6 +25,7 @@ export const statisticsRoutes = [
     component: () => import("./views/StackPopularView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 
@@ -32,6 +35,7 @@ export const statisticsRoutes = [
     component: () => import("./views/JobParticipation.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 
@@ -41,6 +45,7 @@ export const statisticsRoutes = [
     component: () => import("./views/WaitingCountView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 
@@ -50,6 +55,7 @@ export const statisticsRoutes = [
     component: () => import("./views/GradeSalaryView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 
@@ -59,6 +65,7 @@ export const statisticsRoutes = [
     component: () => import("./views/TechTrendView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 ];

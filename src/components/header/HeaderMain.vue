@@ -3,10 +3,11 @@
     <div class="header-inner">
       <!-- 좌측: 로고 + 메뉴 -->
       <div class="left-group">
-        <div class="logo-container">
+        <!-- 로고 클릭 시 / 로 이동 -->
+        <router-link to="/" class="logo-container">
           <span class="logo-text">SION</span>
           <div class="logo-underline"></div>
-        </div>
+        </router-link>
         <HeaderNav />
       </div>
 
@@ -37,7 +38,7 @@ import AuthMenu from "./AuthMenu.vue";
 }
 
 .logo-container {
-  @apply flex flex-col items-center justify-center relative h-[63px];
+  @apply flex flex-col items-center justify-center relative h-[63px] cursor-pointer;
 }
 
 .logo-text {

@@ -43,7 +43,7 @@ const goToAdminPage = () => {
 const handleLogout = async () => {
   try {
     await logout();
-    showSuccessToast("로그아웃이 완료되었습니다.");
+    showSuccessToast("로그아웃 되었습니다.");
     authStore.clearAuth();
     await router.push("/login");
   } catch (e) {
