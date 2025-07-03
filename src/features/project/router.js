@@ -8,6 +8,14 @@ export const projectRoutes = [
     },
   },
   {
+    path: "projects/register",
+    name: "project-register",
+    component: () => import("./views/ProjectRegisterView.vue"), // ✅ 등록 뷰 추가
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
     path: "projects/:id",
     name: "project-detail",
     component: () => import("./views/ProjectDetailView.vue"),
