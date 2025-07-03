@@ -5,3 +5,7 @@ export const getSquadList = ({ projectCode, page, size }) => {
     params: { page, size },
   });
 };
+
+export const deleteSquadByCode = (squadCode) => {
+  return axios.delete(`/squads/${squadCode}`);
+};

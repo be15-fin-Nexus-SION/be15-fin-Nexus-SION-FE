@@ -33,6 +33,7 @@
           v-for="squad in squads"
           :key="squad.squadCode"
           :squad="squad"
+          @delete="deleteSquad"
         />
       </div>
 
@@ -43,13 +44,18 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useToast } from "vue-toastification";
 import SquadSidebar from "@/features/squad/components/SquadSidebar.vue";
 import SquadCard from "@/features/squad/components/SquadCard.vue";
 import SquadDropdown from "@/features/squad/components/SquadDropdown.vue";
 import SquadPagination from "@/features/squad/components/SquadPagination.vue";
 import ProjectListModal from "@/features/squad/components/ProjectListModal.vue";
-import { getSquadList } from "@/api/squad";
+import { getSquadList, deleteSquadByCode } from "@/api/squad";
 import { fetchProjectList } from "@/api/project";
+
+const totalCount = ref(0); // 총 스쿼드 수
+
+const toast = useToast();
 
 const showMoreModal = ref(false);
 const selectedMoreType = ref(""); // 예: 'waiting', 'inprogress', 'complete'
@@ -72,6 +78,24 @@ const closeModal = () => {
 const selectProjectAndClose = (projectCode) => {
   selectProject(projectCode);
   showMoreModal.value = false;
+};
+
+const deleteSquad = async (squadCode) => {
+  try {
+    await deleteSquadByCode(squadCode);
+
+    totalCount.value = Math.max(0, totalCount.value - 1);
+    if (squads.value.length === 1 && page.value > 1) {
+      page.value -= 1;
+    }
+    totalPages.value = Math.max(1, Math.ceil(totalCount.value / size));
+
+    await fetchSquads();
+    toast.success("✅ 스쿼드가 성공적으로 삭제되었습니다.");
+  } catch (e) {
+    console.error("❌ 스쿼드 삭제 실패:", e);
+    toast.error("스쿼드 삭제에 실패했습니다.");
+  }
 };
 
 const fetchProjects = async () => {
@@ -129,8 +153,6 @@ const fetchProjects = async () => {
 const fetchSquads = async () => {
   if (!selectedProjectCode.value) return;
 
-  console.log("📌 요청 보낼 projectCode:", selectedProjectCode.value);
-
   const response = await getSquadList({
     projectCode: selectedProjectCode.value,
     page: page.value - 1,
@@ -139,14 +161,9 @@ const fetchSquads = async () => {
 
   const squadData = response.data?.data ?? response.data ?? {};
   squads.value = squadData.content ?? [];
-  totalPages.value = Math.ceil((squadData.totalCount ?? 0) / size);
 
-  // 🔍 여기서 콘솔로 확인
-  console.log("📦 Squad 목록 확인:", squads.value);
-  squads.value.forEach((s, i) => {
-    console.log(`[${i}] aiRecommended:`, s.aiRecommended);
-    console.log(`[${i}] squadCode:`, s.squadCode);
-  });
+  totalCount.value = squadData.totalCount ?? 0;
+  totalPages.value = Math.max(1, Math.ceil(totalCount.value / size));
 };
 
 const goToPage = (p) => {

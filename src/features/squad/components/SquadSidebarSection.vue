@@ -21,13 +21,22 @@ const onSelect = (code) => emit("select", code);
       <li v-for="code in items" :key="code">
         <button
           v-if="projectMap?.[code]"
-          class="w-full text-left px-4 py-1 rounded"
-          :class="code === active ? 'bg-blue-500 text-white' : 'bg-white'"
+          class="w-full text-left px-4 py-4 rounded-md transition-colors duration-200 focus:outline-none"
+          :class="[
+            code === active
+              ? 'bg-primary text-white hover:bg-primary-hover'
+              : 'bg-gray-100 text-black hover:bg-gray-200',
+          ]"
           @click="onSelect(code)"
         >
           {{ projectMap[code].title }}
         </button>
-        <span v-else class="text-gray-400 px-4 py-2 block">데이터 없음</span>
+        <span
+          v-else
+          class="text-gray-400 px-4 py-2 block border border-gray-300 rounded-md"
+        >
+          데이터 없음
+        </span>
       </li>
     </ul>
   </div>
