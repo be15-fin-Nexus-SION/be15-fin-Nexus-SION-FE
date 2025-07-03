@@ -5,7 +5,7 @@ import StackAvgCareerView from "@/features/statistics/views/StackAvgCareerView.v
 
 // mocking 일부 컴포넌트
 vi.mock("@/components/side/SidebarWrapper.vue", () => ({
-  default: { template: "<div>SquadSidebar</div>" },
+  default: { template: "<div>Sidebar</div>" },
 }));
 
 vi.mock("@/components/searchBar/TechStackSearchBar.vue", () => ({
