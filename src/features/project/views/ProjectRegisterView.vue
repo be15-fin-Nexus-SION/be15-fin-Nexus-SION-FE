@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted, computed } from "vue";
 import DropdownSelect from "@/components/DropdownSelect.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
-import TechStackModal from "@/components/TechStackSelectModal.vue";
+import TechStackModal from "@/components/modal/TechStackSelectModal.vue";
 import { fetchAllDomains } from "@/api/domain.js";
 import { fetchAllClientCompanies } from "@/api/clientCompany.js";
 import { fetchAllTechStacks } from "@/api/techstack.js";
@@ -279,11 +279,15 @@ async function submitForm() {
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5 ml-2"
                 fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4"
+                />
               </svg>
             </label>
           </div>
