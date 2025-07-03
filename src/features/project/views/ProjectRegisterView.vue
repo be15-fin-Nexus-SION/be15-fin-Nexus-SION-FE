@@ -2,7 +2,7 @@
 import { ref, reactive, onMounted, computed } from "vue";
 import DropdownSelect from "@/components/DropdownSelect.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
-import TechStackModal from "@/components/TechStackSelectModal.vue";
+import TechStackModal from "@/components/modal/TechStackSelectModal.vue";
 import { fetchAllDomains } from "@/api/domain.js";
 import { fetchAllClientCompanies } from "@/api/clientCompany.js";
 import { fetchAllTechStacks } from "@/api/techstack.js";
