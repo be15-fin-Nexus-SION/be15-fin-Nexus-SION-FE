@@ -59,6 +59,11 @@ export function login(payload) {
   return api.post("/members/login", payload);
 }
 
+/* 로그아웃 */
+export function logout() {
+  return api.post("/members/logout");
+}
+
 export function registerDevelopers(developers) {
   return api.post("/members", developers);
 }
