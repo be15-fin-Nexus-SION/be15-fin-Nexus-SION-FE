@@ -41,7 +41,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import FilterDropdown from "@/features/statistics/components/FilterDropdown.vue";
+import FilterDropdown from "@/components/dropdown/FilterDropdown.vue";
 
 const props = defineProps({
   stats: {

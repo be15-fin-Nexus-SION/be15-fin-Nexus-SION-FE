@@ -60,7 +60,7 @@
 import { ref, watch, onMounted, computed, nextTick, defineProps } from "vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import { getStackAvgCareer } from "@/api/statistics.js";
-import SortDropdown from "@/components/SortDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 
 // props
 const props = defineProps({

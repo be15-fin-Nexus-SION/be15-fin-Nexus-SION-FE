@@ -4,7 +4,8 @@ import Chart from "chart.js/auto";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import { getSalaryByGrade } from "@/api/statistics";
 import SalaryList from "@/features/statistics/components/SalaryList.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const chartRef = ref(null);
 const stats = ref([]);
@@ -27,8 +28,9 @@ async function fetchStats() {
   try {
     const response = await getSalaryByGrade();
     stats.value = response.data.data;
-  } catch (error) {
-    console.error("등급별 연봉 조회 실패:", error);
+  } catch (e) {
+    const errorMessage = e.response?.data?.message || "등급별 연봉 조회 실패";
+    showErrorToast(errorMessage);
   }
 }
 

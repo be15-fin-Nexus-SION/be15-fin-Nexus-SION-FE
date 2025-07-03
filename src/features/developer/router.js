@@ -24,8 +24,8 @@ export const developerRoutes = [
     },
   },
   {
-    path: '/developers/:employeeId/edit',
-    name: 'developer-edit',
-    component: () => import("./views/DeveloperEditView.vue")
+    path: "/developers/:employeeId/edit",
+    name: "developer-edit",
+    component: () => import("./views/DeveloperEditView.vue"),
   },
 ];

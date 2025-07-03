@@ -8,7 +8,7 @@ vi.mock("@/components/side/SidebarWrapper.vue", () => ({
   default: { template: "<div>Sidebar</div>" },
 }));
 
-vi.mock("@/components/searchBar/TechStackSearchBar.vue", () => ({
+vi.mock("@/components/searchBar/AutoCompleteSearchBar.vue", () => ({
   default: {
     props: ["selectedStacks"],
     emits: ["select"],

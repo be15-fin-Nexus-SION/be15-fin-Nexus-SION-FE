@@ -83,7 +83,7 @@ defineExpose({
   @apply flex flex-col gap-2 mt-4;
 }
 .techStack-row-wrapper {
-  @apply flex justify-between items-center px-4 py-2 gap-2 h-[56px] bg-white border-b border-[#EEEEEE];
+  @apply flex justify-between items-center px-4 py-2 gap-2 h-[56px] bg-white border-b border-stroke-gray;
 }
 .techStack-name {
   @apply h-[24px] text-bodyMd text-[#0D121C];

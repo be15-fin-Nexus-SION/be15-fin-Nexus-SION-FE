@@ -131,7 +131,7 @@
 import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { fetchDeveloperList, updateMemberStatus } from "@/api/member";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
-import SortDropdown from "@/components/SortDropdown.vue";
+import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import { useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
