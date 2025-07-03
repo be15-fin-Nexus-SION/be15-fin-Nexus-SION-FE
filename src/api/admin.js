@@ -47,7 +47,5 @@ export function getAllInitialScores() {
 }
 
 export function setInitialScores(initialScores) {
-  console.log(initialScores);
-
   return api.post("/initial-scores", initialScores);
 }

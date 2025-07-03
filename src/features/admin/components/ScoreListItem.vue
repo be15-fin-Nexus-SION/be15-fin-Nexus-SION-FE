@@ -9,7 +9,7 @@ const props = defineProps({
   index: Number,
 });
 
-const emit = defineEmits(["update", "update:item", "delete"]);
+const emit = defineEmits(["update", "delete"]);
 
 const editing = ref(false);
 const tempItem = ref({ ...props.item });
