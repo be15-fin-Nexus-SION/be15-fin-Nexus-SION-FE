@@ -38,12 +38,12 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="containerRef" class="popup-container" :style="$attrs.style">
-    <button class="action-button" @click="emit('top')">
+    <button class="action-button action-button--top" @click="emit('top')">
       <span class="label">{{ topLabel }}</span>
       <slot name="topIcon" />
     </button>
-    <button class="action-button" @click="emit('bottom')">
-      <span class="label bottom-label">{{ bottomLabel }}</span>
+    <button class="action-button action-button--danger" @click="emit('bottom')">
+      <span class="label">{{ bottomLabel }}</span>
       <slot name="bottomIcon" />
     </button>
   </div>
@@ -55,23 +55,18 @@ onBeforeUnmount(() => {
 }
 
 .action-button {
-  @apply flex items-center justify-center w-[120px] h-[52px] px-4 border-b border-natural-gray cursor-pointer gap-[8px] text-support-stack;
+  @apply flex items-center justify-center w-[110px] h-[52px] px-4 border-b border-natural-gray cursor-pointer gap-[8px] text-support-stack;
 }
 
-.action-button:hover {
+.action-button--top:hover {
   @apply text-primary-hover;
 }
 
-.action-button:hover:nth-child(2) {
+.action-button--danger:hover {
   @apply text-semantic-warning;
 }
 
-/* ✅ 라벨은 글자 크기만 지정 — 색상 지정 X (부모로부터 상속 받게 함) */
 .label {
-  @apply text-bodySm;
-}
-
-.bottom-label {
   @apply text-bodySm;
 }
 </style>

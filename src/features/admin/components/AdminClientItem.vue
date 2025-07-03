@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["deleted"]);
+const emit = defineEmits(["deleted", "updated"]);
 
 const showMenu = ref(false);
 const showEditModal = ref(false);
@@ -32,7 +32,7 @@ const openMenu = async () => {
     popupStyle.value = {
       position: "absolute",
       top: `${rect.top + window.scrollY + rect.height / 2 - 10}px`,
-      left: `${rect.left + window.scrollX - modalWidth - 5}px`,
+      left: `${rect.left + window.scrollX - modalWidth + 10}px`,
     };
   }
 };
@@ -54,7 +54,7 @@ const handleDelete = async () => {
     showSuccessToast("고객사 정보를 삭제했습니다.");
     emit("deleted");
   } catch (e) {
-    const errorMessage = e.response?.data?.message || "삭제 실패";
+    const errorMessage = e.response?.data?.message || "고객사 정보 삭제 실패";
     showErrorToast(errorMessage);
   } finally {
     closeMenu();
@@ -77,15 +77,27 @@ const closeEditModal = () => {
 };
 
 const handleUpdate = async (updatedClient) => {
+  // contactPerson이 null 또는 빈 문자열일 경우, email, contactNumber도 null로 덮어씀
+  const trimmedContactPerson = updatedClient.contactPerson?.trim();
+  const isContactPersonEmpty = !trimmedContactPerson;
+
+  const finalPayload = {
+    ...updatedClient,
+    contactPerson: trimmedContactPerson || null,
+    email: isContactPersonEmpty ? null : updatedClient.email?.trim() || null,
+    contactNumber: isContactPersonEmpty
+      ? null
+      : updatedClient.contactNumber?.trim() || null,
+  };
+
   try {
-    await updateClient(props.client.clientCode, updatedClient);
+    await updateClient(props.client.clientCode, finalPayload);
     showSuccessToast("고객사 정보가 수정되었습니다.");
+    showEditModal.value = false;
     emit("updated");
   } catch (e) {
     const message = e.response?.data?.message || "수정 실패";
     showErrorToast(message);
-  } finally {
-    showEditModal.value = false;
   }
 };
 </script>

@@ -88,16 +88,6 @@ watch(
   },
 );
 
-const formatPhoneNumber = (raw) => {
-  const digits = raw.replace(/\D/g, ""); // 숫자만 추출
-  if (digits.length === 11) {
-    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-  } else if (digits.length === 10) {
-    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-  }
-  return raw; // 예상치 못한 형식은 그대로
-};
-
 const submit = () => {
   const { companyName, domainName, contactPerson, email, contactNumber } =
     form.value;
@@ -119,9 +109,7 @@ const submit = () => {
     domainName: domainName.trim(),
     contactPerson: contactPerson.trim() || null,
     email: email.trim() || null,
-    contactNumber: contactNumber.trim()
-      ? formatPhoneNumber(contactNumber.trim())
-      : null,
+    contactNumber: contactNumber.trim() || null,
   };
 
   props.onSubmit?.(payload);
@@ -131,7 +119,7 @@ const submit = () => {
 <template>
   <div v-if="show" class="modal-overlay">
     <div class="client-modal">
-      <div class="modal-title">고객사 정보 등록</div>
+      <div class="modal-title">고객사 정보 수정</div>
 
       <input
         v-model="form.companyName"
