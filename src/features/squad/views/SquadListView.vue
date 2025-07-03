@@ -28,6 +28,11 @@
         <SquadDropdown />
       </div>
 
+      <!-- 💡 오류 메시지 표시 -->
+      <p v-if="projectLoadError" class="text-red-500 mb-4 text-sm">
+        프로젝트 정보가 아직 로드되지 않았습니다.
+      </p>
+
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <SquadCard
           v-for="squad in squads"
@@ -65,6 +70,8 @@ const selectedProjectTitle = ref("");
 const projectGroups = ref({ waiting: [], inprogress: [], complete: [] });
 const projectMap = ref({}); // title → { projectCode, title, status }
 
+const projectLoadError = ref(false); // 💡 추가
+
 const closeModal = () => {
   showMoreModal.value = false;
 };
@@ -78,16 +85,12 @@ const fetchProjects = async () => {
   const response = await getProjectList({ page: 0, size: 100 });
   const content = response.data.data?.content ?? [];
 
-  console.log("✅ 프로젝트 배열:", content);
-
   const waiting = [],
     inprogress = [],
     complete = [];
   const map = {};
 
   for (const project of content) {
-    console.log("📦 프로젝트 코드:", project.projectCode);
-    console.log("📦 상태 확인:", project.status);
     map[project.projectCode] = project;
 
     switch (project.status?.toUpperCase()) {
@@ -105,11 +108,6 @@ const fetchProjects = async () => {
         console.warn("⚠️ 알 수 없는 status:", project.status);
     }
   }
-
-  console.log("🟢 waiting:", waiting);
-  console.log("🟡 inprogress:", inprogress);
-  console.log("🔵 complete:", complete);
-  console.log("📌 projectMap:", map);
 
   projectMap.value = map;
 
@@ -129,8 +127,6 @@ const fetchProjects = async () => {
 const fetchSquads = async () => {
   if (!selectedProjectCode.value) return;
 
-  console.log("📌 요청 보낼 projectCode:", selectedProjectCode.value);
-
   const response = await getSquadList({
     projectCode: selectedProjectCode.value,
     page: page.value - 1,
@@ -140,13 +136,6 @@ const fetchSquads = async () => {
   const squadData = response.data?.data ?? response.data ?? {};
   squads.value = squadData.content ?? [];
   totalPages.value = Math.ceil((squadData.totalCount ?? 0) / size);
-
-  // 🔍 여기서 콘솔로 확인
-  console.log("📦 Squad 목록 확인:", squads.value);
-  squads.value.forEach((s, i) => {
-    console.log(`[${i}] aiRecommended:`, s.aiRecommended);
-    console.log(`[${i}] squadCode:`, s.squadCode);
-  });
 };
 
 const goToPage = (p) => {
@@ -167,19 +156,16 @@ const selectProject = (projectCode) => {
 };
 
 const openMoreModal = (type) => {
-  console.log("🟢 모달 열기 요청 - type:", type);
-  console.log("🟢 해당 코드들:", projectGroups.value[type]);
-  console.log("🟢 projectMap 상태:", projectMap.value);
+  const codes = projectGroups.value[type];
+  const hasProject = codes && codes.length > 0;
+  const hasMap = Object.keys(projectMap.value).length > 0;
 
-  if (
-    !projectGroups.value[type] ||
-    projectGroups.value[type].length === 0 ||
-    Object.keys(projectMap.value).length === 0
-  ) {
-    alert("프로젝트 정보가 아직 로드되지 않았습니다.");
+  if (!hasProject || !hasMap) {
+    projectLoadError.value = true; // 💡 상태 true 설정
     return;
   }
 
+  projectLoadError.value = false; // 💡 상태 초기화
   selectedMoreType.value = type;
   showMoreModal.value = true;
 };
