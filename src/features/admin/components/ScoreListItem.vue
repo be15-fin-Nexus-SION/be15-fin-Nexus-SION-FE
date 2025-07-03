@@ -64,14 +64,14 @@ onBeforeUnmount(() => {
           <input
             type="text"
             v-model.number="tempItem.minYears"
-            class="border rounded px-2 py-1 w-16 text-center"
+            class="border rounded px-2 py-1 w-full text-center"
             placeholder="min"
           />
           <span>-</span>
           <input
             type="text"
             v-model.number="tempItem.maxYears"
-            class="border rounded px-2 py-1 w-16 text-center"
+            class="border rounded px-2 py-1 w-full text-center"
             placeholder="max"
           />
         </div>
@@ -85,7 +85,7 @@ onBeforeUnmount(() => {
         <input
           type="text"
           v-model.number="tempItem.score"
-          class="border rounded px-2 py-1 w-20 text-center"
+          class="border rounded px-2 py-1 w-full text-center"
           placeholder="score"
           @keyup.enter="stopEditing"
         />

@@ -72,8 +72,9 @@ function validateInitialScores() {
   const first = scores[0];
   if (first.minYears !== 1) {
     showErrorToast(
-      `첫 번째 항목의 최소 연차(minYears)는 1이어야 합니다. 현재 값: ${first.minYears}`,
+      `첫 번째 항목의 최소 연차(minYears)는 1이어야 하며, 자동으로 수정됩니다.`,
     );
+    first.minYears = 1;
     return false;
   }
 
@@ -86,7 +87,7 @@ function validateInitialScores() {
     // 현재 항목의 min > max 체크
     if (maxYears !== null && minYears > maxYears) {
       showErrorToast(
-        `최소 연차(${minYears})는 최대 연차(${maxYears})보다 작아야 합니다. index: ${i}`,
+        `최소 연차(${minYears})는 최대 연차(${maxYears})보다 작아야 합니다.`,
       );
       return false;
     }
@@ -94,7 +95,7 @@ function validateInitialScores() {
     // 점수 오름차순 체크
     if (i > 0 && scores[i - 1].score >= score) {
       showErrorToast(
-        `초기 점수는 오름차순이어야 합니다. 이전 점수(${scores[i - 1].score}) >= 현재 점수(${score})`,
+        `초기 점수는 오름차순이어야 합니다. ${scores[i - 1].score} 다음 (${score})`,
       );
       return false;
     }
@@ -102,30 +103,25 @@ function validateInitialScores() {
     // 다음 항목이 있다면 연속성 체크
     if (next) {
       if (maxYears === null) {
-        showErrorToast(
-          `중간 항목의 최대 연차(maxYears)는 null일 수 없습니다. index: ${i}`,
-        );
+        showErrorToast(`최대 연차(maxYears)는 null일 수 없습니다.`);
         return false;
       }
 
       if (next.minYears === null) {
-        showErrorToast(
-          `다음 항목의 최소 연차(minYears)는 null일 수 없습니다. index: ${i + 1}`,
-        );
+        showErrorToast(`최소 연차(minYears)는 null일 수 없습니다.`);
         return false;
       }
 
       if (maxYears + 1 !== next.minYears) {
         showErrorToast(
-          `연차 구간이 연속적이지 않습니다. index: ${i}, ${maxYears} 다음은 ${next.minYears}이어야 합니다.`,
+          `${maxYears} 다음은 ${maxYears + 1} 이어야 하지만, 현재 ${next.minYears}이며, 자동으로 수정됩니다.`,
         );
+        next.minYears = maxYears + 1;
         return false;
       }
 
       if (minYears >= next.minYears) {
-        showErrorToast(
-          `연차 구간은 오름차순이어야 합니다. 현재 min: ${minYears}, 다음 min: ${next.minYears}`,
-        );
+        showErrorToast(`현재 min: ${minYears}, 다음 min: ${next.minYears}`);
         return false;
       }
     }

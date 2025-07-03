@@ -49,9 +49,9 @@ function deleteItem(deletedItem) {
     >
       <thead class="bg-gray-200">
         <tr>
-          <th><div class="content">년차</div></th>
-          <th><div class="content">초기점수</div></th>
-          <th><div class="text-center">비고</div></th>
+          <th class="w-[120px]"><div class="content">년차</div></th>
+          <th class="w-[120px]"><div class="content">초기점수</div></th>
+          <th class="w-[80px]"><div class="text-center">비고</div></th>
         </tr>
       </thead>
       <tbody>
