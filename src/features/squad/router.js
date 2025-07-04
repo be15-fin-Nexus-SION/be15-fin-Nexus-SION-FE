@@ -15,4 +15,12 @@ export const squadRoutes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "squads/create/:projectId",
+    name: "squad-create",
+    component: () => import("./views/SquadCreateView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];
