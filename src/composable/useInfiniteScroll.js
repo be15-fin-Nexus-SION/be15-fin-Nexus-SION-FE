@@ -7,7 +7,7 @@ export function useInfiniteScroll({
   threshold = 200,
 }) {
   const items = ref([]);
-  const curPage = ref(1);
+  const curPage = ref(0);
   const totalPage = ref(1);
   const isLoading = ref(false);
   const isLastPage = ref(false);
@@ -15,10 +15,10 @@ export function useInfiniteScroll({
   const fetchInitial = async () => {
     try {
       isLoading.value = true;
-      const wrapper = await fetchFn(1);
+      const wrapper = await fetchFn(0);
 
       items.value = wrapper.data.data.content;
-      curPage.value = wrapper.data.data.currentPage + 1;
+      curPage.value = wrapper.data.data.currentPage;
       totalPage.value = wrapper.data.data.totalPages;
       if (wrapper.data.data.currentPage + 1 === wrapper.data.data.totalPages) {
         isLastPage.value = true;
@@ -35,7 +35,7 @@ export function useInfiniteScroll({
       isLoading.value = true;
       const wrapper = await fetchFn(curPage.value + 1);
       items.value.push(...wrapper.data.data.content);
-      curPage.value = wrapper.data.data.currentPage + 1;
+      curPage.value = wrapper.data.data.currentPage;
       if (wrapper.data.data.currentPage + 1 === wrapper.data.data.totalPages) {
         isLastPage.value = true;
       }
@@ -64,7 +64,7 @@ export function useInfiniteScroll({
   });
 
   const reset = async () => {
-    curPage.value = 1;
+    curPage.value = 0;
     totalPage.value = 1;
     items.value = [];
     isLastPage.value = false;
