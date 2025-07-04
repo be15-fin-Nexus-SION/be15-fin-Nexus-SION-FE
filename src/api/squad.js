@@ -32,3 +32,19 @@ export const deleteSquadComment = (squadCode, commentId) => {
 export const patchConfirmSquad = (squadCode) => {
   return axios.patch(`/squads/${squadCode}/confirm`);
 };
+
+export const getTechStackAutocomplete = (keyword) => {
+  return axios.get("/tech-stack/autocomplete", {
+    params: { keyword },
+  });
+};
+
+export async function searchSquadDevelopers(payload) {
+  try {
+    const response = await axios.post("/members/squad-search", payload);
+    return response.data.data;
+  } catch (error) {
+    console.error("개발자 조회 실패:", error);
+    throw error;
+  }
+}
