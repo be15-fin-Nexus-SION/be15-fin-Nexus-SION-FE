@@ -63,7 +63,7 @@ export default {
         },
       },
       backgroundImage: {
-        "gradient-card": "linear-gradient(90deg, #FE8686 0%, #1268DD 100%)",
+        "gradient-card": "linear-gradient(150deg, #FE8686 0%, #1268DD 100%)",
         "gradient-ai": "linear-gradient(90deg, #7F5AF0 0%, #00C3FF 100%)",
         "gradient-arrangement":
           "linear-gradient(90deg, #FE8686 0%, #1E268D 100%)",
