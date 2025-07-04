@@ -51,8 +51,8 @@ const showFilter = ref(false);
 const showSort = ref(false);
 
 const selectedFilters = ref({
-  techStacks: ["Gradle", "Java"],
-  grades: ["S", "B"],
+  techStacks: [],
+  grades: [],
   statuses: [],
   freelancer: null,
   sortBy: "",
@@ -271,9 +271,7 @@ function addTechStack(stack) {
 .btn-add {
   @apply px-5 py-2 bg-white text-primary border border-primary shadow-sm rounded text-sm font-bold hover:bg-gray-50 transition;
 }
-.pagination {
-  @apply flex justify-center gap-2 mt-4;
-}
+
 .pagination button {
   @apply px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100;
 }
