@@ -45,7 +45,7 @@ watch(selected, (newVal) => {
   <Listbox v-model="selected">
     <div class="relative inline-block">
       <ListboxButton
-        class="flex items-center text-sm text-gray-800 gap-1 focus:outline-none"
+        class="w-full flex items-center justify-center text-sm text-gray-800 gap-1 focus:outline-none"
       >
         <span v-if="triggerLabel">{{ triggerLabel }}</span>
         <span v-else>{{ selected.name }}</span>
