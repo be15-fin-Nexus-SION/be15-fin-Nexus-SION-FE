@@ -64,8 +64,8 @@ const hiddenMemberCount = computed(() =>
         </p>
         <ul>
           <li
-            v-for="member in displayedMembers"
-            :key="member.name"
+            v-for="(member, index) in displayedMembers"
+            :key="index"
             class="bg-gray-100 text-sm px-2 py-1 mb-2 rounded-lg w-fit"
           >
             {{ member.name }} - {{ member.job }}
@@ -82,15 +82,13 @@ const hiddenMemberCount = computed(() =>
       </div>
 
       <!-- 예상 기간 / 예산 -->
-      <div class="text-sm mt-6 text-left">
+      <div class="text-sm mt-6 text-left flex flex-col">
         <span class="font-medium">예상 기간:</span>
-        <br />
         <span class="ml-1">{{ squad.estimatedPeriod || "-" }}</span>
       </div>
 
-      <div class="text-sm my-6 text-left">
+      <div class="text-sm my-6 text-left flex flex-col">
         <span class="font-medium">예상 예산:</span>
-        <br />
         <span class="ml-1">{{ squad.estimatedCost || "-" }}</span>
       </div>
     </div>
