@@ -16,7 +16,7 @@ export const projectRoutes = [
     },
   },
   {
-    path: "projects/:id",
+    path: "projects/:projectCode",
     name: "project-detail",
     component: () => import("./views/ProjectDetailView.vue"),
     meta: {
