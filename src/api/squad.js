@@ -25,3 +25,8 @@ export async function searchSquadDevelopers(payload) {
     throw error;
   }
 }
+
+export async function getRecommendedCandidates(projectId) {
+  const response = await axios.get(`/squads/candidates?projectId=${projectId}`);
+  return response.data;
+}

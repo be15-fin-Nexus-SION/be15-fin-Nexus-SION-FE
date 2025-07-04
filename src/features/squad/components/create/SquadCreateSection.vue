@@ -269,7 +269,7 @@ function handleSubmit() {
 
 <style scoped>
 .squad-sidebar {
-  @apply w-[500px] flex flex-col gap-6;
+  @apply w-[500px] min-w-[500px] flex flex-col gap-6;
 }
 .info-panel {
   @apply p-6 bg-white rounded border shadow-sm;

@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from "vue";
 import ManualDeveloperList from "@/features/squad/components/create/ManualDeveloperList.vue";
+import AiRecommendedSection from "@/features/squad/components/create/AiRecommendedSection.vue";
+import AiLoadingOverlay from "@/components/AiLoadingOverlay.vue";
 
 defineProps({
   projectId: {
@@ -10,11 +12,23 @@ defineProps({
 });
 
 const activeTab = ref("manual");
+const isLoading = ref(false);
+const showAISection = ref(false);
+
+function switchToAI() {
+  activeTab.value = "ai";
+  isLoading.value = true;
+  showAISection.value = false;
+
+  setTimeout(() => {
+    isLoading.value = false;
+    showAISection.value = true;
+  }, 4000);
+}
 </script>
 
 <template>
   <section class="developer-panel">
-    <!-- 탭 + 스쿼드 버튼 -->
     <div class="tab-header">
       <div class="tab-left">
         <button
@@ -25,7 +39,7 @@ const activeTab = ref("manual");
         </button>
         <button
           :class="['tab-btn', activeTab === 'ai' ? 'active' : '']"
-          @click="activeTab = 'ai'"
+          @click="switchToAI"
         >
           AI 추천
         </button>
@@ -34,13 +48,19 @@ const activeTab = ref("manual");
     </div>
 
     <ManualDeveloperList v-if="activeTab === 'manual'" />
-    <!-- 향후 AI 탭에 AiRecommendedSlider 등 추가 예정 -->
+    <AiLoadingOverlay
+      :visible="isLoading"
+      message="AI 분석 기반 <strong>직무별 인재풀 추천</strong>이 진행중입니다..."
+    />
+    <transition name="fade">
+      <AiRecommendedSection v-if="activeTab === 'ai' && showAISection" />
+    </transition>
   </section>
 </template>
 
 <style scoped>
 .developer-panel {
-  @apply w-full;
+  @apply w-full relative;
 }
 
 .tab-header {
@@ -71,10 +91,19 @@ const activeTab = ref("manual");
   transform: translateY(-50%);
   width: 2.5px;
   height: 20px;
-  background-color: #111827; /* border-gray-900 */
+  background-color: #111827;
 }
 
 .btn-outline {
   @apply px-4 py-2 border border-primary text-primary rounded hover:bg-primary hover:text-white transition;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.4s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
