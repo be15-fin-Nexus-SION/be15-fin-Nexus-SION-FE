@@ -9,7 +9,7 @@ const router = useRouter();
 const handleRegister = async (payload) => {
   try {
     await signup(payload);
-    showSuccessToast("회원가입이 완료되었습니다.");
+    showSuccessToast("회원가입 되었습니다.");
     await router.push("/login");
   } catch (error) {
     console.error("회원 가입 실패:", error);

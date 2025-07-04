@@ -43,6 +43,9 @@ const goToAdminPage = () => {
 const handleLogout = async () => {
   try {
     await logout();
+    showSuccessToast("로그아웃 되었습니다.");
+    authStore.clearAuth();
+    await router.push("/login");
   } catch (e) {
     console.error("로그아웃 API 실패", e);
     showErrorToast("로그아웃이 실패했습니다. 다시 시도해주세요.");

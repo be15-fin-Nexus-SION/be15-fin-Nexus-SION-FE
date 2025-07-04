@@ -1,29 +1,38 @@
+// src/main.js
+
 import "./assets/main.css";
+
 import Toast from "vue-toastification";
-import { VueQueryPlugin } from "@tanstack/vue-query";
-
-import { createApp } from "vue";
-import { createPinia } from "pinia";
-import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
-
 import "vue-toastification/dist/index.css";
+
 import "pretendard/dist/web/static/pretendard.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+
+import { createApp } from "vue";
+import { createPinia, setActivePinia } from "pinia";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+
+import { VueQueryPlugin } from "@tanstack/vue-query";
 
 import App from "./App.vue";
 import router from "./router/index.js";
 
-// main.js
-
 async function bootstrap() {
   const app = createApp(App);
 
+  // Pinia 설정
   const pinia = createPinia();
   pinia.use(piniaPluginPersistedstate);
+  setActivePinia(pinia);
   app.use(pinia);
+
+  // Vue Query
   app.use(VueQueryPlugin);
 
+  // 라우터 (가드는 이미 router/index.js 에서 설정)
   app.use(router);
+
+  // Toast
   app.use(Toast, {
     position: "top-right",
     timeout: 3000,
@@ -39,6 +48,7 @@ async function bootstrap() {
     rtl: false,
   });
 
+  // 마운트
   app.mount("#app");
 }
 
