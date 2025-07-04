@@ -9,6 +9,7 @@ export function fetchDeveloperList({
   size = 10,
   status,
   gradeCode,
+  role,
   nameInitial,
   sortBy,
   sortDir,
@@ -18,6 +19,7 @@ export function fetchDeveloperList({
 
   if (status) query.status = status;
   if (gradeCode) query.gradeCode = gradeCode;
+  if (role) query.role = role;
   if (nameInitial) query.nameInitial = nameInitial;
   if (sortBy) query.sortBy = sortBy;
   if (sortDir) query.sortDir = sortDir;
