@@ -1,20 +1,20 @@
 <template>
   <div class="w-full h-[430px] flex items-center justify-center">
     <Radar
-        v-if="paddedRadarData.labels.length > 2"
+        v-if="originalLabelCount >= 3"
         ref="radarChartRef"
         :key="chartKey"
         :data="paddedRadarData"
         :options="options"
     />
-    <p v-else class="text-sm text-gray-500 text-center">
-      기술 스택이 3개 이상일 때 레이더 차트를 표시합니다.
-    </p>
+    <div v-else class="h-40 flex items-start justify-center">
+      <p class="text-gray-400 text-sm">기술 스택이 3개 이상일 때 레이더 차트를 표시합니다.</p>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, computed } from 'vue';
 import { Radar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
@@ -44,6 +44,8 @@ const props = defineProps({
   }
 });
 
+const originalLabelCount = computed(() => props.data?.labels?.length ?? 0);
+
 const paddedRadarData = ref({ labels: [], datasets: [] });
 const chartKey = ref(0);
 const radarChartRef = ref(null);
@@ -60,11 +62,6 @@ watch(
       const labels = [...newVal.labels];
       const data = [...newVal.datasets[0].data];
 
-      while (labels.length < 5) {
-        labels.push('-');
-        data.push(0);
-      }
-
       paddedRadarData.value = {
         labels,
         datasets: [
@@ -78,7 +75,6 @@ watch(
       };
       chartKey.value++;
 
-      // 그라데이션 생성은 렌더링 후 실행해야 하므로 nextTick 사용
       await nextTick();
       applyGradientBorder();
     },
@@ -91,12 +87,13 @@ function applyGradientBorder() {
 
   const ctx = chartInstance.ctx;
   const gradient = ctx.createLinearGradient(0, 0, chartInstance.width, 0);
-  gradient.addColorStop(0, 'rgba(254, 134, 134, 1)'); // 시작색
-  gradient.addColorStop(1, 'rgba(30, 38, 141, 1)');   // 끝색
+  gradient.addColorStop(0, 'rgba(254, 134, 134, 1)');
+  gradient.addColorStop(1, 'rgba(30, 38, 141, 1)');
 
   chartInstance.data.datasets[0].borderColor = gradient;
   chartInstance.update();
 }
+
 const options = {
   responsive: true,
   maintainAspectRatio: false,
