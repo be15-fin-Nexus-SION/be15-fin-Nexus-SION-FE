@@ -4,13 +4,6 @@ import ManualDeveloperList from "@/features/squad/components/create/ManualDevelo
 import AiRecommendedSection from "@/features/squad/components/create/AiRecommendedSection.vue";
 import AiLoadingOverlay from "@/components/AiLoadingOverlay.vue";
 
-defineProps({
-  projectId: {
-    type: String,
-    required: true,
-  },
-});
-
 const activeTab = ref("manual");
 const isLoading = ref(false);
 const showAISection = ref(false);
@@ -60,7 +53,7 @@ function switchToAI() {
 
 <style scoped>
 .developer-panel {
-  @apply w-full relative;
+  @apply w-full min-w-[500px] relative;
 }
 
 .tab-header {
