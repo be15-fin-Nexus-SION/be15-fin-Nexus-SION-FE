@@ -1,20 +1,16 @@
 <script setup>
 import { computed, ref, watchEffect, onMounted, onUnmounted } from "vue";
+import { useSquadStore } from "@/stores/squadCreateStore.js";
 
-const props = defineProps({
-  members: {
-    type: Array,
-    required: true,
-  },
-});
-
-const emit = defineEmits(["remove", "register"]);
+import CrownFilled from "@/assets/icons/Crown_filled.svg";
+import CrownUnfilled from "@/assets/icons/Crown_Unfilled.svg";
 
 const viewMode = ref("card");
 const isMobile = ref(false);
 const roleFilter = ref("전체");
 
-// 뷰포트 감지
+const squadStore = useSquadStore();
+
 const updateIsMobile = () => {
   isMobile.value = window.innerWidth <= 800;
 };
@@ -27,30 +23,38 @@ onUnmounted(() => {
   window.removeEventListener("resize", updateIsMobile);
 });
 
-// 모바일이면 리스트로 강제 전환
 watchEffect(() => {
   if (isMobile.value) viewMode.value = "list";
 });
 
 const availableRoles = computed(() => {
-  const roles = props.members.map((m) => m.role);
+  const roles = squadStore.selectedMembers.map((m) => m.role);
   return ["전체", ...new Set(roles)];
 });
 
 const filteredMembers = computed(() => {
-  if (roleFilter.value === "전체") return props.members;
-  return props.members.filter((m) => m.role === roleFilter.value);
+  if (roleFilter.value === "전체") return squadStore.selectedMembers;
+  return squadStore.selectedMembers.filter((m) => m.role === roleFilter.value);
 });
+
+function removeMember(memberId) {
+  squadStore.removeMember(memberId);
+}
+
+function setLeader(memberId) {
+  squadStore.selectedMembers = squadStore.selectedMembers.map((m) => ({
+    ...m,
+    isLeader: m.id === memberId,
+  }));
+}
 </script>
 
 <template>
   <section class="squad-card-list-wrapper">
-    <!-- 상단 타이틀 및 등록 버튼 -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-2xl font-extrabold">스쿼드 구성</h2>
     </div>
 
-    <!-- 필터 + 뷰 전환 -->
     <div class="flex justify-between items-center mb-4">
       <select class="filter-select" v-model="roleFilter">
         <option v-for="role in availableRoles" :key="role" :value="role">
@@ -90,9 +94,24 @@ const filteredMembers = computed(() => {
             <p class="name">{{ member.name }}</p>
             <p class="role">{{ member.role }}</p>
           </div>
+
+          <!-- 왕관 버튼 -->
+          <button
+            class="btn-leader absolute top-0 left-0 text-yellow-500"
+            @click="setLeader(member.id)"
+            :class="{ 'animated-crown': member.isLeader }"
+            :title="member.isLeader ? '현재 리더' : '리더로 지정'"
+          >
+            <img
+              :src="member.isLeader ? CrownFilled : CrownUnfilled"
+              alt="리더 아이콘"
+            />
+          </button>
+
+          <!-- 삭제 버튼 -->
           <button
             class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 -top-1 right-0"
-            @click="$emit('remove', member.id)"
+            @click="removeMember(member.id)"
           >
             ✕
           </button>
@@ -116,20 +135,36 @@ const filteredMembers = computed(() => {
             </div>
           </div>
 
-          <!-- 등급 텍스트에 그라데이션 적용 -->
-          <span
-            class="grade-text"
-            :class="`text-gradient-grade-${member.grade?.toLowerCase?.()}`"
-          >
-            {{ member.grade }}
-          </span>
+          <div class="flex items-center gap-4">
+            <!-- 등급 -->
+            <span
+              class="grade-text"
+              :class="`text-gradient-grade-${member.grade?.toLowerCase?.()}`"
+            >
+              {{ member.grade }}
+            </span>
 
-          <button
-            class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 top-0.5 right-2"
-            @click="$emit('remove', member.id)"
-          >
-            ✕
-          </button>
+            <!-- 왕관 버튼-->
+            <button
+              class="btn-leader text-yellow-500"
+              @click="setLeader(member.id)"
+              :class="{ 'animated-crown': member.isLeader }"
+              :title="member.isLeader ? '현재 리더' : '리더로 지정'"
+            >
+              <img
+                :src="member.isLeader ? CrownFilled : CrownUnfilled"
+                alt="리더 아이콘"
+              />
+            </button>
+
+            <!-- 삭제 버튼 -->
+            <button
+              class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 top-0 right-2"
+              @click="removeMember(member.id)"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       </li>
     </ul>
@@ -289,6 +324,25 @@ const filteredMembers = computed(() => {
   @apply font-bold text-2xl text-transparent bg-clip-text;
   min-width: 2rem;
   text-align: center;
+}
+
+@keyframes crownPulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 0px gold);
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+    filter: drop-shadow(0 0 10px gold);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 0px gold);
+  }
+}
+
+.animated-crown {
+  animation: crownPulse 0.6s ease-out;
 }
 
 .text-gradient-grade-s {
