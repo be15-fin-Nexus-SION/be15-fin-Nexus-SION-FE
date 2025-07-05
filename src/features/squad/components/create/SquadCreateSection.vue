@@ -1,39 +1,104 @@
 <script setup>
-import { ref, computed, watchEffect } from "vue";
+import { ref, computed, watchEffect, onMounted } from "vue";
 import gsap from "gsap";
+import { useSquadStore } from "@/stores/squadCreateStore.js";
 import SquadCardList from "@/features/squad/components/create/SquadCardList.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import { useRoute, useRouter } from "vue-router";
+import { getSquadProjectDetail, registerManualSquad } from "@/api/squad.js";
+import SquadRegisterModal from "@/features/squad/components/modal/SquadRegisterModal.vue";
 
-const props = defineProps({
-  members: Array,
-  budgetLimit: Number,
-  estimatedCost: Number,
-  durationLimit: Number,
-  jobRequirements: Array,
-  totalEffort: Number,
+const squadStore = useSquadStore();
+const members = computed(() => squadStore.selectedMembers);
+const route = useRoute();
+
+const projectCode = route.params.projectId;
+const projectDetail = ref(null);
+
+const showRegisterModal = ref(false); // 등록 정보 확인 모달
+const isRegistering = ref(false); // 중복 등록 방지
+const registerSuccess = ref(null); // 결과 상태 저장
+const registerData = ref({ title: "", description: "" });
+
+const router = useRouter();
+
+function handleRegisterConfirm({ title, description }) {
+  const jobMap = {};
+  projectDetail.value.jobRequirements.forEach((req) => {
+    jobMap[req.jobName] = req.projectJobAndId;
+  });
+
+  const developers = members.value.map((m) => ({
+    employeeId: m.id,
+    projectAndJobId: jobMap[m.role],
+    ...(m.isLeader ? { isLeader: true } : {}),
+  }));
+
+  const payload = {
+    projectCode: projectDetail.value.projectCode,
+    title,
+    description,
+    estimatedDuration: rawDuration.value,
+    estimatedCost: rawBudget.value,
+    developers,
+  };
+
+  isRegistering.value = true;
+  registerManualSquad(payload)
+    .then(() => {
+      registerSuccess.value = true;
+      squadStore.clearMembers();
+      setTimeout(() => {
+        router.push("/squads");
+      }, 1500);
+    })
+    .catch((err) => {
+      console.error("등록 실패:", err);
+      registerSuccess.value = false;
+    })
+    .finally(() => {
+      showRegisterModal.value = false;
+      isRegistering.value = false;
+    });
+}
+
+// 프로젝트 분석 API 호출
+async function fetchProjectDetail() {
+  try {
+    const res = await getSquadProjectDetail(projectCode);
+    if (res.success) {
+      projectDetail.value = res.data;
+    }
+  } catch (e) {
+    console.error("프로젝트 분석 데이터 로딩 실패:", e);
+  }
+}
+
+onMounted(() => {
+  fetchProjectDetail();
 });
 
-const emit = defineEmits(["remove", "submit"]);
-
+// 애니메이션 대상
 const totalBudget = ref(0);
 const estimatedDuration = ref(0);
 const rawBudget = ref(0);
 const rawDuration = ref(0);
 const isInitialized = ref(false);
 
+// 경고 처리
 const shakeWarning = ref(false);
-const showWarningText = ref(false); // 메시지 유지용
+const showWarningText = ref(false);
 const showWarningModal = ref(false);
 const warningReason = ref("");
 
-// 직무 충족 상태 계산
+// 직무 상태 계산
 const jobStatus = computed(() => {
   const status = {};
-  if (Array.isArray(props.jobRequirements)) {
-    props.jobRequirements.forEach((req) => {
-      const current = Array.isArray(props.members)
-        ? props.members.filter((m) => m.role === req.jobName).length
-        : 0;
+  if (Array.isArray(projectDetail.value?.jobRequirements)) {
+    projectDetail.value.jobRequirements.forEach((req) => {
+      const current = members.value.filter(
+        (m) => m.role === req.jobName,
+      ).length;
       status[req.jobName] = {
         required: req.requiredCount,
         current,
@@ -49,30 +114,30 @@ const allJobsSatisfiedExactly = computed(() =>
   ),
 );
 
-// 초과 조건
 const isBudgetExceeded = computed(() => {
   return (
     isInitialized.value &&
-    props.budgetLimit > 0 &&
-    rawBudget.value > props.budgetLimit
+    projectDetail.value?.budgetLimit > 0 &&
+    rawBudget.value > projectDetail.value.budgetLimit
   );
 });
 
-const isEstimateExceeded = computed(
-  () =>
+const isEstimateExceeded = computed(() => {
+  return (
     isInitialized.value &&
-    props.estimatedCost > 0 &&
-    rawBudget.value > props.estimatedCost,
-);
+    projectDetail.value?.estimatedCost > 0 &&
+    rawBudget.value > projectDetail.value.estimatedCost
+  );
+});
 
-const isDurationExceeded = computed(
-  () =>
+const isDurationExceeded = computed(() => {
+  return (
     isInitialized.value &&
-    props.durationLimit > 0 &&
-    rawDuration.value > props.durationLimit,
-);
+    projectDetail.value?.durationLimit > 0 &&
+    rawDuration.value > projectDetail.value.durationLimit
+  );
+});
 
-// 제출 가능 여부
 const canSubmit = computed(() => {
   return (
     allJobsSatisfiedExactly.value &&
@@ -81,27 +146,25 @@ const canSubmit = computed(() => {
   );
 });
 
-// 예상값 계산 및 애니메이션
 watchEffect(() => {
-  if (!Array.isArray(props.members) || props.totalEffort == null) return;
+  // selectedMembers가 비어있거나 프로젝트 정보가 없으면 중단
+  if (!members.value?.length || !projectDetail.value) return;
 
-  const totalUnitPrice = props.members.reduce(
+  const totalUnitPrice = members.value.reduce(
     (sum, m) => sum + (m.monthlyUnitPrice || 0),
     0,
   );
-  const totalProductivity = props.members.reduce(
+  const totalProductivity = members.value.reduce(
     (sum, m) => sum + (m.productivity || 0),
     0,
   );
-
-  const duration =
-    totalProductivity > 0 ? props.totalEffort / totalProductivity : 0;
+  const effort = projectDetail.value.totalEffort || 0;
+  const duration = totalProductivity > 0 ? effort / totalProductivity : 0;
   const budget = Math.round(totalUnitPrice * duration);
 
   rawBudget.value = budget;
   rawDuration.value = Math.round(duration * 10) / 10;
 
-  // 애니메이션
   gsap.to(totalBudget, {
     duration: 0.4,
     value: budget,
@@ -116,39 +179,34 @@ watchEffect(() => {
     },
   });
 
+  // 경고 처리
   if (isInitialized.value) {
-    if (props.budgetLimit > 0 && budget > props.budgetLimit) {
+    if (isBudgetExceeded.value) {
       shakeWarning.value = true;
       showWarningText.value = true;
       warningReason.value = "예산";
       setTimeout(() => (shakeWarning.value = false), 600);
-    } else if (props.durationLimit > 0 && duration > props.durationLimit) {
-      showWarningText.value = true;
+    } else if (isDurationExceeded.value) {
       shakeWarning.value = true;
+      showWarningText.value = true;
       warningReason.value = "기간";
       setTimeout(() => (shakeWarning.value = false), 600);
+    } else {
+      showWarningText.value = false;
+      warningReason.value = "";
     }
   }
 
   isInitialized.value = true;
 });
 
-// 제출 처리
 function handleSubmit() {
-  if (isDurationExceeded.value) {
-    warningReason.value = "기간";
-    showWarningModal.value = true;
-  } else if (isEstimateExceeded.value) {
-    warningReason.value = "예산";
-    showWarningModal.value = true;
-  } else {
-    emit("submit");
-  }
+  showRegisterModal.value = true;
 }
 </script>
 
 <template>
-  <aside class="squad-sidebar">
+  <aside class="squad-sidebar" v-if="projectDetail">
     <section class="info-panel text-center text-black">
       <!-- 예산 -->
       <div class="relative group">
@@ -163,10 +221,10 @@ function handleSubmit() {
           ₩{{ totalBudget.toLocaleString() }}
         </p>
         <div
-          v-if="props.budgetLimit > 0"
+          v-if="projectDetail.budgetLimit > 0"
           class="absolute top-0 right-0 hidden group-hover:block text-xs text-white bg-gray-700 px-2 py-1 rounded"
         >
-          예산 상한: ₩{{ props.budgetLimit.toLocaleString() }}
+          예산 상한: ₩{{ projectDetail.budgetLimit.toLocaleString() }}
         </div>
       </div>
 
@@ -183,10 +241,10 @@ function handleSubmit() {
           {{ estimatedDuration }}개월
         </p>
         <div
-          v-if="props.durationLimit > 0"
+          v-if="projectDetail.durationLimit > 0"
           class="absolute top-0 right-0 hidden group-hover:block text-xs text-white bg-gray-700 px-2 py-1 rounded"
         >
-          기간 상한: {{ props.durationLimit }}개월
+          기간 상한: {{ projectDetail.durationLimit }}개월
         </div>
       </div>
 
@@ -243,11 +301,7 @@ function handleSubmit() {
     </section>
 
     <!-- 구성원 카드 리스트 -->
-    <SquadCardList
-      :members="props.members"
-      view-mode="card"
-      @remove="(id) => emit('remove', id)"
-    />
+    <SquadCardList view-mode="card" />
 
     <!-- 경고 모달 -->
     <ConfirmModal
@@ -259,27 +313,23 @@ function handleSubmit() {
       @confirm="
         () => {
           showWarningModal.value = false;
-          emit('submit');
+          showRegisterModal.value = true; // 바로 모달 열기
         }
       "
       @cancel="() => (showWarningModal.value = false)"
+    />
+
+    <SquadRegisterModal
+      v-if="showRegisterModal"
+      :default-title="registerData.title"
+      :default-description="registerData.description"
+      @submit="handleRegisterConfirm"
+      @cancel="() => (showRegisterModal.value = false)"
     />
   </aside>
 </template>
 
 <style scoped>
-.squad-sidebar {
-  @apply w-[500px] min-w-[500px] flex flex-col gap-6;
-}
-.info-panel {
-  @apply p-6 bg-white rounded border shadow-sm;
-}
-.info-title {
-  @apply text-base font-semibold;
-}
-.info-value {
-  @apply mt-2;
-}
 @keyframes shake {
   0%,
   100% {
@@ -294,5 +344,17 @@ function handleSubmit() {
 }
 .animate-shake {
   animation: shake 0.4s ease-in-out;
+}
+.squad-sidebar {
+  @apply w-[500px] min-w-[500px] flex flex-col gap-6;
+}
+.info-panel {
+  @apply p-6 bg-white rounded border shadow-sm;
+}
+.info-title {
+  @apply text-base font-semibold;
+}
+.info-value {
+  @apply mt-2;
 }
 </style>
