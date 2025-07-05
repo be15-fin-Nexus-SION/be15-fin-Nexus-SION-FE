@@ -53,3 +53,13 @@ export async function getRecommendedCandidates(projectId) {
   const response = await axios.get(`/squads/candidates?projectId=${projectId}`);
   return response.data;
 }
+
+export async function getSquadProjectDetail(projectId) {
+  const response = await axios.get(`/projects/squad/${projectId}`);
+  return response.data;
+}
+
+export async function registerManualSquad(payload) {
+  const response = await axios.post("/squads/manual", payload);
+  return response.data;
+}
