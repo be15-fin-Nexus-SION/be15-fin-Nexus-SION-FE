@@ -4,11 +4,30 @@ import FilterModal from "@/features/squad/components/modal/FilterModal.vue";
 import SortModal from "@/features/squad/components/modal/SortModal.vue";
 import { searchSquadDevelopers } from "@/api/squad.js";
 import BasePagination from "@/components/Pagination.vue";
+import { useSquadStore } from "@/stores/squadCreateStore.js";
+import SelectRoleModal from "@/features/squad/components/modal/SelectRoleModal.vue";
 
 const searchQuery = ref("");
 const developers = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
+
+const squadStore = useSquadStore();
+const showRoleModal = ref(false);
+const selectedDeveloper = ref(null);
+
+function handleAddDeveloper(id) {
+  const dev = developers.value.find((d) => d.id === id);
+  console.log(dev);
+  selectedDeveloper.value = dev;
+  showRoleModal.value = true;
+}
+
+function handleSelectRole(devWithRole) {
+  squadStore.addMember(devWithRole);
+  showRoleModal.value = false;
+  selectedDeveloper.value = null;
+}
 
 async function handleSearch(page = 1) {
   const payload = {
@@ -58,10 +77,6 @@ const selectedFilters = ref({
   sortBy: "",
   sortOrder: "",
 });
-
-function handleAddDeveloper(id) {
-  console.log("추가된 개발자:", id);
-}
 
 function removeTechStack(stack) {
   selectedFilters.value.techStacks = selectedFilters.value.techStacks.filter(
@@ -228,6 +243,14 @@ function addTechStack(stack) {
         @change="handleSearch"
       />
     </div>
+
+    <SelectRoleModal
+      v-if="showRoleModal"
+      :developer="selectedDeveloper"
+      :roles="['프론트엔드', '백엔드', '서버/인프라']"
+      @select="handleSelectRole"
+      @close="showRoleModal = false"
+    />
   </div>
 </template>
 
