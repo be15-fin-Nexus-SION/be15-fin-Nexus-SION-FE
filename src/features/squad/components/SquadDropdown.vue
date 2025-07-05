@@ -36,9 +36,11 @@
 <script setup>
 import { ref } from "vue";
 import AiRecommendationModal from "@/features/squad/components/AiRecommendationModal.vue";
+import { useRouter } from "vue-router";
 
 const open = ref(false);
 const showAiModal = ref(false);
+const router = useRouter();
 
 const toggle = () => {
   open.value = !open.value;
@@ -57,6 +59,6 @@ const handleAiConfirm = (criteria) => {
 
 const selectManual = () => {
   open.value = false;
-  // 👉 사용자 지정 로직 (예: 라우터 이동)
+  router.push("/squads/create/ha_1_1"); //일단 하드코딩으로 경로 집어넣기
 };
 </script>
