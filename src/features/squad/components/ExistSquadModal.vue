@@ -40,13 +40,14 @@ const fetchFn = async (page) => {
     });
 
     // 이미 확정된 스쿼드는 에러처리
-    if (data.data.data.content === undefined) {
+    if (data?.data?.data?.content === undefined) {
       showErrorToast("이미 확정된 스쿼드입니다.");
-      emit("close");
+      handleClose();
+      return { data: { data: { content: [], totalPages: 0, currentPage: 0 } } };
     }
     return data;
   } catch (e) {
-    console.log(e + "스쿼드 목록 로드 실패");
+    console.error(e + "스쿼드 목록 로드 실패");
   }
 };
 
