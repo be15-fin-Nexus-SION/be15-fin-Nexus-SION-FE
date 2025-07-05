@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import ConfirmDeleteModal from "@/features/squad/components/ConfirmDeleteModal.vue";
 
 const props = defineProps({
@@ -8,6 +9,7 @@ const props = defineProps({
 const emit = defineEmits(["delete"]);
 
 const showDeleteModal = ref(false);
+const router = useRouter();
 
 const openDeleteModal = () => {
   showDeleteModal.value = true;
@@ -17,16 +19,21 @@ const confirmDelete = () => {
   emit("delete", props.squad.squadCode);
   showDeleteModal.value = false;
 };
+
+const goToDetail = () => {
+  router.push(`/squads/${props.squad.squadCode}`);
+};
 </script>
 
 <template>
   <div
     :class="[
-      'relative rounded-lg p-4 shadow-sm flex flex-col h-full',
+      'relative rounded-lg p-4 flex flex-col h-full transition-all duration-300 ease-in-out transform hover:scale-[1.0] hover:-translate-y-2 hover:shadow-2xl cursor-pointer',
       squad.originType === 'AI'
         ? 'bg-white border-0 p-[2px] bg-gradient-to-r from-purple-500 to-sky-400'
         : 'border-2 border-gray-200 bg-white',
     ]"
+    @click="goToDetail"
   >
     <!-- 내부 카드 내용 (AI는 한겹 더 감싸기) -->
     <div
@@ -78,13 +85,14 @@ const confirmDelete = () => {
       <!-- 하단 버튼 -->
       <div class="flex gap-2 mt-auto">
         <button
+          @click.stop
           class="flex-1 px-3 py-1 bg-secondary-green text-white rounded hover:bg-secondary-green-hover"
         >
           스쿼드 공유
         </button>
         <button
           class="flex-1 px-3 py-1 bg-natural-gray text-gray-700 rounded hover:bg-natural-gray-hover"
-          @click="openDeleteModal"
+          @click.stop="openDeleteModal"
         >
           삭제
         </button>
