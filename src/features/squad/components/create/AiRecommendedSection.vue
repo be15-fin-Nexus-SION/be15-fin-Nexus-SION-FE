@@ -2,14 +2,21 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getRecommendedCandidates } from "@/api/squad";
+import SelectRoleModal from "@/features/squad/components/modal/SelectRoleModal.vue";
+import { useSquadStore } from "@/stores/squadCreateStore.js";
 
 const route = useRoute();
 const projectId = route.params.projectId;
+const squadStore = useSquadStore();
 
 const recommendedCandidates = ref({});
 const scrollContainer = ref(null);
 const showLeft = ref(false);
 const showRight = ref(true);
+
+// 모달 상태 및 개발자 정보
+const showModal = ref(false);
+const selectedDeveloper = ref(null);
 
 onMounted(async () => {
   try {
@@ -23,7 +30,13 @@ onMounted(async () => {
 });
 
 function handleAdd(dev) {
-  console.log("등록할 개발자:", dev);
+  selectedDeveloper.value = dev;
+  showModal.value = true;
+}
+
+function handleSelectConfirmed(devWithRole) {
+  squadStore.addMember(devWithRole);
+  showModal.value = false;
 }
 
 function scrollByAmount(amount) {
@@ -101,6 +114,15 @@ function updateScrollButtons() {
         </div>
       </div>
     </div>
+
+    <!-- 직무 선택 모달 -->
+    <SelectRoleModal
+      v-if="showModal"
+      :developer="selectedDeveloper"
+      :roles="Object.keys(recommendedCandidates)"
+      @select="handleSelectConfirmed"
+      @close="showModal = false"
+    />
   </div>
 </template>
 
