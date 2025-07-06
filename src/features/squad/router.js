@@ -8,7 +8,7 @@ export const squadRoutes = [
     },
   },
   {
-    path: "squads/:id",
+    path: "squads/:squadCode",
     name: "squad-detail",
     component: () => import("./views/SquadDetailView.vue"),
     meta: {

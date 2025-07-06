@@ -57,6 +57,10 @@ export default {
         stroke: {
           gray: "#EEEEEE",
         },
+        filter: {
+          DEFAULT: "#EBEDF7",
+          active: "#C2C7E5",
+        },
       },
       backgroundImage: {
         "gradient-card": "linear-gradient(90deg, #FE8686 0%, #1268DD 100%)",

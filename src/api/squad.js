@@ -9,3 +9,26 @@ export const getSquadList = ({ projectCode, page, size }) => {
 export const deleteSquadByCode = (squadCode) => {
   return axios.delete(`/squads/${squadCode}`);
 };
+
+export const getSquadDetail = (squadCode) => {
+  return axios.get(`/squads/${squadCode}`);
+};
+
+export const postSquadComment = (squadCode, employeeId, content) => {
+  return axios.post(`/squads/${squadCode}/comments`, {
+    employeeIdentificationNumber: employeeId,
+    content: content,
+  });
+};
+
+export const getSquadComments = (squadCode) => {
+  return axios.get(`/squads/${squadCode}/comments`);
+};
+
+export const deleteSquadComment = (squadCode, commentId) => {
+  return axios.delete(`/squads/${squadCode}/comments/${commentId}`);
+};
+
+export const patchConfirmSquad = (squadCode) => {
+  return axios.patch(`/squads/${squadCode}/confirm`);
+};
