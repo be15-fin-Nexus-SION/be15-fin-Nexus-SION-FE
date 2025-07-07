@@ -23,7 +23,7 @@
     </div>
 
     <!-- 이메일 -->
-    <div class="text-sm text-gray-600 text-right truncate">
+    <div class="text-sm text-gray-600 text-left truncate">
       {{ freelancer.email }}
     </div>
   </div>
