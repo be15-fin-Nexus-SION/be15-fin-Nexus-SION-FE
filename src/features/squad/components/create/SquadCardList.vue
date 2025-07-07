@@ -1,9 +1,7 @@
 <script setup>
-import { computed, ref, watchEffect, onMounted, onUnmounted } from "vue";
+import { ref, computed, watchEffect, onMounted, onUnmounted } from "vue";
 import { useSquadStore } from "@/stores/squadCreateStore.js";
-
-import CrownFilled from "@/assets/icons/Crown_filled.svg";
-import CrownUnfilled from "@/assets/icons/Crown_Unfilled.svg";
+import SquadMemberRenderer from "@/features/squad/components/presentation/SquadMemberRenderer.vue";
 
 const viewMode = ref("card");
 const isMobile = ref(false);
@@ -32,143 +30,26 @@ const availableRoles = computed(() => {
   return ["전체", ...new Set(roles)];
 });
 
-const filteredMembers = computed(() => {
-  if (roleFilter.value === "전체") return squadStore.selectedMembers;
-  return squadStore.selectedMembers.filter((m) => m.role === roleFilter.value);
-});
-
 function removeMember(memberId) {
   squadStore.removeMember(memberId);
 }
 
-function setLeader(memberId) {
+function setLeader(member) {
   squadStore.selectedMembers = squadStore.selectedMembers.map((m) => ({
     ...m,
-    isLeader: m.id === memberId,
+    isLeader: m.id === member.id,
   }));
 }
 </script>
 
 <template>
-  <section class="squad-card-list-wrapper">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-extrabold">스쿼드 구성</h2>
-    </div>
-
-    <div class="flex justify-between items-center mb-4">
-      <select class="filter-select" v-model="roleFilter">
-        <option v-for="role in availableRoles" :key="role" :value="role">
-          {{ role }}
-        </option>
-      </select>
-      <div v-if="!isMobile" class="flex gap-2">
-        <button
-          class="icon-btn"
-          :class="{ active: viewMode === 'card' }"
-          @click="viewMode = 'card'"
-        >
-          <i class="fa-solid fa-image"></i>
-        </button>
-        <button
-          class="icon-btn"
-          :class="{ active: viewMode === 'list' }"
-          @click="viewMode = 'list'"
-        >
-          <i class="fa-solid fa-bars"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- 카드 형식 -->
-    <div v-if="viewMode === 'card'" class="card-grid">
-      <article
-        v-for="member in filteredMembers"
-        :key="member.id"
-        class="member-card border-gradient"
-      >
-        <div class="relative group w-full flex flex-col items-center h-[220px]">
-          <div class="hexagon-frame">
-            <img :src="member.imageUrl" alt="profile" class="hexagon-image" />
-          </div>
-          <div class="flex-1 info flex flex-col justify-end">
-            <p class="name">{{ member.name }}</p>
-            <p class="role">{{ member.role }}</p>
-          </div>
-
-          <!-- 왕관 버튼 -->
-          <button
-            class="btn-leader absolute top-0 left-0 text-yellow-500"
-            @click="setLeader(member.id)"
-            :class="{ 'animated-crown': member.isLeader }"
-            :title="member.isLeader ? '현재 리더' : '리더로 지정'"
-          >
-            <img
-              :src="member.isLeader ? CrownFilled : CrownUnfilled"
-              alt="리더 아이콘"
-            />
-          </button>
-
-          <!-- 삭제 버튼 -->
-          <button
-            class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 -top-1 right-0"
-            @click="removeMember(member.id)"
-          >
-            ✕
-          </button>
-        </div>
-      </article>
-    </div>
-
-    <!-- 리스트 형식 -->
-    <ul v-else class="list-view">
-      <li
-        v-for="member in filteredMembers"
-        :key="member.id"
-        class="list-item border-gradient group"
-      >
-        <div class="flex items-center gap-4 justify-between">
-          <div class="flex items-center gap-4">
-            <img :src="member.imageUrl" alt="avatar" class="avatar-sm" />
-            <div class="flex flex-col">
-              <p class="name">{{ member.name }}</p>
-              <p class="role text-sm text-gray-500">{{ member.role }}</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <!-- 등급 -->
-            <span
-              class="grade-text"
-              :class="`text-gradient-grade-${member.grade?.toLowerCase?.()}`"
-            >
-              {{ member.grade }}
-            </span>
-
-            <!-- 왕관 버튼-->
-            <button
-              class="btn-leader text-yellow-500"
-              @click="setLeader(member.id)"
-              :class="{ 'animated-crown': member.isLeader }"
-              :title="member.isLeader ? '현재 리더' : '리더로 지정'"
-            >
-              <img
-                :src="member.isLeader ? CrownFilled : CrownUnfilled"
-                alt="리더 아이콘"
-              />
-            </button>
-
-            <!-- 삭제 버튼 -->
-            <button
-              class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 top-0 right-2"
-              @click="removeMember(member.id)"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      </li>
-    </ul>
-  </section>
+  <SquadMemberRenderer
+    title="스쿼드 구성"
+    :members="squadStore.selectedMembers"
+    :readonly="false"
+    @remove="removeMember"
+    @set-leader="setLeader"
+  />
 </template>
 
 <style scoped>
