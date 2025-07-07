@@ -24,12 +24,6 @@ export default defineConfig([
 
   js.configs.recommended,
 
-  {
-    rules: {
-      "no-unused-vars": "warn",
-    },
-  },
-
   ...pluginVue.configs["flat/essential"],
 
   {
@@ -46,4 +40,11 @@ export default defineConfig([
   },
 
   skipFormatting,
+
+  {
+    rules: {
+      "no-unused-vars": "warn",
+      "vue/no-mutating-props": "warn",
+    },
+  },
 ]);

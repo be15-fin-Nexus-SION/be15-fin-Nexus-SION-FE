@@ -32,3 +32,34 @@ export const deleteSquadComment = (squadCode, commentId) => {
 export const patchConfirmSquad = (squadCode) => {
   return axios.patch(`/squads/${squadCode}/confirm`);
 };
+
+export const getTechStackAutocomplete = (keyword) => {
+  return axios.get("/tech-stack/autocomplete", {
+    params: { keyword },
+  });
+};
+
+export async function searchSquadDevelopers(payload) {
+  try {
+    const response = await axios.post("/members/squad-search", payload);
+    return response.data.data;
+  } catch (error) {
+    console.error("개발자 조회 실패:", error);
+    throw error;
+  }
+}
+
+export async function getRecommendedCandidates(projectId) {
+  const response = await axios.get(`/squads/candidates?projectId=${projectId}`);
+  return response.data;
+}
+
+export async function getSquadProjectDetail(projectId) {
+  const response = await axios.get(`/projects/squad/${projectId}`);
+  return response.data;
+}
+
+export async function registerManualSquad(payload) {
+  const response = await axios.post("/squads/manual", payload);
+  return response.data;
+}
