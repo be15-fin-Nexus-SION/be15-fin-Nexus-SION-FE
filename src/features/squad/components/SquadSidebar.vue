@@ -62,7 +62,6 @@
       + 프로젝트 추가
     </button>
 
-    <!-- ✅ 공통 ConfirmDeleteModal로 대체 -->
     <ConfirmDeleteModal
       v-if="showProjectAddModal"
       :message="'새 프로젝트를 추가하시겠습니까?'"
