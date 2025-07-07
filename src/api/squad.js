@@ -67,3 +67,10 @@ export async function registerManualSquad(payload) {
 export async function updateManualSquad(payload) {
   return axios.put("/squads/manual", payload);
 }
+
+export async function recommendSquad({ projectId, criteria }) {
+  return axios.post("/squads/recommendation", {
+    projectId,
+    criteria,
+  });
+}
