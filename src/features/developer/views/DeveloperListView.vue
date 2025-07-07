@@ -1,7 +1,13 @@
 <template>
   <div class="max-w-5xl mx-auto py-10 px-4 space-y-6">
+    <!-- 🔽 헤더 영역 -->
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">개발자 목록</h1>
+      <div class="flex items-center gap-4">
+        <h1 class="text-2xl font-bold">개발자 목록</h1>
+        <button @click="goToFreelancerList" class="text-sm text-blue-500">
+          프리랜서 목록
+        </button>
+      </div>
       <PrimaryButton label="개발자 등록" @click="goToAdd" />
     </div>
 
@@ -281,6 +287,10 @@ const fetchDevelopers = async () => {
     console.error("개발자 목록 불러오기 실패:", e);
   }
 };
+
+function goToFreelancerList() {
+  router.push({ name: "freelancer-list" });
+}
 
 function toggleDropdown(index) {
   openDropdownIndex.value = openDropdownIndex.value === index ? null : index;
