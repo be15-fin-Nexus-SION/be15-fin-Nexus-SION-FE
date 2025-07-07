@@ -4,6 +4,14 @@ export function registerProject(payload) {
   return api.post("/projects", payload);
 }
 
+export function updateProject(projectCode, payload) {
+  return api.put(`/projects/${projectCode}`, payload);
+}
+
+export function deleteProject(projectCode) {
+  return api.delete(`/projects/${projectCode}`);
+}
+
 export function fetchProjectList({
   keyword,
   maxBudget,
@@ -30,4 +38,8 @@ export function fetchProjectDetail(projectCode) {
 
 export function updateProjectStatus(projectCode, status) {
   return api.put(`/projects/${projectCode}/status/${status}`);
+}
+
+export function uploadDocument(formData) {
+  return api.post("/documents/upload", formData);
 }
