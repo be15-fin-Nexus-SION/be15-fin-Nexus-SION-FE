@@ -1,36 +1,46 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 export const useSquadStore = defineStore("squad", () => {
-  // 스쿼드 구성원 목록
   const selectedMembers = ref([]);
 
-  // 개발자 추가 (중복 방지)
-  function addMember(member) {
+  const selectedSquadInfo = ref({
+    id: null, // 수정 중인 스쿼드 ID
+    title: "", // 스쿼드 제목
+    description: "", // 스쿼드 설명
+  });
+
+  const isEditMode = computed(() => selectedSquadInfo.value.id !== null);
+
+  const addMember = (member) => {
+    console.log(member);
     const exists = selectedMembers.value.some((m) => m.id === member.id);
     if (!exists) {
       selectedMembers.value.push(member);
     }
-  }
+  };
 
-  // 개발자 제거
-  function removeMember(memberId) {
+  const removeMember = (employeeId) => {
     selectedMembers.value = selectedMembers.value.filter(
-      (m) => m.id !== memberId,
+      (m) => m.id !== employeeId,
     );
-    console.log(memberId);
-    console.log(selectedMembers.value);
-  }
+  };
 
-  // 전체 초기화
-  function clearMembers() {
+  const resetSquad = () => {
     selectedMembers.value = [];
-  }
+    selectedSquadInfo.value = {
+      id: null,
+      title: "",
+      description: "",
+    };
+  };
 
   return {
     selectedMembers,
     addMember,
     removeMember,
-    clearMembers,
+    selectedSquadInfo,
+    isEditMode,
+    resetSquad,
   };
 });

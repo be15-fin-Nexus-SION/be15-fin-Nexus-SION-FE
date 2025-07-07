@@ -5,7 +5,11 @@ import { useSquadStore } from "@/stores/squadCreateStore.js";
 import SquadCardList from "@/features/squad/components/create/SquadCardList.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import { useRoute, useRouter } from "vue-router";
-import { getSquadProjectDetail, registerManualSquad } from "@/api/squad.js";
+import {
+  getSquadProjectDetail,
+  registerManualSquad,
+  updateManualSquad,
+} from "@/api/squad.js";
 import SquadRegisterModal from "@/features/squad/components/modal/SquadRegisterModal.vue";
 
 const squadStore = useSquadStore();
@@ -18,7 +22,6 @@ const projectDetail = ref(null);
 const showRegisterModal = ref(false); // 등록 정보 확인 모달
 const isRegistering = ref(false); // 중복 등록 방지
 const registerSuccess = ref(null); // 결과 상태 저장
-const registerData = ref({ title: "", description: "" });
 
 const router = useRouter();
 
@@ -35,7 +38,6 @@ function handleRegisterConfirm({ title, description }) {
   }));
 
   const payload = {
-    projectCode: projectDetail.value.projectCode,
     title,
     description,
     estimatedDuration: rawDuration.value,
@@ -43,17 +45,27 @@ function handleRegisterConfirm({ title, description }) {
     developers,
   };
 
+  // 수정 모드일 경우 squadCode 포함
+  if (isEditMode.value) {
+    payload.squadCode = squadStore.selectedSquadInfo.id;
+  } else {
+    payload.projectCode = projectDetail.value.projectCode;
+  }
+
   isRegistering.value = true;
-  registerManualSquad(payload)
+
+  const submitFn = isEditMode.value ? updateManualSquad : registerManualSquad;
+
+  submitFn(payload)
     .then(() => {
       registerSuccess.value = true;
-      squadStore.clearMembers();
+      squadStore.resetSquad();
       setTimeout(() => {
         router.push("/squads");
       }, 1500);
     })
     .catch((err) => {
-      console.error("등록 실패:", err);
+      console.error(isEditMode.value ? "수정 실패:" : "등록 실패:", err);
       registerSuccess.value = false;
     })
     .finally(() => {
@@ -90,6 +102,8 @@ const shakeWarning = ref(false);
 const showWarningText = ref(false);
 const showWarningModal = ref(false);
 const warningReason = ref("");
+
+const isEditMode = computed(() => squadStore.selectedSquadInfo?.id !== null);
 
 // 직무 상태 계산
 const jobStatus = computed(() => {
@@ -208,7 +222,6 @@ function handleSubmit() {
 <template>
   <aside class="squad-sidebar" v-if="projectDetail">
     <section class="info-panel text-center text-black">
-      <!-- 예산 -->
       <div class="relative group">
         <h3 class="info-title">예상 예산</h3>
         <p
@@ -227,8 +240,6 @@ function handleSubmit() {
           예산 상한: ₩{{ projectDetail.budgetLimit.toLocaleString() }}
         </div>
       </div>
-
-      <!-- 기간 -->
       <div class="relative group mt-6">
         <h3 class="info-title">예상 기간</h3>
         <p
@@ -247,8 +258,6 @@ function handleSubmit() {
           기간 상한: {{ projectDetail.durationLimit }}개월
         </div>
       </div>
-
-      <!-- 경고 메시지 -->
       <p
         v-if="showWarningText"
         :class="[
@@ -259,7 +268,6 @@ function handleSubmit() {
         프로젝트 예상 {{ warningReason }} 상한선을 넘었습니다
       </p>
 
-      <!-- 직무 상태 -->
       <div class="mt-6 w-full flex flex-col gap-2 text-left">
         <div
           v-for="(stat, role) in jobStatus"
@@ -285,7 +293,6 @@ function handleSubmit() {
         </div>
       </div>
 
-      <!-- 등록 버튼 -->
       <button
         :disabled="!canSubmit"
         @click="handleSubmit"
@@ -296,14 +303,12 @@ function handleSubmit() {
             : 'bg-blue-600 hover:bg-blue-700',
         ]"
       >
-        등록
+        {{ isEditMode ? "수정" : "등록" }}
       </button>
     </section>
 
-    <!-- 구성원 카드 리스트 -->
     <SquadCardList view-mode="card" />
 
-    <!-- 경고 모달 -->
     <ConfirmModal
       v-if="showWarningModal"
       :title="`${warningReason} 초과 경고`"
@@ -321,8 +326,8 @@ function handleSubmit() {
 
     <SquadRegisterModal
       v-if="showRegisterModal"
-      :default-title="registerData.title"
-      :default-description="registerData.description"
+      :default-title="squadStore.selectedSquadInfo?.title || ''"
+      :default-description="squadStore.selectedSquadInfo?.description || ''"
       @submit="handleRegisterConfirm"
       @cancel="() => (showRegisterModal.value = false)"
     />
