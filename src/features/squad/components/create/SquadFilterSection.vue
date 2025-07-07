@@ -3,11 +3,24 @@ import { ref } from "vue";
 import ManualDeveloperList from "@/features/squad/components/create/ManualDeveloperList.vue";
 import AiRecommendedSection from "@/features/squad/components/create/AiRecommendedSection.vue";
 import AiLoadingOverlay from "@/components/AiLoadingOverlay.vue";
+import ExistSquadModal from "@/features/squad/components/ExistSquadModal.vue";
+import { useRoute } from "vue-router";
+import { getSquadDetail } from "@/api/squad.js";
+import { useSquadStore } from "@/stores/squadCreateStore.js";
 
 const activeTab = ref("manual");
 const isLoading = ref(false);
 const showAISection = ref(false);
 
+// 모달 제어용 상태
+const showExistSquadModal = ref(false);
+
+// 예시용 프로젝트 정보 (상위에서 props로 받을 경우 수정 필요)
+const route = useRoute();
+const projectCode = route.params.projectId;
+const projectTitle = "AI 추천 기반 프로젝트";
+
+// 탭 전환
 function switchToAI() {
   activeTab.value = "ai";
   isLoading.value = true;
@@ -17,6 +30,56 @@ function switchToAI() {
     isLoading.value = false;
     showAISection.value = true;
   }, 4000);
+}
+
+const squadStore = useSquadStore();
+// 스쿼드 선택 시 처리
+async function handleSquadSelect(selectedSquadCode) {
+  try {
+    const resp = await getSquadDetail(selectedSquadCode);
+    const squadData = await resp.data;
+
+    // 기존 선택 초기화
+    squadStore.resetSquad();
+
+    // 스쿼드 상세조회에서 필요한 데이터만 파싱하여 저장
+    const parsedMembers = squadData.members.map((member) => {
+      const costInfo = squadData.costDetails.find(
+        (c) => c.name === member.name,
+      );
+      return {
+        id: member.memberId,
+        name: member.name,
+        grade: costInfo.grade,
+        monthlyUnitPrice: parseCurrency(costInfo?.cost),
+        productivity: member.productivity,
+        role: member.job,
+        imageUrl: member.imageUrl || null,
+        leader: member.leader,
+      };
+    });
+
+    // 저장
+    parsedMembers.forEach((m) => squadStore.addMember(m));
+
+    // 스쿼드 메타 정보 저장
+    squadStore.selectedSquadInfo = {
+      id: squadData.squadCode,
+      title: squadData.squadName,
+      description: squadData.description,
+    };
+
+    // 모달 닫기
+    showExistSquadModal.value = false;
+    activeTab.value = "manual"; // 스쿼드 로드시 manual 탭으로 전환
+  } catch (e) {
+    console.error("스쿼드 불러오기 실패:", e);
+  }
+}
+
+function parseCurrency(value) {
+  if (!value) return 0;
+  return parseInt(value.replace(/[₩,]/g, ""), 10);
 }
 </script>
 
@@ -37,7 +100,11 @@ function switchToAI() {
           AI 추천
         </button>
       </div>
-      <button class="btn-outline">기존 스쿼드 가져오기</button>
+
+      <!-- 기존 스쿼드 가져오기 버튼 -->
+      <button class="btn-outline" @click="showExistSquadModal = true">
+        기존 스쿼드 가져오기
+      </button>
     </div>
 
     <ManualDeveloperList v-if="activeTab === 'manual'" />
@@ -48,6 +115,15 @@ function switchToAI() {
     <transition name="fade">
       <AiRecommendedSection v-if="activeTab === 'ai' && showAISection" />
     </transition>
+
+    <ExistSquadModal
+      v-if="showExistSquadModal"
+      :is-modal-open="showExistSquadModal"
+      :project-code="projectCode"
+      :project-title="projectTitle"
+      @close="showExistSquadModal = false"
+      @select="handleSquadSelect"
+    />
   </section>
 </template>
 
