@@ -13,6 +13,7 @@ import { scoreRoutes } from "@/features/score/router.js";
 
 import { useAuthStore } from "@/stores/auth.js";
 import { showErrorToast } from "@/utills/toast.js";
+import { freelancerRoutes } from "@/features/freelancer/router.js";
 
 const routes = [
   {
@@ -36,6 +37,7 @@ const routes = [
       ...statisticsRoutes,
       ...adminRoutes,
       ...scoreRoutes,
+      ...freelancerRoutes,
     ],
   },
   ...authRoutes,
