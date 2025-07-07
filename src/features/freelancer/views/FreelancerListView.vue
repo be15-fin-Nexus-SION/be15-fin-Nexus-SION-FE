@@ -4,7 +4,7 @@
   >
     <!-- 📦 목록 + 제목 (슬라이드로 왼쪽 이동) -->
     <div
-      class="z-10 max-w-[480px] w-full space-y-4 transition-transform duration-500 ease-in-out"
+      class="z-10 max-w-[450px] w-full space-y-4 transition-transform duration-500 ease-in-out"
       :class="{
         'translate-x-0': !selectedFreelancer,
         '-translate-x-80': selectedFreelancer,
