@@ -23,4 +23,13 @@ export const squadRoutes = [
       requiresAuth: true,
     },
   },
+
+  {
+    path: "projects/register",
+    name: "project-register",
+    component: () => import("@/features/project/views/ProjectRegisterView.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
 ];
