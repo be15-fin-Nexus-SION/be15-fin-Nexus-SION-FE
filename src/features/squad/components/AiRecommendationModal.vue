@@ -10,16 +10,16 @@
       <div class="space-y-2">
         <button
           v-for="option in options"
-          :key="option"
+          :key="option.label"
           @click="selectOption(option)"
           :class="[
             'w-full py-2 rounded border text-center font-medium transition',
-            selected === option
+            selected.label === option.label
               ? 'bg-primary text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
           ]"
         >
-          {{ option }}
+          {{ option.label }}
         </button>
       </div>
 
@@ -49,15 +49,22 @@ const props = defineProps({
 });
 const emit = defineEmits(["update:modelValue", "confirm", "close"]);
 
-const options = ["기본", "예산", "기간", "기술스택 점수", "도메인 연관성"];
-const selected = ref("예산"); // 기본 선택값
+const options = [
+  { label: "기본", enumValue: "BALANCED" },
+  { label: "예산", enumValue: "COST_OPTIMIZED" },
+  { label: "기간", enumValue: "TIME_OPTIMIZED" },
+  { label: "기술스택 점수", enumValue: "TECH_STACK" },
+  { label: "도메인 연관성", enumValue: "DOMAIN_MATCH" },
+];
+
+const selected = ref(options[0]); // 기본 선택: 예산
 
 const selectOption = (option) => {
   selected.value = option;
 };
 
 const onConfirm = () => {
-  emit("confirm", selected.value);
+  emit("confirm", selected.value.enumValue); // Enum 값으로 전달
   emit("update:modelValue", false);
 };
 

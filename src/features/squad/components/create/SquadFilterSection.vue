@@ -7,6 +7,7 @@ import ExistSquadModal from "@/features/squad/components/ExistSquadModal.vue";
 import { useRoute } from "vue-router";
 import { getSquadDetail } from "@/api/squad.js";
 import { useSquadStore } from "@/stores/squadCreateStore.js";
+import { handleSquadSelect } from "@/composable/useSquadSelect.js";
 
 const activeTab = ref("manual");
 const isLoading = ref(false);
@@ -33,54 +34,6 @@ function switchToAI() {
 }
 
 const squadStore = useSquadStore();
-// 스쿼드 선택 시 처리
-async function handleSquadSelect(selectedSquadCode) {
-  try {
-    const resp = await getSquadDetail(selectedSquadCode);
-    const squadData = await resp.data;
-
-    // 기존 선택 초기화
-    squadStore.resetSquad();
-
-    // 스쿼드 상세조회에서 필요한 데이터만 파싱하여 저장
-    const parsedMembers = squadData.members.map((member) => {
-      const costInfo = squadData.costDetails.find(
-        (c) => c.name === member.name,
-      );
-      return {
-        id: member.memberId,
-        name: member.name,
-        grade: costInfo.grade,
-        monthlyUnitPrice: parseCurrency(costInfo?.cost),
-        productivity: member.productivity,
-        role: member.job,
-        imageUrl: member.imageUrl || null,
-        leader: member.leader,
-      };
-    });
-
-    // 저장
-    parsedMembers.forEach((m) => squadStore.addMember(m));
-
-    // 스쿼드 메타 정보 저장
-    squadStore.selectedSquadInfo = {
-      id: squadData.squadCode,
-      title: squadData.squadName,
-      description: squadData.description,
-    };
-
-    // 모달 닫기
-    showExistSquadModal.value = false;
-    activeTab.value = "manual"; // 스쿼드 로드시 manual 탭으로 전환
-  } catch (e) {
-    console.error("스쿼드 불러오기 실패:", e);
-  }
-}
-
-function parseCurrency(value) {
-  if (!value) return 0;
-  return parseInt(value.replace(/[₩,]/g, ""), 10);
-}
 </script>
 
 <template>
