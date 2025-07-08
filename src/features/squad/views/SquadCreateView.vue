@@ -1,6 +1,18 @@
 <script setup>
 import SquadCreateSection from "@/features/squad/components/create/SquadCreateSection.vue";
 import SquadFilterSection from "@/features/squad/components/create/SquadFilterSection.vue";
+import { useRoute } from "vue-router";
+import { onMounted } from "vue";
+import { handleSquadSelect } from "@/composable/useSquadSelect.js";
+
+const route = useRoute();
+
+onMounted(async () => {
+  const squadCode = route.query.squadCode;
+  if (squadCode) {
+    await handleSquadSelect(squadCode);
+  }
+});
 </script>
 
 <template>
