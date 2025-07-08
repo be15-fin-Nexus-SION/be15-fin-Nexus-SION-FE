@@ -85,10 +85,6 @@ const props = defineProps({ freelancer: Object });
 const emit = defineEmits(["close", "refresh"]);
 const loading = ref(false);
 
-onMounted(() => {
-  console.log("📌 프리랜서 상세 정보 확인:", props.freelancer);
-});
-
 async function handleRegister() {
   if (loading.value) return;
   loading.value = true;
