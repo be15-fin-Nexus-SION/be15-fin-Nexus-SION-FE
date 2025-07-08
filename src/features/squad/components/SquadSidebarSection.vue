@@ -23,18 +23,40 @@ const handleSelect = (projectCode, project) => {
         v-for="code in items"
         :key="code"
         @click="handleSelect(code, projectMap[code])"
-        class="px-3 py-2 rounded text-sm"
+        class="px-3 py-2 rounded text-sm flex items-center justify-between"
         :class="[
           projectMap[code].analysisStatus !== 'COMPLETE'
             ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : [
-                code === active
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-50 hover:bg-gray-100 text-gray-800 cursor-pointer',
-              ],
+            : code === active
+              ? 'bg-primary text-white'
+              : 'bg-gray-50 hover:bg-gray-100 text-gray-800 cursor-pointer',
         ]"
       >
-        {{ projectMap[code]?.title }}
+        <span class="truncate">
+          {{ projectMap[code]?.title }}
+        </span>
+
+        <!-- 오른쪽 스피너 -->
+        <svg
+          v-if="projectMap[code].analysisStatus !== 'COMPLETE'"
+          class="w-4 h-4 ml-2 text-gray-400 animate-spin"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          />
+        </svg>
       </li>
     </ul>
   </div>
