@@ -11,6 +11,7 @@ import {
   updateManualSquad,
 } from "@/api/squad.js";
 import SquadRegisterModal from "@/features/squad/components/modal/SquadRegisterModal.vue";
+import { showSuccessToast } from "@/utills/toast.js";
 
 const squadStore = useSquadStore();
 const members = computed(() => squadStore.selectedMembers);
@@ -60,8 +61,9 @@ function handleRegisterConfirm({ title, description }) {
     .then(() => {
       registerSuccess.value = true;
       squadStore.resetSquad();
+      showSuccessToast("스쿼드 등록에 성공했습니다!");
       setTimeout(() => {
-        router.push("/squads");
+        router.push(`/squads?projectId=${projectCode}`);
       }, 1500);
     })
     .catch((err) => {
@@ -317,11 +319,11 @@ function handleSubmit() {
       cancelText="취소"
       @confirm="
         () => {
-          showWarningModal.value = false;
-          showRegisterModal.value = true; // 바로 모달 열기
+          showWarningModal = false;
+          showRegisterModal = true; // 바로 모달 열기
         }
       "
-      @cancel="() => (showWarningModal.value = false)"
+      @cancel="() => (showWarningModal = false)"
     />
 
     <SquadRegisterModal
@@ -329,7 +331,7 @@ function handleSubmit() {
       :default-title="squadStore.selectedSquadInfo?.title || ''"
       :default-description="squadStore.selectedSquadInfo?.description || ''"
       @submit="handleRegisterConfirm"
-      @cancel="() => (showRegisterModal.value = false)"
+      @cancel="() => (showRegisterModal = false)"
     />
   </aside>
 </template>
