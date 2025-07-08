@@ -76,11 +76,10 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router"; // ✅ [수정] setup 최상단에 선언
+import { useRouter } from "vue-router"; //
 import SquadSidebarSection from "./SquadSidebarSection.vue";
 import ConfirmDeleteModal from "@/features/squad/components/ConfirmDeleteModal.vue";
 
-// ✅ 라우터 인스턴스 생성
 const router = useRouter();
 
 const props = defineProps({
@@ -94,23 +93,12 @@ const emit = defineEmits(["select", "more"]);
 const onSelect = (code) => emit("select", code);
 const onMore = (type) => emit("more", type);
 
-// 🔹 모달 상태
 const showProjectAddModal = ref(false);
 
-// 🔹 프로젝트 추가 시 실행할 함수
 const confirmAddProject = () => {
   showProjectAddModal.value = false;
-  console.log("✅ 프로젝트 추가 확인됨");
 
-  // ✅ 라우터 이동
   console.log("라우터 이동 시도...");
   router.push({ name: "project-register" });
 };
-
-onMounted(() => {
-  console.log("✅ props.projectGroups:", props.projectGroups);
-  console.log("✅ 진행중 length:", props.projectGroups?.inprogress?.length);
-  console.log("✅ projectGroups.waiting:", props.projectGroups?.waiting);
-  console.log("✅ projectMap:", props.projectMap);
-});
 </script>
