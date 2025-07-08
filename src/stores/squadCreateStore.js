@@ -13,7 +13,6 @@ export const useSquadStore = defineStore("squad", () => {
   const isEditMode = computed(() => selectedSquadInfo.value.id !== null);
 
   const addMember = (member) => {
-    console.log(member);
     const exists = selectedMembers.value.some((m) => m.id === member.id);
     if (!exists) {
       selectedMembers.value.push(member);

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import AiRecommendationModal from "@/features/squad/components/AiRecommendationModal.vue";
 import AiLoadingOverlay from "@/components/AiLoadingOverlay.vue";
@@ -16,6 +16,7 @@ const props = defineProps({
 const open = ref(false);
 const showAiModal = ref(false);
 const isLoading = ref(false);
+const dropdownRef = ref(null);
 const router = useRouter();
 
 const toggle = () => {
@@ -48,10 +49,24 @@ const selectManual = () => {
   open.value = false;
   router.push(`/squads/create/${props.projectId}`);
 };
+
+const handleClickOutside = (event) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    open.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
 <template>
-  <div class="relative">
+  <div class="relative" ref="dropdownRef">
     <button
       @click="toggle"
       class="bg-[#6574F6] hover:bg-[#586DDD] text-white px-4 py-2 rounded"
