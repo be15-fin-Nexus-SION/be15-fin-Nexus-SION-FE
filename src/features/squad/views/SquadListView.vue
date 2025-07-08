@@ -1,14 +1,15 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useToast } from "vue-toastification";
 import SquadSidebar from "@/features/squad/components/SquadSidebar.vue";
 import SquadCard from "@/features/squad/components/SquadCard.vue";
 import SquadDropdown from "@/features/squad/components/SquadDropdown.vue";
-import SquadPagination from "@/features/squad/components/SquadPagination.vue";
 import ProjectListModal from "@/features/squad/components/ProjectListModal.vue";
 import { getSquadList, deleteSquadByCode } from "@/api/squad";
 import { fetchProjectList } from "@/api/project";
 import BasePagination from "@/components/Pagination.vue";
+import { useRoute } from "vue-router";
+import SquadDetailView from "@/features/squad/views/SquadDetailView.vue";
 
 const totalCount = ref(0); // 총 스쿼드 수
 
@@ -19,11 +20,18 @@ const selectedMoreType = ref(""); // 예: 'waiting', 'inprogress', 'complete'
 
 const squads = ref([]);
 const page = ref(1);
-const size = 10;
+const size = 9;
 const totalPages = ref(1);
 
 const selectedProjectCode = ref("");
 const selectedProjectTitle = ref("");
+const selectedProjectStatus = computed(() => {
+  return (
+    projectMap.value[selectedProjectCode.value]?.status?.toUpperCase() ?? ""
+  );
+});
+
+const route = useRoute();
 
 const projectGroups = ref({ waiting: [], inprogress: [], complete: [] });
 const projectMap = ref({}); // title → { projectCode, title, status }
@@ -91,11 +99,16 @@ const fetchProjects = async () => {
     complete,
   };
 
-  if (content.length) {
+  const projectIdFromQuery = route.query.projectId;
+  if (projectIdFromQuery && map[projectIdFromQuery]) {
+    selectedProjectCode.value = projectIdFromQuery;
+    selectedProjectTitle.value = map[projectIdFromQuery].title;
+  } else if (content.length) {
     selectedProjectCode.value = content[0].projectCode;
     selectedProjectTitle.value = content[0].title;
-    await fetchSquads();
   }
+
+  await fetchSquads();
 };
 
 const fetchSquads = async () => {
@@ -169,7 +182,10 @@ onMounted(fetchProjects);
     />
 
     <!-- 메인 컨텐츠 -->
-    <div class="flex-1 flex flex-col p-6">
+    <div
+      v-if="selectedProjectStatus === 'WAITING'"
+      class="flex-1 flex flex-col p-6"
+    >
       <div class="flex justify-between items-center mb-6">
         <div>
           <h2 class="text-2xl font-bold mb-1">{{ selectedProjectTitle }}</h2>
@@ -178,12 +194,13 @@ onMounted(fetchProjects);
         <SquadDropdown :projectId="selectedProjectCode" />
       </div>
 
-      <main class="overflow-y-auto h-[500px] p-2">
+      <main class="overflow-y-auto h-[550px] p-2">
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <SquadCard
             v-for="squad in squads"
             :key="squad.squadCode"
             :squad="squad"
+            :projectId="selectedProjectCode"
             @delete="deleteSquad"
           />
         </div>
@@ -195,6 +212,16 @@ onMounted(fetchProjects);
           :totalPages="totalPages"
           @change="goToPage"
         />
+      </div>
+    </div>
+    <div v-else>
+      <SquadDetailView
+        v-if="squads.length > 0"
+        :key="squads[0].squadCode"
+        :squadCode="squads[0].squadCode"
+      />
+      <div v-else class="text-center text-gray-500 py-20 text-lg font-semibold">
+        스쿼드 정보가 없습니다.
       </div>
     </div>
   </div>
