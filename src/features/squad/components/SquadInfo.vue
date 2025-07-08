@@ -1,8 +1,17 @@
 <template>
   <div class="space-y-4">
     <!-- 스쿼드 설명 -->
-    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
-      <h3 class="text-sm font-medium text-gray-500 mb-1">스쿼드 설명</h3>
+    <div
+      :class="[
+        'rounded-lg p-4 shadow-sm',
+        isAI
+          ? 'ai-border border-gradient'
+          : 'bg-gray-50 border border-gray-200',
+      ]"
+    >
+      <h3 class="text-sm font-medium text-gray-500 mb-1">
+        {{ isAI ? "스쿼드 추천 이유" : "스쿼드 설명" }}
+      </h3>
       <p
         class="text-base font-semibold text-gray-800 whitespace-pre-wrap leading-relaxed"
       >
@@ -36,9 +45,32 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   description: String,
   period: [String, Number],
   totalCost: [String, Number],
+  isAI: Boolean, // SquadDetailView에서 전달받을 AI 여부
 });
 </script>
+
+<style scoped>
+.ai-border {
+  @apply relative rounded-lg p-4 shadow-sm bg-white;
+}
+
+.border-gradient {
+  border: 3px solid transparent;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(120deg, #823bff, #1268dd, #823bff);
+  background-size:
+    100% 150%,
+    500% 500%;
+  background-position:
+    center,
+    0% 50%;
+  border-radius: 0.5rem;
+}
+</style>
