@@ -104,10 +104,15 @@ const filteredMembers = computed(() => {
           <!-- 리더 버튼 -->
           <button
             class="btn-leader absolute top-0 left-0 text-yellow-500"
-            @click="$emit('set-leader', member)"
-            :class="{ 'animated-crown': member.isLeader || member.leader }"
+            @click="!readonly && $emit('set-leader', member)"
+            :disabled="readonly"
+            :class="[{ 'animated-crown': member.isLeader || member.leader }]"
             :title="
-              member.isLeader || member.leader ? '현재 리더' : '리더로 지정'
+              member.isLeader || member.leader
+                ? '현재 리더'
+                : readonly
+                  ? '리더 지정 불가'
+                  : '리더로 지정'
             "
           >
             <img
@@ -159,6 +164,7 @@ const filteredMembers = computed(() => {
             <!-- 리더 버튼 -->
             <button
               class="btn-leader text-yellow-500"
+              :disabled="readonly"
               @click="$emit('set-leader', member)"
               :class="{ 'animated-crown': member.isLeader || member.leader }"
               :title="
