@@ -184,7 +184,7 @@ onMounted(fetchProjects);
     <!-- 메인 컨텐츠 -->
     <div
       v-if="selectedProjectStatus === 'WAITING'"
-      class="flex-1 flex flex-col p-6"
+      class="min-w-[900px] flex-1 flex flex-col p-6"
     >
       <div class="flex justify-between items-center mb-6">
         <div>
@@ -195,7 +195,7 @@ onMounted(fetchProjects);
       </div>
 
       <main class="overflow-y-auto h-[550px] p-2">
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <SquadCard
             v-for="squad in squads"
             :key="squad.squadCode"

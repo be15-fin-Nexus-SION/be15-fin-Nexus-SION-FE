@@ -5,8 +5,6 @@ import AiRecommendedSection from "@/features/squad/components/create/AiRecommend
 import AiLoadingOverlay from "@/components/AiLoadingOverlay.vue";
 import ExistSquadModal from "@/features/squad/components/ExistSquadModal.vue";
 import { useRoute } from "vue-router";
-import { getSquadDetail } from "@/api/squad.js";
-import { useSquadStore } from "@/stores/squadCreateStore.js";
 import { handleSquadSelect } from "@/composable/useSquadSelect.js";
 
 const activeTab = ref("manual");
@@ -32,8 +30,6 @@ function switchToAI() {
     showAISection.value = true;
   }, 4000);
 }
-
-const squadStore = useSquadStore();
 </script>
 
 <template>
