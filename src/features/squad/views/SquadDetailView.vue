@@ -275,6 +275,7 @@ onBeforeUnmount(() => {
           "
           :period="squad.estimatedDuration"
           :totalCost="formatCost(squad.totalCost)"
+          :isAI="squad.origin === 'AI'"
         />
 
         <!-- 비용 -->

@@ -199,7 +199,7 @@ function addTechStack(stack) {
               <th>개발자명</th>
               <th>등급</th>
               <th>상태</th>
-              <th>기술스택</th>
+              <th>최고점 기술스택</th>
               <th></th>
             </tr>
           </thead>
@@ -207,7 +207,7 @@ function addTechStack(stack) {
             <tr v-for="(dev, index) in developers" :key="dev.id">
               <td class="text-center">{{ index + 1 }}</td>
               <td class="text-center">{{ dev.name }}</td>
-              <td class="text-center">{{ dev.grade }}</td>
+              <td class="text-center font-bold">{{ dev.grade }}</td>
               <td class="text-center">
                 <span class="status-badge">{{ dev.status }}</span>
               </td>
