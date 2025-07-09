@@ -98,10 +98,19 @@ function updateScrollButtons() {
               <tbody>
                 <tr v-for="dev in developers" :key="dev.id">
                   <td>{{ dev.name }}</td>
-                  <td>{{ dev.grade }}</td>
-                  <td>{{ dev.avgTechScore }}</td>
-                  <td>{{ dev.domainCount }}</td>
-                  <td>{{ dev.monthlyUnitPrice.toLocaleString() }}원</td>
+                  <td class="font-bold">{{ dev.grade }}</td>
+                  <td class="text-primary font-semibold">
+                    {{ dev.avgTechScore }}
+                  </td>
+                  <td>
+                    <span class="text-gray-800 font-medium">{{
+                      dev.domainCount
+                    }}</span>
+                    <span class="text-xs text-gray-400 ml-0.5">번</span>
+                  </td>
+                  <td class="text-gray-700 font-semibold">
+                    {{ dev.monthlyUnitPrice.toLocaleString() }}원
+                  </td>
                   <td>
                     <button @click="handleAdd(dev)" class="btn-add">
                       추가
@@ -167,7 +176,7 @@ function updateScrollButtons() {
 }
 
 .scroll-arrow {
-  @apply absolute top-[45%] z-10 bg-white shadow-md border border-gray-300 rounded-full px-3 py-1 text-xl;
+  @apply absolute top-[45%] z-10 bg-white shadow-md border border-gray-300 rounded-full px-3 py-2 text-xl text-center;
   transform: translateY(-50%);
   transition: opacity 0.3s ease;
 }

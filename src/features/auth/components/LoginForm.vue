@@ -54,6 +54,7 @@ function onSubmit() {
           v-model="form[field.key]"
           :placeholder="field.placeholder"
           @blur="handleBlur(field.key)"
+          :autocomplete="field.key === 'password' ? 'current-password' : 'off'"
         />
 
         <!-- 비밀번호 보기 버튼 -->

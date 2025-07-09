@@ -2,6 +2,11 @@
 
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import { useNotificationStore } from "@/stores/notification.js";
+import {
+  closeNotificationConnection,
+  subscribeToNotification,
+} from "@/api/notificationSse.js";
 
 export const useAuthStore = defineStore(
   "auth",
@@ -24,6 +29,13 @@ export const useAuthStore = defineStore(
         expirationTime.value = payload.exp * 1000;
         memberId.value = payload.sub;
         memberRole.value = payload.role;
+
+        // SSE 알림 구독
+        const notificationStore = useNotificationStore();
+
+        subscribeToNotification((data) => {
+          notificationStore.prependNotification(data);
+        });
       } catch (e) {
         clearAuth(); // 파싱 실패 시 초기화
       }
@@ -34,6 +46,9 @@ export const useAuthStore = defineStore(
       expirationTime.value = null;
       memberId.value = null;
       memberRole.value = null;
+
+      // sse 연결 종료
+      closeNotificationConnection();
     }
 
     return {
