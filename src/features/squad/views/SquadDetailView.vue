@@ -139,7 +139,7 @@ const submitComment = async (commentText) => {
     return;
   }
   try {
-    await postSquadComment(squadCode, employeeId, commentText);
+    await postSquadComment(squadCode, commentText);
     await loadComments();
   } catch (e) {
     console.error("댓글 등록 실패:", e);
