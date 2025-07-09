@@ -24,6 +24,7 @@ export function subscribeToNotification(onMessageCallback) {
       "Last-Event-Id": lastEventId,
     },
     withCredentials: true,
+    heartbeatTimeout: 45000, // 기본 타임아웃 45초, 핑은 30초마다
   });
 
   eventSource.onopen = () => {
