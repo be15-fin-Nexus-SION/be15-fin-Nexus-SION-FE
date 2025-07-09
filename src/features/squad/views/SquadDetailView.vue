@@ -1,128 +1,5 @@
-<template>
-  <div
-    v-if="isLoaded && squad.members"
-    class="flex gap-6 p-6 w-[1050px] mx-auto"
-  >
-    <!-- 좌측: 스쿼드 구성 -->
-    <section
-      class="w-[45%] bg-white rounded-xl shadow p-4 flex flex-col justify-between"
-    >
-      <div>
-        <SquadMemberList
-          :members="squad.members"
-          @update:members="(updated) => (squad.members = updated)"
-        />
-      </div>
-
-      <!-- 배치 확정 버튼 -->
-      <div class="mt-6">
-        <button
-          class="w-full h-[52px] flex items-center justify-center gap-2 rounded-[8px] text-white font-semibold shadow-md"
-          :style="{
-            background: 'linear-gradient(90deg, #42EA82 0%, #39F8CF 100%)',
-          }"
-          @click="openConfirmModal"
-        >
-          <img src="/Squad_confirm.png" alt="배치 확정" class="w-5 h-5" />
-          배치 확정
-        </button>
-      </div>
-
-      <ConfirmModal
-        v-if="showConfirmModal"
-        message="이 스쿼드를 프로젝트에 확정하시겠습니까?"
-        confirmText="확정"
-        :width="'350px'"
-        @confirm="handleConfirm"
-        @close="handleClose"
-      />
-    </section>
-
-    <!-- 우측: 상세 정보 -->
-    <section class="w-[55%] bg-white rounded-xl shadow p-6 relative">
-      <div class="flex justify-between items-start mb-4">
-        <div class="flex items-center gap-2">
-          <h2 class="text-2xl font-semibold">{{ squad.squadName }}</h2>
-          <span
-            v-if="originType === 'AI'"
-            class="text-xs px-2 py-1 rounded-full text-white bg-gradient-to-r from-purple-500 to-sky-400 shadow-sm"
-          >
-            AI 추천
-          </span>
-        </div>
-
-        <div class="relative">
-          <button
-            @click="toggleDropdown"
-            class="text-xl leading-none w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
-          >
-            ⋯
-          </button>
-          <div
-            v-if="showDropdown"
-            class="absolute right-0 mt-0 w-28 bg-white border rounded shadow z-50"
-          >
-            <button
-              class="w-full text-left px-4 py-2 text-sm text-[#6574F6] hover:bg-gray-100 text-center"
-              @click="editSquad"
-            >
-              스쿼드 수정
-            </button>
-            <button
-              class="w-full text-left px-4 py-2 text-sm text-[#FF0000] hover:bg-gray-100 text-center"
-              @click="deleteSquad"
-            >
-              스쿼드 삭제
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <SquadInfo
-        :name="squad.squadName"
-        :aiRecommended="squad.aiRecommended"
-        :reason="squad.recommendationReason"
-        :period="squad.estimatedPeriod"
-      />
-
-      <div class="my-6">
-        <SquadCostTable
-          :details="squad.costDetails"
-          :total="formatCost(squad.estimatedCost)"
-        />
-      </div>
-
-      <SquadCommentForm @submit="submitComment" />
-
-      <SquadCommentList
-        :comments="commentList"
-        :currentUserId="auth.memberId?.toString()"
-        @request-delete="handleRequestDelete"
-      />
-
-      <ConfirmModal
-        v-if="showSquadDeleteModal"
-        message="스쿼드를 삭제하시겠습니까?"
-        confirmText="삭제"
-        :width="'350px'"
-        @confirm="confirmSquadDelete"
-        @close="showSquadDeleteModal = false"
-      />
-
-      <ConfirmModal
-        v-if="showDeleteModal"
-        message="댓글을 삭제하시겠습니까?"
-        confirmText="삭제"
-        :width="'350px'"
-        @confirm="deleteComment"
-        @close="handleCancelDelete"
-      />
-    </section>
-  </div>
-</template>
-
 <script setup>
-import { computed, ref, onMounted } from "vue";
+import { computed, ref, onMounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import {
@@ -142,6 +19,11 @@ import SquadCommentForm from "@/features/squad/components/SquadCommentForm.vue";
 import ConfirmModal from "@/features/squad/components/ConfirmDeleteModal.vue";
 import SquadCommentList from "@/features/squad/components/SquadCommentList.vue";
 import { useAuthStore } from "@/stores/auth";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
+
+const props = defineProps({
+  squadCode: String,
+});
 
 const squad = ref({ members: [], costDetails: [] });
 const isLoaded = ref(false);
@@ -154,8 +36,7 @@ const commentList = ref([]);
 const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
-const squadCode = route.params.squadCode;
-const originType = computed(() => squad.value.originType);
+const squadCode = props.squadCode ?? useRoute().params.squadCode;
 const toast = useToast();
 
 const toggleDropdown = () => {
@@ -164,7 +45,7 @@ const toggleDropdown = () => {
 
 const editSquad = () => {
   showDropdown.value = false;
-  router.push(`/squads/${squadCode}/edit`);
+  router.push(`/squads/create/${route.query.projectId}?squadCode=${squadCode}`);
 };
 
 const deleteSquad = () => {
@@ -175,12 +56,12 @@ const deleteSquad = () => {
 const confirmSquadDelete = async () => {
   try {
     await deleteSquadByCode(squadCode);
-    toast.success("✅ 스쿼드가 성공적으로 삭제되었습니다.");
+    showSuccessToast("스쿼드가 성공적으로 삭제되었습니다.");
     showSquadDeleteModal.value = false;
     router.push({ name: "squad-list" });
   } catch (e) {
     console.error("스쿼드 삭제 실패:", e);
-    toast.error("스쿼드 삭제에 실패했습니다.");
+    showErrorToast("스쿼드 삭제에 실패했습니다.");
   }
 };
 
@@ -242,7 +123,7 @@ const deleteComment = async () => {
 const loadComments = async () => {
   try {
     const res = await getSquadComments(squadCode);
-    const raw = res.data;
+    const raw = res.data.data;
     commentList.value = Array.isArray(raw) ? raw : [];
   } catch (e) {
     console.error("댓글 불러오기 실패:", e);
@@ -266,6 +147,18 @@ const submitComment = async (commentText) => {
   }
 };
 
+const dropdownRef = ref(null);
+
+const handleClickOutside = (e) => {
+  if (
+    showDropdown.value &&
+    dropdownRef.value &&
+    !dropdownRef.value.contains(e.target)
+  ) {
+    showDropdown.value = false;
+  }
+};
+
 onMounted(async () => {
   try {
     const res = await getSquadDetail(squadCode);
@@ -281,5 +174,164 @@ onMounted(async () => {
   } catch (e) {
     console.error("스쿼드 상세 조회 실패:", e);
   }
+
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
 });
 </script>
+
+<template>
+  <transition name="slide-fade">
+    <div
+      v-if="isLoaded && squad.members"
+      class="flex gap-6 p-6 w-[1050px] mx-auto items-start animate-slide"
+    >
+      <section
+        class="w-[550px] rounded-xl shadow p-4 flex flex-col justify-between"
+      >
+        <div>
+          <SquadMemberList
+            :members="squad.members"
+            :readonly="squad.origin === 'AI' || squad.isActive"
+            @update:members="(updated) => (squad.members = updated)"
+          />
+        </div>
+
+        <!-- 배치 확정 버튼: AI 추천 or 배치된 경우 숨김 -->
+        <div class="mt-6" v-if="!squad.isActive">
+          <button
+            class="w-full h-[52px] flex items-center justify-center gap-2 rounded-[8px] text-white font-semibold shadow-md"
+            :style="{
+              background: 'linear-gradient(90deg, #42EA82 0%, #39F8CF 100%)',
+            }"
+            @click="openConfirmModal"
+          >
+            <img src="/Squad_confirm.png" alt="배치 확정" class="w-5 h-5" />
+            배치 확정
+          </button>
+        </div>
+
+        <!-- Confirm 배치 확정 모달 -->
+        <ConfirmModal
+          v-if="showConfirmModal"
+          message="이 스쿼드를 프로젝트에 확정하시겠습니까?"
+          confirmText="확정"
+          :width="'350px'"
+          @confirm="handleConfirm"
+          @close="handleClose"
+        />
+      </section>
+
+      <!-- 우측: Squad 정보 -->
+      <section class="w-[55%] bg-white rounded-xl shadow p-6 relative">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex items-center gap-2">
+            <h2 class="text-2xl font-semibold">{{ squad.title }}</h2>
+            <span
+              v-if="squad.origin === 'AI'"
+              class="text-xs px-2 py-1 rounded-full text-white bg-gradient-to-r from-purple-500 to-sky-400 shadow-sm"
+            >
+              AI 추천
+            </span>
+          </div>
+
+          <div class="relative" ref="dropdownRef">
+            <button
+              @click="toggleDropdown"
+              class="text-xl leading-none w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
+            >
+              ⋯
+            </button>
+            <div
+              v-if="showDropdown"
+              class="absolute right-0 mt-0 w-28 bg-white border rounded shadow z-50"
+            >
+              <button
+                class="w-full px-4 py-2 text-sm text-[#6574F6] hover:bg-gray-100 text-center"
+                @click="editSquad"
+                v-if="!squad.isActive || squad.origin !== 'AI'"
+              >
+                스쿼드 수정
+              </button>
+              <button
+                class="w-full px-4 py-2 text-sm text-[#FF0000] hover:bg-gray-100 text-center"
+                @click="deleteSquad"
+              >
+                스쿼드 삭제
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SquadInfo -->
+        <SquadInfo
+          :description="
+            squad.origin === 'AI'
+              ? squad.recommendationReason
+              : squad.description
+          "
+          :period="squad.estimatedDuration"
+          :totalCost="formatCost(squad.totalCost)"
+        />
+
+        <!-- 비용 -->
+        <div class="my-6">
+          <SquadCostTable
+            :details="squad.members"
+            :total="formatCost(squad.totalCost)"
+          />
+        </div>
+
+        <!-- 댓글 등록 -->
+        <SquadCommentForm @submit="submitComment" />
+
+        <!-- 댓글 리스트 -->
+        <SquadCommentList
+          :comments="commentList"
+          :currentUserId="auth.memberId?.toString()"
+          @request-delete="handleRequestDelete"
+        />
+
+        <!-- 스쿼드 삭제 모달 -->
+        <ConfirmModal
+          v-if="showSquadDeleteModal"
+          message="스쿼드를 삭제하시겠습니까?"
+          confirmText="삭제"
+          :width="'350px'"
+          @confirm="confirmSquadDelete"
+          @close="showSquadDeleteModal = false"
+        />
+
+        <!-- 댓글 삭제 모달 -->
+        <ConfirmModal
+          v-if="showDeleteModal"
+          message="댓글을 삭제하시겠습니까?"
+          confirmText="삭제"
+          :width="'350px'"
+          @confirm="deleteComment"
+          @close="handleCancelDelete"
+        />
+      </section>
+    </div>
+  </transition>
+</template>
+
+<style scoped>
+/* 슬라이드 인 애니메이션 */
+.slide-fade-enter-active {
+  animation: slideInFromLeft 0.5s ease-out forwards;
+}
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+</style>

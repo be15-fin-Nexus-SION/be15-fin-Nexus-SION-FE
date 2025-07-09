@@ -63,3 +63,14 @@ export async function registerManualSquad(payload) {
   const response = await axios.post("/squads/manual", payload);
   return response.data;
 }
+
+export async function updateManualSquad(payload) {
+  return axios.put("/squads/manual", payload);
+}
+
+export async function recommendSquad({ projectId, criteria }) {
+  return axios.post("/squads/recommendation", {
+    projectId,
+    criteria,
+  });
+}

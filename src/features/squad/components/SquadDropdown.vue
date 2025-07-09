@@ -1,5 +1,72 @@
+<script setup>
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useRouter } from "vue-router";
+import AiRecommendationModal from "@/features/squad/components/AiRecommendationModal.vue";
+import AiLoadingOverlay from "@/components/AiLoadingOverlay.vue";
+import { recommendSquad } from "@/api/squad";
+import { showErrorToast } from "@/utills/toast.js";
+
+const props = defineProps({
+  projectId: {
+    type: String,
+    required: true,
+  },
+});
+
+const open = ref(false);
+const showAiModal = ref(false);
+const isLoading = ref(false);
+const dropdownRef = ref(null);
+const router = useRouter();
+
+const toggle = () => {
+  open.value = !open.value;
+};
+
+const openAiModal = () => {
+  open.value = false;
+  showAiModal.value = true;
+};
+
+const handleAiConfirm = async (criteria) => {
+  showAiModal.value = false;
+  isLoading.value = true;
+
+  try {
+    const response = await recommendSquad({
+      projectId: props.projectId,
+      criteria,
+    });
+    await router.push(`/squads/${response.data.data.squadCode}`);
+  } catch (error) {
+    showErrorToast("스쿼드 추천 중 오류가 발생했습니다.");
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const selectManual = () => {
+  open.value = false;
+  router.push(`/squads/create/${props.projectId}`);
+};
+
+const handleClickOutside = (event) => {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    open.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
+</script>
+
 <template>
-  <div class="relative">
+  <div class="relative" ref="dropdownRef">
     <button
       @click="toggle"
       class="bg-[#6574F6] hover:bg-[#586DDD] text-white px-4 py-2 rounded"
@@ -24,41 +91,15 @@
       </button>
     </div>
 
-    <!-- AI 추천 기준 선택 모달 -->
     <AiRecommendationModal
       v-if="showAiModal"
       @confirm="handleAiConfirm"
       @close="showAiModal = false"
     />
+
+    <AiLoadingOverlay
+      :visible="isLoading"
+      message="AI 추천 스쿼드를 구성 중입니다..."
+    />
   </div>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import AiRecommendationModal from "@/features/squad/components/AiRecommendationModal.vue";
-import { useRouter } from "vue-router";
-
-const open = ref(false);
-const showAiModal = ref(false);
-const router = useRouter();
-
-const toggle = () => {
-  open.value = !open.value;
-};
-
-const openAiModal = () => {
-  open.value = false;
-  showAiModal.value = true;
-};
-
-const handleAiConfirm = (criteria) => {
-  showAiModal.value = false;
-  console.log("선택된 AI 기준:", criteria);
-  // 👉 여기서 API 요청 또는 다음 단계 이동
-};
-
-const selectManual = () => {
-  open.value = false;
-  router.push("/squads/create/ha_1_1"); //일단 하드코딩으로 경로 집어넣기
-};
-</script>

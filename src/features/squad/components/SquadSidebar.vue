@@ -1,5 +1,7 @@
 <template>
-  <aside class="w-64 h-screen bg-white p-4 border-r overflow-y-auto">
+  <aside
+    class="w-64 min-w-[300px] h-screen bg-white p-4 border-r overflow-y-auto"
+  >
     <!-- 진행 전 프로젝트 관리 -->
     <div class="mb-4">
       <SquadSidebarSection
@@ -62,7 +64,6 @@
       + 프로젝트 추가
     </button>
 
-    <!-- ✅ 공통 ConfirmDeleteModal로 대체 -->
     <ConfirmDeleteModal
       v-if="showProjectAddModal"
       :message="'새 프로젝트를 추가하시겠습니까?'"
