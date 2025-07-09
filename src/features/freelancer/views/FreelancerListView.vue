@@ -32,6 +32,15 @@
           @click="selectFreelancer(freelancer)"
         />
       </div>
+
+      <!-- 페이지네이션 -->
+      <div class="flex justify-center mt-4">
+        <BasePagination
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          @change="handlePageChange"
+        />
+      </div>
     </div>
 
     <!-- 📦 상세 패널 (오른쪽 슬라이드) -->
@@ -40,6 +49,7 @@
         v-if="selectedFreelancer"
         :freelancer="selectedFreelancer"
         @close="selectedFreelancer = null"
+        @refresh="loadFreelancers"
         class="absolute top-10 right-10 w-[640px]"
       />
     </transition>
@@ -47,40 +57,46 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import FreelancerCard from "@/features/freelancer/components/FreelancerCard.vue";
 import FreelancerDetailPanel from "@/features/freelancer/components/FreelancerDetailPanel.vue";
+import BasePagination from "@/components/Pagination.vue";
+import { fetchFreelancerList, fetchFreelancerDetail } from "@/api/freelancer";
+import { showErrorToast } from "@/utills/toast";
 
-const freelancers = ref([
-  {
-    id: 1,
-    name: "김깅깡",
-    email: "ggigga_ng@hanhwa.com",
-    profileUrl: "https://placehold.co/160x160",
-    phone: "010-73829-2222",
-    grade: "S",
-    years: "5년차",
-    code: "DEV1000",
-    resumeLink: "#",
-    isEmployee: false,
-  },
-  {
-    id: 2,
-    name: "홍길동",
-    email: "hong@company.com",
-    profileUrl: "https://placehold.co/160x160",
-    phone: "010-1234-5678",
-    grade: "A",
-    years: "3년차",
-    code: "DEV2000",
-    resumeLink: "#",
-    isEmployee: true,
-  },
-]);
-
+const freelancers = ref([]);
 const selectedFreelancer = ref(null);
-function selectFreelancer(f) {
-  selectedFreelancer.value = f;
+const currentPage = ref(1);
+const totalPages = ref(1);
+const size = 10;
+
+onMounted(() => {
+  loadFreelancers();
+});
+
+async function loadFreelancers() {
+  try {
+    const res = await fetchFreelancerList({ page: currentPage.value, size });
+    const pageData = res.data.data;
+    freelancers.value = pageData.content;
+    totalPages.value = pageData.totalPages;
+  } catch (e) {
+    showErrorToast("프리랜서 목록 불러오기 실패");
+  }
+}
+
+async function selectFreelancer(freelancer) {
+  try {
+    const res = await fetchFreelancerDetail(freelancer.freelancerId);
+    selectedFreelancer.value = res.data.data;
+  } catch (e) {
+    showErrorToast("프리랜서 상세 조회 실패");
+  }
+}
+
+function handlePageChange(page) {
+  currentPage.value = page;
+  loadFreelancers();
 }
 </script>
 
