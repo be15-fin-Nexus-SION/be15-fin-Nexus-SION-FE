@@ -14,9 +14,8 @@ export const getSquadDetail = (squadCode) => {
   return axios.get(`/squads/${squadCode}`);
 };
 
-export const postSquadComment = (squadCode, employeeId, content) => {
+export const postSquadComment = (squadCode, content) => {
   return axios.post(`/squads/${squadCode}/comments`, {
-    employeeIdentificationNumber: employeeId,
     content: content,
   });
 };
