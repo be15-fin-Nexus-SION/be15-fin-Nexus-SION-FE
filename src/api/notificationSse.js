@@ -5,6 +5,8 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import { showNotificationBadge } from "@/features/notification/utils/notificationBadge.js";
 
 let eventSource = null;
+let lastPing = Date.now();
+let pingCheckInterval = null;
 
 export function subscribeToNotification(onMessageCallback) {
   if (eventSource) {
@@ -26,10 +28,21 @@ export function subscribeToNotification(onMessageCallback) {
 
   eventSource.onopen = () => {
     console.log("✅ SSE 연결됨");
+    lastPing = Date.now();
+    if (pingCheckInterval) clearInterval(pingCheckInterval);
+    pingCheckInterval = setInterval(() => {
+      const now = Date.now();
+      if (now - lastPing > 60_000) {
+        // 60초 이상 ping 없음
+        console.warn("⏱️ ping이 너무 오래 없음! SSE 재연결 시도");
+        reconnect(onMessageCallback);
+      }
+    }, 30_000); // 30초마다 확인
   };
 
   eventSource.addEventListener("ping", (event) => {
     console.log("ping 이벤트 받음:", event.data);
+    lastPing = Date.now();
   });
 
   eventSource.addEventListener("initial-connect", (event) => {
@@ -61,9 +74,18 @@ export function subscribeToNotification(onMessageCallback) {
   };
 }
 
+function reconnect(onMessageCallback) {
+  closeNotificationConnection();
+  subscribeToNotification(onMessageCallback);
+}
+
 export function closeNotificationConnection() {
   if (eventSource) {
     eventSource.close();
     console.log("🔌 SSE 연결 종료");
+  }
+  if (pingCheckInterval) {
+    clearInterval(pingCheckInterval);
+    pingCheckInterval = null;
   }
 }
