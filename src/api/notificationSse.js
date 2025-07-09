@@ -1,4 +1,4 @@
-// src/utils/notification.js
+// src/api/notificationSse.js
 import { showNotificationToast } from "@/utills/toast.js";
 import { useAuthStore } from "@/stores/auth.js";
 import { EventSourcePolyfill } from "event-source-polyfill";
