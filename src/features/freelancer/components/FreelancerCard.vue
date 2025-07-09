@@ -3,9 +3,14 @@
     class="grid grid-cols-[60px_40px_50px_190px] items-center gap-6 px-6 py-4 bg-white rounded hover:bg-gray-50 cursor-pointer custom-shadow"
     @click="$emit('click')"
   >
-    <!-- 사번 -->
+    <!-- 사번 (앞 4글자 + *** + 뒤 3글자) -->
     <div class="text-sm text-gray-600 font-medium text-left truncate">
-      {{ freelancer.code }}
+      {{
+        freelancer.freelancerId
+          ? freelancer.freelancerId.slice(0, 4) +
+            freelancer.freelancerId.slice(-3)
+          : ""
+      }}
     </div>
 
     <!-- 프로필 -->
