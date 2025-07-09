@@ -49,7 +49,7 @@
                 수정
               </button>
               <button
-                @click="remove(certificate.certificateName)"
+                @click="requestDelete(certificate.certificateName)"
                 class="px-3 py-1 bg-red-200 text-red-700 rounded-md font-medium transition-colors duration-200 hover:bg-red-300"
               >
                 삭제
@@ -90,15 +90,27 @@
       @close="closeEditModal"
       @submit="handleEditSubmit"
     />
+
+    <!-- 삭제 확인 모달 -->
+    <ConfirmDeleteModal
+      v-if="showDeleteModal"
+      :message="`자격증 '${targetToDelete}'을 삭제하시겠습니까?`"
+      confirmText="삭제"
+      width="w-[600px]"
+      @confirm="confirmDelete"
+      @close="cancelDelete"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useToast } from "vue-toastification";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import Pagination from "@/components/Pagination.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import CertificateTypeModal from "@/features/admin/components/CertificateTypeModal.vue";
+import ConfirmDeleteModal from "@/features/squad/components/ConfirmDeleteModal.vue";
 import {
   fetchCertificates,
   deleteCertificate,
@@ -106,20 +118,20 @@ import {
   updateCertificate,
 } from "@/api/member.js";
 
-// 상태 변수
+const toast = useToast();
 const originalCertificates = ref([]);
 const certificates = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 10;
-
-// 등록 모달 제어
 const isRegisterModalOpen = ref(false);
+const isEditModalOpen = ref(false);
+const selectedCertificate = ref(null);
+const showDeleteModal = ref(false);
+const targetToDelete = ref(null);
+
 const openRegisterModal = () => (isRegisterModalOpen.value = true);
 const closeRegisterModal = () => (isRegisterModalOpen.value = false);
 
-// 수정 모달 제어
-const isEditModalOpen = ref(false);
-const selectedCertificate = ref(null);
 const edit = (certificate) => {
   selectedCertificate.value = { ...certificate };
   isEditModalOpen.value = true;
@@ -129,18 +141,39 @@ const closeEditModal = () => {
   selectedCertificate.value = null;
 };
 
-// 등록 처리
+const requestDelete = (certificateName) => {
+  targetToDelete.value = certificateName;
+  showDeleteModal.value = true;
+};
+const cancelDelete = () => {
+  showDeleteModal.value = false;
+  targetToDelete.value = null;
+};
+const confirmDelete = async () => {
+  try {
+    await deleteCertificate(targetToDelete.value);
+    await loadCertificates();
+    toast.success("자격증이 삭제되었습니다.");
+  } catch (error) {
+    toast.error("삭제에 실패했습니다.");
+    console.error("삭제 실패:", error);
+  } finally {
+    cancelDelete();
+  }
+};
+
 const handleRegisterSubmit = async (newCertificate) => {
   try {
     await registerCertificate(newCertificate);
     await loadCertificates();
+    toast.success("자격증이 등록되었습니다.");
     closeRegisterModal();
   } catch (e) {
     console.error("등록 실패:", e);
+    toast.error("자격증 등록에 실패했습니다.");
   }
 };
 
-// 수정 처리
 const handleEditSubmit = async (updatedCertificate) => {
   try {
     await updateCertificate(selectedCertificate.value.certificateName, {
@@ -148,26 +181,25 @@ const handleEditSubmit = async (updatedCertificate) => {
       score: updatedCertificate.score,
     });
     await loadCertificates();
+    toast.success("자격증 정보가 수정되었습니다.");
     closeEditModal();
   } catch (e) {
     console.error("수정 실패:", e);
+    toast.error("자격증 수정에 실패했습니다.");
   }
 };
 
-// 자격증 목록 조회
 const loadCertificates = async () => {
   const res = await fetchCertificates();
   originalCertificates.value = res.data.data;
   certificates.value = [...originalCertificates.value];
 };
 
-// 검색
 const handleSearch = (keyword) => {
   if (!keyword) {
     certificates.value = [...originalCertificates.value];
     return;
   }
-
   const trimmed = keyword.trim().toLowerCase();
   certificates.value = originalCertificates.value.filter((c) =>
     c.certificateName?.toLowerCase().includes(trimmed),
@@ -175,14 +207,6 @@ const handleSearch = (keyword) => {
   currentPage.value = 1;
 };
 
-// 삭제
-const remove = async (certificateName) => {
-  if (!confirm("정말 삭제하시겠습니까?")) return;
-  await deleteCertificate(certificateName);
-  await loadCertificates();
-};
-
-// 페이징 계산
 const pagedCertificates = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   return certificates.value.slice(start, start + itemsPerPage);
@@ -194,7 +218,6 @@ const changePage = (page) => {
   currentPage.value = page;
 };
 
-// 초기 로딩
 onMounted(loadCertificates);
 </script>
 
@@ -202,7 +225,6 @@ onMounted(loadCertificates);
 .page-layout {
   @apply relative flex;
 }
-
 .content-wrapper {
   @apply flex-1 px-[180px] py-12 max-w-[970px];
 }
