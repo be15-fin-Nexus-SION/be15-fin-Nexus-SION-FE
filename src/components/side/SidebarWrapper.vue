@@ -26,6 +26,7 @@ const rawItems = computed(() => {
         { label: "고객사 관리", to: "/admin/clients" },
         { label: "구간별 단가 관리", to: "/admin/grade-per-unit-price" },
         { label: "초기 스택 점수 관리", to: "/admin/initial-tech-stack" },
+        { label: "자격증 종류 관리", to: "/admin/certificates" },
       ]
     : [
         { label: "기술 스택별 구성원", to: "/statistics/stack/member-count" },
