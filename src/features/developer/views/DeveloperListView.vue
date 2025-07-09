@@ -1,7 +1,13 @@
 <template>
   <div class="max-w-5xl mx-auto py-10 px-4 space-y-6">
+    <!-- 🔽 헤더 영역 -->
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold">개발자 목록</h1>
+      <div class="flex items-center gap-4">
+        <h1 class="text-2xl font-bold">개발자 목록</h1>
+        <button @click="goToFreelancerList" class="text-sm text-blue-500">
+          프리랜서 목록
+        </button>
+      </div>
       <PrimaryButton label="개발자 등록" @click="goToAdd" />
     </div>
 
@@ -12,7 +18,7 @@
           @search="onSearchKeywordChange"
         />
       </div>
-      <div class="w-16">
+      <div class="w-20">
         <SortDropdown
           :options="sortOptions"
           :defaultValue="sortOptions.find((opt) => opt.value === sortBy)"
@@ -41,15 +47,35 @@
       <table class="min-w-full text-sm mt-4">
         <thead>
           <tr class="text-gray-500 border-b">
-            <th class="p-2 text-left w-[14%]">사번</th>
-            <th class="p-2 text-left w-[19%]">이름</th>
-            <th class="p-2 text-left w-[19%]">부서</th>
-            <th class="p-2 text-left w-[18%]">직급</th>
-            <th class="p-2 text-left w-[15%]">주요 기술</th>
-            <th class="p-2 text-left w-[15%]">등급</th>
-            <th class="p-2 text-left w-[15%]">
+            <th class="p-2 text-center w-[12%]">사번</th>
+            <th class="p-2 text-center w-[10%]">
               <SortDropdown
-                class="w-36 text-gray-500"
+                :options="roleOptions"
+                :defaultValue="
+                  roleOptions.find((opt) => opt.value === roleFilter)
+                "
+                @change="onRoleFilterChange"
+                trigger-label="유형"
+              />
+            </th>
+            <th class="p-2 text-center w-[22%]">이름</th>
+            <th class="p-2 text-center w-[19%]">부서</th>
+            <th class="p-2 text-center w-[19%]">직급</th>
+            <th class="p-2 text-center w-[15%]">주요 기술</th>
+            <th class="p-2 text-center w-[12%]">
+              <SortDropdown
+                class="w-20 text-gray-500"
+                :options="gradeOptions"
+                :defaultValue="
+                  gradeOptions.find((opt) => opt.value === gradeFilter)
+                "
+                @change="onGradeFilterChange"
+                trigger-label="등급"
+              />
+            </th>
+            <th class="p-2 text-center w-[15%]">
+              <SortDropdown
+                class="w-20 text-gray-500"
                 :options="statusOptions"
                 :defaultValue="
                   statusOptions.find((opt) => opt.value === statusFilter)
@@ -67,42 +93,73 @@
             class="border-b py-4 hover:bg-gray-50 cursor-pointer"
             @click="goToDetail(developer.employeeId)"
           >
-            <td class="p-4">{{ developer.employeeId }}</td>
-            <td class="p-4 flex items-center gap-2">
-              <img
-                :src="developer.profileImageUrl || fallbackImage"
-                class="w-8 h-8 rounded-full"
-              />
-              {{ developer.name }}
-            </td>
-            <td class="p-4">{{ developer.department }}</td>
-            <td class="p-4">{{ developer.position }}</td>
-            <td class="p-4 text-xs font-medium">
-              <TechBadge
-                class="p-2 text-xs font-medium"
-                :label="developer.topTechStackName"
-              />
-            </td>
-            <td class="p-4">{{ developer.grade }}</td>
-            <td class="p-4 relative" @click.stop>
-              <div class="relative inline-block">
-                <button
-                  @click="toggleDropdown(index)"
-                  class="text-xs px-3 py-1 rounded-full font-medium focus:outline-none"
-                  :class="{
-                    'bg-yellow-100 text-yellow-700':
-                      developer.status === '대기중',
-                    'bg-green-100 text-green-700':
-                      developer.status === '투입중',
-                    'bg-gray-100 text-gray-600': developer.status === '비활성',
-                  }"
-                >
-                  {{ developer.status }}
-                </button>
+            <!-- 사번 -->
+            <td class="p-4 text-center">{{ developer.employeeId }}</td>
 
+            <!-- 유형 -->
+            <td class="p-4 text-center">{{ developer.role }}</td>
+
+            <!-- 이름 + 프로필 이미지 -->
+            <td class="p-4 px-12 text-center align-middle">
+              <div class="flex items-center justify-start gap-3">
+                <img
+                  :src="developer.profileImageUrl || fallbackImage"
+                  class="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 bg-gray-200"
+                  alt="프로필"
+                />
+                <div>{{ developer.name }}</div>
+              </div>
+            </td>
+
+            <!-- 부서 -->
+            <td class="p-4 text-center">{{ developer.department }}</td>
+
+            <!-- 직급 -->
+            <td class="p-4 text-center">{{ developer.position }}</td>
+
+            <!-- 주요 기술 -->
+            <td class="p-4 text-center text-xs font-medium">
+              <div class="flex justify-center">
+                <TechBadge
+                  v-if="developer.topTechStackName"
+                  class="p-2 text-xs font-medium"
+                  :label="developer.topTechStackName"
+                />
+                <span v-else>-</span>
+              </div>
+            </td>
+
+            <!-- 등급 -->
+            <td class="p-4 text-center">
+              <div class="flex justify-center">
+                <GradeBadge :label="developer.grade" />
+              </div>
+            </td>
+
+            <!-- 현재 상태 -->
+            <td class="p-4 relative text-center" @click.stop>
+              <div class="relative">
+                <div class="flex justify-center">
+                  <button
+                    @click="toggleDropdown(index)"
+                    class="text-xs px-3 py-1 rounded-full font-medium focus:outline-none"
+                    :class="{
+                      'bg-yellow-100 text-yellow-700':
+                        developer.status === '대기중',
+                      'bg-green-100 text-green-700':
+                        developer.status === '투입중',
+                      'bg-gray-100 text-gray-600':
+                        developer.status === '비활성',
+                    }"
+                  >
+                    {{ developer.status }}
+                  </button>
+                </div>
+
+                <!-- 상태 변경 드롭다운 -->
                 <ul
                   v-if="openDropdownIndex === index"
-                  class="absolute top-full z-10 mt-1 w-24 bg-white border border-gray-200 rounded-md shadow text-sm left-1/2 -translate-x-1/2"
+                  class="absolute top-full left-1/2 -translate-x-1/2 z-10 mt-1 w-24 bg-white border border-gray-200 rounded-md shadow text-sm"
                 >
                   <li
                     v-for="option in statusOptions.slice(1)"
@@ -135,10 +192,13 @@ import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import { useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
+import GradeBadge from "@/components/badge/GradeBadge.vue";
 
 const router = useRouter();
 const developers = ref([]);
 const statusFilter = ref("");
+const gradeFilter = ref("");
+const roleFilter = ref("");
 const sortBy = ref("employeeId");
 const sortAsc = ref(true);
 const searchKeyword = ref("");
@@ -151,11 +211,26 @@ const sortOptions = [
   { name: "입사일순", value: "joinedAt" },
 ];
 
+const gradeOptions = [
+  { name: "전체", value: "" },
+  { name: "S", value: "S" },
+  { name: "A", value: "A" },
+  { name: "B", value: "B" },
+  { name: "C", value: "C" },
+  { name: "D", value: "D" },
+];
+
 const statusOptions = [
   { name: "전체", value: "" },
   { name: "대기중", value: "AVAILABLE" },
   { name: "투입중", value: "IN_PROJECT" },
   { name: "비활성", value: "UNAVAILABLE" },
+];
+
+const roleOptions = [
+  { name: "전체", value: "" },
+  { name: "내부 개발자", value: "INSIDER" },
+  { name: "프리랜서", value: "OUTSIDER" },
 ];
 
 const statusLabel = (status) => {
@@ -171,11 +246,24 @@ const statusLabel = (status) => {
   }
 };
 
+const roleLabel = (role) => {
+  switch (role) {
+    case "INSIDER":
+      return "EMP";
+    case "OUTSIDER":
+      return "FREE";
+    default:
+      return "-";
+  }
+};
+
 const fetchDevelopers = async () => {
   try {
     const res = await fetchDeveloperList({
       keyword: searchKeyword.value,
       status: statusFilter.value,
+      gradeCode: gradeFilter.value,
+      role: roleFilter.value,
       sortBy: sortBy.value,
       sortDir: sortAsc.value ? "asc" : "desc",
       page: 0,
@@ -188,6 +276,7 @@ const fetchDevelopers = async () => {
       position: dev.position || "-",
       department: dev.department || "-",
       employeeId: dev.employeeId,
+      role: roleLabel(dev.role),
       grade: dev.grade_code || "-",
       status: statusLabel(dev.status),
       profileImageUrl: dev.profileImageUrl,
@@ -198,6 +287,10 @@ const fetchDevelopers = async () => {
     console.error("개발자 목록 불러오기 실패:", e);
   }
 };
+
+function goToFreelancerList() {
+  router.push({ name: "freelancer-list" });
+}
 
 function toggleDropdown(index) {
   openDropdownIndex.value = openDropdownIndex.value === index ? null : index;
@@ -228,6 +321,14 @@ function onStatusFilterChange(selected) {
   statusFilter.value = selected.value;
 }
 
+function onGradeFilterChange(selected) {
+  gradeFilter.value = selected.value;
+}
+
+function onRoleFilterChange(selected) {
+  roleFilter.value = selected.value;
+}
+
 function handleClickOutside() {
   openDropdownIndex.value = null;
 }
@@ -246,5 +347,8 @@ onBeforeUnmount(() => {
 });
 
 onMounted(fetchDevelopers);
-watch([statusFilter, sortBy, sortAsc, searchKeyword], fetchDevelopers);
+watch(
+  [statusFilter, gradeFilter, roleFilter, sortBy, sortAsc, searchKeyword],
+  fetchDevelopers,
+);
 </script>

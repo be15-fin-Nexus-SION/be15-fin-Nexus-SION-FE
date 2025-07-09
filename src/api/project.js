@@ -1,19 +1,17 @@
 import api from "./axios";
 
-/**
- * 프로젝트 등록 API
- * @param {Object} payload ProjectRegisterRequest DTO 형식의 객체
- * @returns {Promise}
- */
 export function registerProject(payload) {
   return api.post("/projects", payload);
 }
 
-/**
- * 프로젝트 목록 조회 API (필터 조건 포함)
- * @param {Object} params 필터 조건 및 페이지 정보
- * @returns {Promise}
- */
+export function updateProject(projectCode, payload) {
+  return api.put(`/projects/${projectCode}`, payload);
+}
+
+export function deleteProject(projectCode) {
+  return api.delete(`/projects/${projectCode}`);
+}
+
 export function fetchProjectList({
   keyword,
   maxBudget,
@@ -32,4 +30,16 @@ export function fetchProjectList({
     page,
     size,
   });
+}
+
+export function fetchProjectDetail(projectCode) {
+  return api.get(`/projects/list/${projectCode}`);
+}
+
+export function updateProjectStatus(projectCode, status) {
+  return api.put(`/projects/${projectCode}/status/${status}`);
+}
+
+export function uploadDocument(formData) {
+  return api.post("/documents/upload", formData);
 }

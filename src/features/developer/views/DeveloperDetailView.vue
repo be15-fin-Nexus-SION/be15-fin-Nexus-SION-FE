@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-7xl mx-auto py-10 px-4 space-y-8">
+  <div class="max-w-5xl mx-auto py-10 px-4 space-y-8">
     <!-- 상단 버튼 -->
     <div class="flex items-center justify-between">
       <div class="text-xl font-semibold">개발자 상세</div>

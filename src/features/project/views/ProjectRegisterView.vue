@@ -13,7 +13,6 @@ import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import { useRouter } from "vue-router";
 
 const form = reactive({
-  projectCode: "",
   projectName: "",
   domain: "",
   overview: "",
@@ -71,7 +70,7 @@ function handleFileUpload(e) {
     form.file = null;
     form.fileName = "";
     form.fileUrl = "";
-    e.target.value = ""; // 파일 input 초기화
+    e.target.value = "";
     return;
   }
 
@@ -105,10 +104,9 @@ async function submitForm() {
   const scrollAndToast = (id, message) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
     showErrorToast(message);
+    scrollToTop();
   };
 
-  if (!form.projectCode.trim())
-    return scrollAndToast("project-code", "프로젝트 코드를 입력해주세요");
   if (!form.projectName.trim())
     return scrollAndToast("project-name", "프로젝트명을 입력해주세요");
   if (!form.domain) return scrollAndToast("domain", "도메인을 선택해주세요");
@@ -116,6 +114,8 @@ async function submitForm() {
     return scrollAndToast("overview", "개요를 입력해주세요");
   if (!form.clientCode)
     return scrollAndToast("client", "고객사를 선택해주세요");
+  if (!form.file)
+    return scrollAndToast("file-upload", "요구사항 명세서를 업로드해주세요");
   if (!form.startDate)
     return scrollAndToast("start-date", "시작일을 선택해주세요");
   if (!form.endDate) return scrollAndToast("end-date", "종료일을 선택해주세요");
@@ -144,7 +144,6 @@ async function submitForm() {
     }
 
     const payload = {
-      projectCode: form.projectCode,
       title: form.projectName,
       domainName: form.domain,
       description: form.overview,
@@ -170,15 +169,11 @@ async function submitForm() {
     await registerProject(payload);
     showSuccessToast("프로젝트가 성공적으로 등록되었습니다.");
     setTimeout(() => {
-      router.push("/projects"); // ✅ 프로젝트 목록 페이지 경로에 맞게 수정
-    }, 1000); // ✅ 메시지 보이게 1초 대기 후 이동
+      router.push("/projects");
+    }, 1000);
   } catch (e) {
-    if (e?.response?.data?.message?.includes("이미 존재")) {
-      scrollToTop();
-      showErrorToast("이미 동일한 코드가 존재합니다");
-    } else {
-      showErrorToast("프로젝트 등록 중 오류가 발생했습니다");
-    }
+    showErrorToast("프로젝트 등록 중 오류가 발생했습니다");
+    scrollToTop();
   }
 }
 </script>
@@ -212,18 +207,8 @@ async function submitForm() {
     >
       <h1 class="text-2xl font-bold mb-6">프로젝트 등록</h1>
 
-      <!-- 프로젝트 코드 & 프로젝트 명 & 도메인 -->
-      <div class="grid grid-cols-3 gap-4 mb-4">
-        <div>
-          <label class="block text-sm font-semibold mb-1">프로젝트 코드</label>
-          <input
-            v-model="form.projectCode"
-            id="project-code"
-            type="text"
-            class="input"
-            placeholder="예: PJT001"
-          />
-        </div>
+      <!-- 프로젝트 명 & 도메인 -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
           <label class="block text-sm font-semibold mb-1">프로젝트 명</label>
           <input

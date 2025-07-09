@@ -5,6 +5,7 @@ export const developerRoutes = [
     component: () => import("./views/DeveloperListView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {
@@ -21,6 +22,7 @@ export const developerRoutes = [
     component: () => import("./views/DeveloperAddView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {

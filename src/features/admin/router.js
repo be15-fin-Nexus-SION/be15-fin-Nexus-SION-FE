@@ -5,6 +5,7 @@ export const adminRoutes = [
     component: () => import("./views/AdminDomainsView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {
@@ -13,6 +14,7 @@ export const adminRoutes = [
     component: () => import("./views/AdminJobsView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {
@@ -21,6 +23,7 @@ export const adminRoutes = [
     component: () => import("./views/AdminTechStacksView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {
@@ -29,6 +32,7 @@ export const adminRoutes = [
     component: () => import("./views/SetGradePerUnitPriceView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {
@@ -37,6 +41,7 @@ export const adminRoutes = [
     component: () => import("./views/SetInitialTechStackScoreView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {
@@ -45,6 +50,7 @@ export const adminRoutes = [
     component: () => import("./views/AdminClientsView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 ];

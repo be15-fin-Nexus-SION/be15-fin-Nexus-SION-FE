@@ -14,6 +14,11 @@ const totalPages = ref(1);
 const perPage = 4;
 const selectedFilter = ref({});
 
+// 👉 상세 이동 함수 추가
+function goToDetail(projectCode) {
+  router.push({ name: "project-detail", params: { projectCode } });
+}
+
 async function fetchProjects(filter) {
   const requestPayload = {
     ...filter,
@@ -21,7 +26,7 @@ async function fetchProjects(filter) {
     size: perPage,
     statuses: filter.status ? [filter.status] : [],
     maxPeriodInMonth: filter.period,
-    maxBudget: filter.budget * 10000, // ✅ 원 단위로 변환
+    maxBudget: filter.budget * 10000,
     maxNumberOfMembers: filter.memberCount,
   };
 
@@ -86,6 +91,7 @@ onMounted(() => {
           v-for="project in pagedProjects"
           :key="project.projectCode"
           :project="project"
+          @click="goToDetail(project.projectCode)"
         />
       </div>
 
