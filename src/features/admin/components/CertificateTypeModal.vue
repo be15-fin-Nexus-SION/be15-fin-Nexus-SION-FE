@@ -54,7 +54,9 @@
 
 <script setup>
 import { ref, watch } from "vue";
+import { useToast } from "vue-toastification";
 
+const toast = useToast();
 const emit = defineEmits(["close", "submit"]);
 const props = defineProps({
   initialValue: {
@@ -88,7 +90,7 @@ const submit = () => {
     !form.value.issuingOrganization ||
     form.value.score === null
   ) {
-    alert("모든 항목을 입력해주세요.");
+    toast.error("모든 항목을 입력해주세요.");
     return;
   }
   emit("submit", { ...form.value });
