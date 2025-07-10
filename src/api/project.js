@@ -58,6 +58,17 @@ export function uploadDocument(formData) {
   return api.post("/documents/upload", formData);
 }
 
+export async function analyzeProject(projectCode, file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return api.post(`/projects/${projectCode}/analyze`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+}
+
 export function addWorkHistories(workId, payload) {
   return api.put(`/dev-project-works/${workId}/histories`, payload);
 }
