@@ -5,7 +5,6 @@ import { getNotifications } from "@/api/notification.js";
 import { startLoading } from "@/composable/useLoadingBar.js";
 import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
 import { useNotificationStore } from "@/stores/notification.js";
-import { useAuthStore } from "@/stores/auth.js";
 import { clearNotificationBadge } from "@/features/notification/utils/notificationBadge.js";
 import Close_LG from "@/assets/icons/Close_LG.svg";
 

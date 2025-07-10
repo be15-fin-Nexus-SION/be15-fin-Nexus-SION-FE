@@ -1,5 +1,5 @@
 <script setup>
-import { toRef, computed } from "vue";
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 
 const props = defineProps({
@@ -38,24 +38,28 @@ const timeAgo = computed(() => {
 function goToRelatedPage() {
   let url = "";
 
-  const type = props.notification.type;
+  const type = props.notification.notificationType;
+  console.log(type);
 
   switch (type) {
-    case "FOLLOW":
-      url = `/members/${props.notification.senderId}`;
+    case "TASK_UPLOAD_REQUEST":
+      url = `/projects/history/register/${props.notification.linkedContentId}`;
       break;
-    case "COMMENT":
-    case "RECOMMENT":
-      // 댓글/답글 알림은 아직 이동 페이지 없음 → 비워둠
+    case "FP_ANALYSIS_COMPLETE":
+    case "FP_ANALYSIS_FAILURE":
+      url = `/projects/${props.notification.linkedContentId}`;
+      break;
+    case "SQUAD_SHARE":
+      url = `/squads/${props.notification.linkedContentId}`;
+      break;
+    case "GRADE_CHANGE":
+      // 이동하지 않음
       return;
-    case "FEED_LIKE":
-      url = `/feed/${props.notification.relatedId}`;
+    case "TASK_APPROVAL_REQUEST":
+      url = `/projects/works/approval/${props.notification.linkedContentId}`;
       break;
-    case "JJURE_LIKE":
-      url = `/jjure/${props.notification.relatedId}`;
-      break;
-    case "BIRTHDAY":
-      url = `/profile`;
+    case "CERTIFICATION_APPROVAL_REQUEST":
+      url = `/admin/certificates/approval`;
       break;
     default:
       return;
