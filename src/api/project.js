@@ -62,8 +62,13 @@ export function rejectWorkHistory(id, adminId) {
   });
 }
 
-export function getMyProjectWorkRequests() {
-  return api.get("/dev-project-works/me");
+export function getMyProjectWorkRequests(page = 0, size = 10) {
+  return api.get("/dev-project-works/me", {
+    params: {
+      page,
+      size,
+    },
+  });
 }
 
 export function getProjectHistoryDetail(projectWorkId) {

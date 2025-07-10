@@ -202,7 +202,7 @@ onMounted(() => {
       <template v-if="memberRole !== 'ADMIN' && activeTab === 'history'">
         <div class="page-full">
           <div class="page-container">
-            <ProjectHistoryList :histories="projectHistories" />
+            <ProjectHistoryList :histories="projectHistories.content || []" />
           </div>
         </div>
       </template>
@@ -292,9 +292,5 @@ onMounted(() => {
 
 .page-container {
   @apply flex flex-col w-[782px] h-fit items-center px-[30px] py-[30px] gap-[30px];
-}
-
-.page-title {
-  @apply w-full text-headlineLg flex px-[12px] justify-start;
 }
 </style>

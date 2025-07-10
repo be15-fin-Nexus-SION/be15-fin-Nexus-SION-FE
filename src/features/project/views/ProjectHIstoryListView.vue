@@ -2,18 +2,30 @@
 import { onMounted, ref } from "vue";
 import { getMyProjectWorkRequests } from "@/api/project";
 import ProjectHistoryList from "@/features/project/components/ProjectHistoryList.vue";
+import Pagination from "@/components/Pagination.vue";
 
-const projectHistories = ref([]);
+const projectHistories = ref({
+  content: [],
+  currentPage: 0,
+  totalPages: 1,
+});
 
-onMounted(async () => {
+const currentPage = ref(1);
+
+async function fetchHistories(page = 1) {
   try {
-    const res = await getMyProjectWorkRequests();
+    const res = await getMyProjectWorkRequests(page - 1, 10);
     if (res.data.success) {
       projectHistories.value = res.data.data;
+      currentPage.value = res.data.data.currentPage + 1;
     }
   } catch (err) {
     console.error("요청 목록 불러오기 실패:", err);
   }
+}
+
+onMounted(() => {
+  fetchHistories();
 });
 </script>
 
@@ -21,7 +33,14 @@ onMounted(async () => {
   <div class="page-full">
     <div class="page-container">
       <h1 class="page-title">프로젝트 이력 등록 요청 목록</h1>
-      <ProjectHistoryList :histories="projectHistories" />
+
+      <ProjectHistoryList :histories="projectHistories.content || []" />
+
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="projectHistories.totalPages"
+        @change="fetchHistories"
+      />
     </div>
   </div>
 </template>
