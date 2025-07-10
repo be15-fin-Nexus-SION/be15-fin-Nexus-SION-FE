@@ -10,7 +10,7 @@ export const projectRoutes = [
   {
     path: "projects/register",
     name: "project-register",
-    component: () => import("./views/ProjectRegisterView.vue"), // ✅ 등록 뷰 추가
+    component: () => import("./views/ProjectRegisterView.vue"),
     meta: {
       requiresAuth: true,
     },
@@ -21,6 +21,33 @@ export const projectRoutes = [
     component: () => import("./views/ProjectDetailView.vue"),
     meta: {
       requiresAuth: true,
+    },
+  },
+  {
+    path: "/projects/history/register/:id",
+    name: "project-history-register",
+    component: () => import("./views/ProjectHistoryRegisterView.vue"),
+    meta: {
+      requiresAuth: true,
+      roles: ["INSIDER", "OUTSIDER"],
+    },
+  },
+  {
+    path: "/projects/history/list",
+    name: "project-history-list",
+    component: () => import("./views/ProjectHistoryListView.vue"),
+    meta: {
+      requiresAuth: true,
+      roles: ["INSIDER", "OUTSIDER"],
+    },
+  },
+  {
+    path: "/projects/history/:id",
+    name: "project-history-detail",
+    component: () => import("./views/ProjectHistoryDetailView.vue"),
+    meta: {
+      requiresAuth: true,
+      roles: ["INSIDER", "OUTSIDER"],
     },
   },
 ];
