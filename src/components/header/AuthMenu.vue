@@ -54,6 +54,10 @@ const handleLogout = async () => {
     showErrorToast("로그아웃이 실패했습니다. 다시 시도해주세요.");
   }
 };
+
+function handleNotificationModal() {
+  emit("open-notification-modal");
+}
 </script>
 
 <template>

@@ -13,7 +13,7 @@
 
       <!-- 우측: 인증 메뉴 -->
       <div class="right-area">
-        <AuthMenu />
+        <AuthMenu @open-notification-modal="handleNotificationModal" />
       </div>
     </div>
   </header>
@@ -22,6 +22,12 @@
 <script setup>
 import HeaderNav from "./HeaderNav.vue";
 import AuthMenu from "./AuthMenu.vue";
+
+const emit = defineEmits(["open-notification-modal"]);
+
+function handleNotificationModal() {
+  emit("open-notification-modal");
+}
 </script>
 
 <style scoped>
