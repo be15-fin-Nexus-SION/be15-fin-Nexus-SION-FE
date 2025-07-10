@@ -5,7 +5,6 @@ import { getNotifications } from "@/api/notification.js";
 import { startLoading } from "@/composable/useLoadingBar.js";
 import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
 import { useNotificationStore } from "@/stores/notification.js";
-import { clearNotificationBadge } from "@/features/notification/utils/notificationBadge.js";
 import Close_LG from "@/assets/icons/Close_LG.svg";
 
 const props = defineProps({
@@ -40,12 +39,6 @@ const fetchFn = async (page) => {
 const { isLastPage } = useInfiniteScroll({
   fetchFn,
   scrollTargetRef: scrollContainer,
-});
-
-watch(isModalOpenRef, (newVal, oldVal) => {
-  if (newVal !== oldVal && newVal === true) {
-    clearNotificationBadge();
-  }
 });
 
 function handleRead() {}

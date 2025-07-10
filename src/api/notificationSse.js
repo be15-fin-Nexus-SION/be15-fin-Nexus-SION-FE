@@ -2,7 +2,6 @@
 import { showNotificationToast } from "@/utills/toast.js";
 import { useAuthStore } from "@/stores/auth.js";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { showNotificationBadge } from "@/features/notification/utils/notificationBadge.js";
 
 let eventSource = null;
 let lastPing = Date.now();
@@ -60,7 +59,6 @@ export function subscribeToNotification(onMessageCallback) {
       // store 업데이트
       onMessageCallback(data);
       showNotificationToast(data.content);
-      showNotificationBadge();
     } catch (err) {
       console.error("❌ [SSE] 알림 파싱 실패:", err);
     }

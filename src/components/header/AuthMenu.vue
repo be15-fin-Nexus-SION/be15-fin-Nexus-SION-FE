@@ -1,12 +1,12 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth.js";
 import { useRouter } from "vue-router";
 import { logout } from "@/api/member.js";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
-import BasicModal from "@/components/modal/BasicModal.vue";
 import BasicProfile from "@/assets/icons/Basic_Profile.svg";
 import AuthModal from "@/components/modal/AuthModal.vue";
+import { useNotificationStore } from "@/stores/notification.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -105,7 +105,7 @@ function handleNotificationModal() {
 }
 
 .profile {
-  @apply w-[60px] h-[60px] flex items-center justify-center;
+  @apply relative w-[60px] h-[60px] flex items-center justify-center;
   cursor: pointer;
 }
 </style>
