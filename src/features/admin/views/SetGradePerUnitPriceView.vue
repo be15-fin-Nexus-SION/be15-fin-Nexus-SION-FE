@@ -5,7 +5,6 @@ import { getUnitPriceByGrade, setUnitPriceByGrade } from "@/api/member.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import UnitPricePerGradeList from "@/features/admin/components/UnitPricePerGradeList.vue";
-import ExistSquadModal from "@/features/squad/components/ExistSquadModal.vue";
 
 // ✅ [1] 상수 선언
 const GRADE_CODES = Object.freeze(["S", "A", "B", "C", "D"]);
@@ -106,26 +105,10 @@ function validate() {
 }
 
 onMounted(fetchGradeList);
-
-// todo :  옮기기 !!
-const showSquadModal = ref(true);
-
-const handleSquadSelect = (squadCode) => {
-  // ✅ todo : 여기에서 페이지 이동, 해당 스쿼드 코드 포함
-};
 </script>
 
 <template>
   <div class="page-layout">
-    <!-- todo :  옮기기 !! -->
-    <ExistSquadModal
-      v-show="showSquadModal"
-      :is-modal-open="showSquadModal"
-      @close="showSquadModal = false"
-      @select="handleSquadSelect"
-      project-code="ha_1_4"
-      project-title="뭐시기타이틀"
-    />
     <SidebarWrapper viewType="adminSetting" />
     <div class="content-wrapper">
       <h1 class="text-headlineMd">구간별 단가 설정</h1>
