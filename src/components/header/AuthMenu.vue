@@ -6,6 +6,7 @@ import { logout } from "@/api/member.js";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import BasicModal from "@/components/modal/BasicModal.vue";
 import BasicProfile from "@/assets/icons/Basic_Profile.svg";
+import AuthModal from "@/components/modal/AuthModal.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -57,6 +58,7 @@ const handleLogout = async () => {
 
 function handleNotificationModal() {
   emit("open-notification-modal");
+  closeModal();
 }
 </script>
 
@@ -67,14 +69,16 @@ function handleNotificationModal() {
         <img :src="BasicProfile" alt="기본프로필이미지" />
       </div>
 
-      <BasicModal
+      <AuthModal
         v-if="showModal"
         :top-label="
           authStore.memberRole === 'ADMIN' ? '관리자 설정' : '내 정보'
         "
+        middle-label="알림"
         bottom-label="로그아웃"
         :style="modalPosition"
         @top="authStore.memberRole === 'ADMIN' ? goToAdminPage() : goToMyPage()"
+        @middle="handleNotificationModal"
         @bottom="handleLogout"
         @close="closeModal"
       />

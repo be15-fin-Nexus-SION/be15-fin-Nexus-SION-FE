@@ -7,6 +7,10 @@ defineProps({
     type: String,
     default: "수정하기",
   },
+  middleLabel: {
+    type: String,
+    default: "알림",
+  },
   bottomLabel: {
     type: String,
     default: "삭제하기",
@@ -17,7 +21,7 @@ defineOptions({
   inheritAttrs: false,
 });
 
-const emit = defineEmits(["top", "bottom", "close"]);
+const emit = defineEmits(["top", "middle", "bottom", "close"]);
 
 const containerRef = ref(null);
 
@@ -40,6 +44,10 @@ onBeforeUnmount(() => {
   <div ref="containerRef" class="popup-container" :style="$attrs.style">
     <button class="action-button action-button--top" @click="emit('top')">
       <span class="label">{{ topLabel }}</span>
+      <slot name="topIcon" />
+    </button>
+    <button class="action-button action-button--top" @click="emit('middle')">
+      <span class="label">{{ middleLabel }}</span>
       <slot name="topIcon" />
     </button>
     <button class="action-button action-button--danger" @click="emit('bottom')">
