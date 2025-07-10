@@ -66,7 +66,7 @@
     <!-- 등록 버튼 -->
     <div class="flex justify-end mt-4">
       <button
-        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition"
+        class="bg-primary px-5 py-2 text-white rounded-md"
         :disabled="loading"
         @click="handleRegister"
       >
@@ -77,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { registerFreelancerAsMember } from "@/api/freelancer";
 import { showSuccessToast, showErrorToast } from "@/utills/toast";
 
