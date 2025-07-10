@@ -4,6 +4,11 @@ export const useNotificationStore = defineStore("notification", {
   state: () => ({
     notifications: [],
   }),
+  getters: {
+    hasUnreadNotification(state) {
+      return state.notifications.some((n) => !n.isRead);
+    },
+  },
   actions: {
     setNotifications(newList) {
       this.notifications = newList;

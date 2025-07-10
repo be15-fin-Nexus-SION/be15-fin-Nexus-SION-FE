@@ -17,8 +17,8 @@ const handleLogin = async (payload) => {
     showSuccessToast("로그인 되었습니다.");
     await router.push("/");
   } catch (error) {
-    console.error("로그인 실패:", error);
-    showErrorToast("로그인에 실패했습니다. 다시 시도해주세요.");
+    console.error("로그인 실패:", error.response.data.message);
+    showErrorToast(error.response.data.message);
   }
 };
 </script>
@@ -29,6 +29,12 @@ const handleLogin = async (payload) => {
       <img src="@/assets/sion-logo.svg" alt="SION Logo" class="logo" />
     </div>
     <LoginForm @submit="handleLogin" />
+    <div class="flex m-4 gap-[8px] text-sm text-gray-500">
+      <span>아이디가 없으신가요?</span>
+      <router-link to="/signup" class="text-primary hover:underline"
+        >회원가입</router-link
+      >
+    </div>
   </div>
 </template>
 
