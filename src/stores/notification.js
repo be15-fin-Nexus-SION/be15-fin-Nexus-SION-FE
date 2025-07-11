@@ -7,6 +7,8 @@ export const useNotificationStore = defineStore("notification", {
   }),
   getters: {
     hasUnreadNotification(state) {
+      if (state.notifications.length === 0) return false;
+
       return state.notifications.some((n) => !n.isRead);
     },
   },

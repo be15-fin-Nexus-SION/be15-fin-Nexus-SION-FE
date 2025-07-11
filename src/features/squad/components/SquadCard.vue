@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import ConfirmDeleteModal from "@/features/squad/components/ConfirmDeleteModal.vue";
+import { shareSquad } from "@/api/notification.js";
 
 const props = defineProps({
   squad: Object,
@@ -32,6 +33,13 @@ const displayedMembers = computed(() =>
 const remainingCount = computed(
   () => props.squad.members.length - MAX_DISPLAY_MEMBERS,
 );
+
+async function handleShareSquad() {
+  await shareSquad({
+    squadCode: props.squad.squadCode,
+    receivers: ["0120250002"],
+  });
+}
 </script>
 
 <template>
@@ -95,7 +103,7 @@ const remainingCount = computed(
       <!-- 하단 버튼 -->
       <div class="flex gap-2 mt-auto">
         <button
-          @click.stop
+          @click.stop="handleShareSquad"
           class="flex-1 px-4 py-2 bg-secondary-green text-white rounded-md font-semibold transition-colors duration-200 hover:bg-secondary-green-hover"
         >
           스쿼드 공유
