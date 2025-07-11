@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import {
@@ -20,6 +20,7 @@ import ConfirmModal from "@/features/squad/components/ConfirmDeleteModal.vue";
 import SquadCommentList from "@/features/squad/components/SquadCommentList.vue";
 import { useAuthStore } from "@/stores/auth";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
+import { useDeveloperModal } from "@/composable/useDeveloperModal.js";
 
 const props = defineProps({
   squadCode: String,
@@ -34,7 +35,6 @@ const showSquadDeleteModal = ref(false);
 const selectedCommentId = ref(null);
 const commentList = ref([]);
 const auth = useAuthStore();
-const route = useRoute();
 const router = useRouter();
 const squadCode = props.squadCode ?? useRoute().params.squadCode;
 const toast = useToast();
@@ -45,7 +45,9 @@ const toggleDropdown = () => {
 
 const editSquad = () => {
   showDropdown.value = false;
-  router.push(`/squads/create/${route.query.projectId}?squadCode=${squadCode}`);
+  router.push(
+    `/squads/create/${squad.value.projectCode}?squadCode=${squadCode}`,
+  );
 };
 
 const deleteSquad = () => {
@@ -228,11 +230,11 @@ onBeforeUnmount(() => {
       <!-- 우측: Squad 정보 -->
       <section class="w-[55%] bg-white rounded-xl shadow p-6 relative">
         <div class="flex justify-between items-start mb-4">
-          <div class="flex items-center gap-2">
+          <div class="flex items-start gap-2">
             <h2 class="text-2xl font-semibold">{{ squad.title }}</h2>
             <span
               v-if="squad.origin === 'AI'"
-              class="text-xs px-2 py-1 rounded-full text-white bg-gradient-to-r from-purple-500 to-sky-400 shadow-sm"
+              class="text-xs px-2 py-1 min-w-[55px] rounded-full text-white bg-gradient-to-r from-purple-500 to-sky-400 shadow-sm text-center mr-2"
             >
               AI 추천
             </span>

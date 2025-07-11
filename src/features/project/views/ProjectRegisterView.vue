@@ -8,7 +8,7 @@ import { fetchAllClientCompanies } from "@/api/clientCompany.js";
 import { fetchAllTechStacks } from "@/api/techstack.js";
 import { fetchAllJobs } from "@/api/job.js";
 import { uploadDocument } from "@/api/document.js";
-import { registerProject } from "@/api/project.js";
+import { analyzeProject, registerProject } from "@/api/project.js";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import { useRouter } from "vue-router";
 
@@ -184,7 +184,9 @@ async function submitForm() {
       })),
     };
 
-    await registerProject(payload);
+    const resp = await registerProject(payload);
+    console.log(resp.data.data);
+    await analyzeProject(resp.data.data.projectCode, form.file);
     showSuccessToast("프로젝트가 성공적으로 등록되었습니다.");
     setTimeout(() => {
       router.push("/projects");

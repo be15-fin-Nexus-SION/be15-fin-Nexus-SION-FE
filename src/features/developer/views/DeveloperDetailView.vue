@@ -3,7 +3,7 @@
     <!-- 상단 버튼 -->
     <div class="flex items-center justify-between">
       <div class="text-xl font-semibold">개발자 상세</div>
-      <div class="space-x-2">
+      <div class="space-x-2" v-if="!props.readonly">
         <button
           class="px-4 py-2 rounded-md bg-primary text-white text-sm"
           @click="goToEdit"
@@ -144,9 +144,17 @@ import {
 import TechBadge from "@/components/badge/TechBadge.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 
+const props = defineProps({
+  employeeId: String,
+  readonly: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const route = useRoute();
 const router = useRouter();
-const employeeId = route.params.employeeId;
+const employeeId = props.employeeId || route.params.employeeId;
 
 const developer = ref(null);
 const techList = ref([]);
