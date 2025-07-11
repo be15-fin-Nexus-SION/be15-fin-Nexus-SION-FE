@@ -185,6 +185,7 @@ import { useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import Pagination from "@/components/Pagination.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const router = useRouter();
 const isLoading = ref(true);
@@ -286,7 +287,6 @@ const fetchDevelopers = async () => {
 
     totalPages.value = pageData?.totalPages ?? 1;
   } catch (e) {
-    console.error("개발자 목록 불러오기 실패:", e);
     developers.value = [];
     totalPages.value = 1;
   } finally {
@@ -333,8 +333,7 @@ const changeStatus = async (index, newStatusLabel, newStatusEnum) => {
     await updateMemberStatus(employeeId, newStatusEnum);
     developers.value[index].status = newStatusLabel;
   } catch (e) {
-    console.error("상태 변경 실패:", e);
-    alert("상태 변경에 실패했습니다.");
+    showErrorToast("상태 변경에 실패했습니다.");
   } finally {
     openDropdownIndex.value = null;
   }
