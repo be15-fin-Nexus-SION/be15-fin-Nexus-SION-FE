@@ -29,11 +29,13 @@ export const useNotificationStore = defineStore("notification", {
         (n) => n.notificationId === notificationId,
       );
       if (!target) return;
+      let originalIsRead = target.isRead;
       try {
         target.isRead = true;
 
         await readANotification(notificationId);
       } catch (err) {
+        target.isRead = originalIsRead;
         console.error("읽음 처리 실패", err);
       }
     },
