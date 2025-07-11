@@ -19,7 +19,6 @@ const showNotificationModal = ref(false);
 
       <NotificationModal
         v-show="showNotificationModal"
-        :is-modal-open="showNotificationModal"
         @close="showNotificationModal = false"
       />
     </main>

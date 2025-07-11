@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { useNotificationStore } from "@/stores/notification.js";
 
 const props = defineProps({
   notification: {
@@ -14,6 +15,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["close"]);
+const notificationStore = useNotificationStore();
 
 const router = useRouter();
 
@@ -35,7 +37,7 @@ const timeAgo = computed(() => {
   return `${weeks}주`;
 });
 
-function goToRelatedPage() {
+async function goToRelatedPage() {
   let url = "";
 
   const type = props.notification.notificationType;
@@ -65,8 +67,10 @@ function goToRelatedPage() {
       return;
   }
 
+  // 읽음 api 요청 보내기
+  await notificationStore.markAsRead(props.notification.notificationId);
   emit("close");
-  router.push(url);
+  await router.push(url);
 }
 </script>
 

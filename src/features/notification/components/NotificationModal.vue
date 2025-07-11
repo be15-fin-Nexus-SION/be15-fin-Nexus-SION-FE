@@ -1,20 +1,12 @@
 <script setup>
 import NotificationList from "@/features/notification/components/NotificationList.vue";
-import { ref, toRef, watch } from "vue";
+import { ref } from "vue";
 import { getNotifications } from "@/api/notification.js";
 import { startLoading } from "@/composable/useLoadingBar.js";
 import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
 import { useNotificationStore } from "@/stores/notification.js";
 import Close_LG from "@/assets/icons/Close_LG.svg";
 
-const props = defineProps({
-  isModalOpen: {
-    type: Boolean,
-    required: true,
-  },
-});
-
-const isModalOpenRef = toRef(props, "isModalOpen");
 const emit = defineEmits(["close"]);
 const scrollContainer = ref(null);
 const notificationStore = useNotificationStore();
@@ -41,7 +33,9 @@ const { isLastPage } = useInfiniteScroll({
   scrollTargetRef: scrollContainer,
 });
 
-function handleRead() {}
+async function handleAllRead() {
+  await notificationStore.markAllAsRead();
+}
 </script>
 
 <template>
@@ -52,7 +46,7 @@ function handleRead() {}
         <div class="flex gap-4">
           <button
             class="text-caption text-gray-400 hover:text-primary-hover"
-            @click="handleRead"
+            @click="handleAllRead"
           >
             전부 읽기
           </button>
