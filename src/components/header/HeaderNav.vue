@@ -43,8 +43,6 @@ const isAdmin = computed(() => authStore.memberRole === "ADMIN");
 const isDeveloper = computed(() =>
   ["INSIDER", "OUTSIDER"].includes(authStore.memberRole),
 );
-
-console.log("현재 역할:", authStore.memberRole);
 </script>
 
 <style scoped>

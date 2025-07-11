@@ -4,8 +4,8 @@
   >
     <div class="flex flex-col gap-4 w-full">
       <SidebarItem
-        v-for="(item, index) in items"
-        :key="index"
+        v-for="item in items"
+        :key="item.to"
         :label="item.label"
         :highlighted="item.highlighted"
         :to="item.to"
