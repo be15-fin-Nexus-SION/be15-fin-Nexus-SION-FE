@@ -1,5 +1,3 @@
-// src/router/index.js
-
 import { createRouter, createWebHistory } from "vue-router";
 import AppShell from "@/components/AppShell.vue";
 
@@ -83,6 +81,16 @@ router.beforeEach((to, from) => {
     return { path: `/developers/${authStore.memberId}` };
   }
 
+  if (to.meta.allowSelfOrAdmin) {
+    const targetId = to.params.employeeId;
+    const isAdmin = authStore.memberRole === "ADMIN";
+    const isSelf = authStore.memberId === targetId;
+
+    if (!isAdmin && !isSelf) {
+      showErrorToast("접근 권한이 없습니다.");
+      return { path: `/developers/${authStore.memberId}` };
+    }
+  }
   // 정상 진행
 });
 
