@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import ManualDeveloperList from "@/features/squad/components/create/ManualDeveloperList.vue";
 import AiRecommendedSection from "@/features/squad/components/create/AiRecommendedSection.vue";
 import AiLoadingOverlay from "@/components/AiLoadingOverlay.vue";
@@ -50,7 +50,6 @@ function switchToAI() {
         </button>
       </div>
 
-      <!-- 기존 스쿼드 가져오기 버튼 -->
       <button class="btn-outline" @click="showExistSquadModal = true">
         기존 스쿼드 가져오기
       </button>
