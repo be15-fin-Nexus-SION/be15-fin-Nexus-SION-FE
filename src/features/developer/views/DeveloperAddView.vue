@@ -61,6 +61,7 @@ import { registerDevelopers } from "@/api/member.js";
 import { fetchAllTechStacks } from "@/api/techstack.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const router = useRouter();
 const developers = reactive([createNewDeveloper()]);
@@ -160,11 +161,11 @@ async function submit() {
     }));
 
     await registerDevelopers(payload);
-    alert("등록에 성공했습니다.");
+    showSuccessToast("등록에 성공했습니다.");
     await router.push({ name: "developer-list" });
   } catch (e) {
     console.error(e);
-    alert("등록에 실패했습니다.");
+    showErrorToast("등록에 실패했습니다.");
   }
 }
 </script>

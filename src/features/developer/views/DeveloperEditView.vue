@@ -242,6 +242,7 @@ import { uploadImage } from "@/api/image.js";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import TechStackSelectModal from "@/components/modal/TechStackSelectModal.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -308,14 +309,14 @@ async function handleImageUpload(e) {
     const res = await uploadImage(file);
     form.profileImageUrl = res.data.url;
   } catch (err) {
-    alert("이미지 업로드에 실패했습니다.");
+    showErrorToast("이미지 업로드에 실패했습니다.");
   }
 }
 
 async function submit() {
   isConfirmOpen.value = false;
   if (!validate()) {
-    alert("입력값을 다시 확인해주세요.");
+    showErrorToast("입력값을 다시 확인해주세요.");
     return;
   }
 
@@ -329,11 +330,10 @@ async function submit() {
 
   try {
     await updateDeveloper(employeeId, payload);
-    alert("수정이 완료되었습니다.");
+    showSuccessToast("수정이 완료되었습니다.");
     router.push({ name: "developer-detail", params: { employeeId } });
   } catch (e) {
-    alert("수정에 실패했습니다.");
-    console.error(e);
+    showErrorToast("수정에 실패했습니다.");
   }
 }
 
