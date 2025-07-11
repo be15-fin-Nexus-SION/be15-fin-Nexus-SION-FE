@@ -5,7 +5,7 @@
     <div class="content-wrapper">
       <h1 class="text-2xl font-bold mb-6">보유 자격증 조회</h1>
 
-      <!-- ✅ 상태 필터 + 등록 버튼 -->
+      <!-- 상태 필터 + 등록 버튼 -->
       <div class="w-[730px] flex justify-between mb-2">
         <div class="flex gap-2">
           <button
@@ -206,7 +206,7 @@ const currentPage = ref(1);
 const itemsPerPage = 10;
 const isRegisterModalOpen = ref(false);
 
-// ✅ 상태 필터 관련 상태
+// 상태 필터 관련 상태
 const selectedStatus = ref("ALL");
 const statuses = ["ALL", "PENDING", "APPROVED", "REJECTED"];
 const statusLabels = {
@@ -236,7 +236,7 @@ const loadCertificates = async () => {
 
 onMounted(loadCertificates);
 
-// ✅ 필터링된 데이터
+// 필터링된 데이터
 const filteredCertificates = computed(() => {
   if (selectedStatus.value === "ALL") return allCertificates.value;
   return allCertificates.value.filter(

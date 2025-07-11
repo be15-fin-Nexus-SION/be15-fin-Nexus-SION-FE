@@ -6,7 +6,7 @@
       <h1 class="text-2xl font-bold mb-6">자격증 승인 관리</h1>
 
       <!-- 필터 탭 -->
-      <div class="flex gap-2 mb-4">
+      <div class="flex gap-2 mb-2">
         <button
           v-for="s in statuses"
           :key="s"
@@ -17,7 +17,7 @@
             }
           "
           :class="[
-            'px-4 py-2 rounded-full font-medium transition-colors',
+            'px-4 py-2 rounded-full font-medium text-sm transition-colors',
             selectedStatus === s
               ? 'bg-primary text-white'
               : 'bg-gray-100 text-gray-800 hover:bg-gray-200',
@@ -142,12 +142,6 @@
         />
         <div class="flex justify-center mt-4 gap-2">
           <PrimaryButton @click="confirmReject" label="반려" />
-          <button
-            @click="isRejectModalOpen = false"
-            class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2"
-          >
-            취소
-          </button>
         </div>
       </div>
     </div>
