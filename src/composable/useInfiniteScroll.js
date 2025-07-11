@@ -19,7 +19,6 @@ export function useInfiniteScroll({
       items.value = wrapper.data.data.content;
       curPage.value = wrapper.data.data.currentPage;
       totalPage.value = wrapper.data.data.totalPages;
-      console.log(curPage.value, " / ", totalPage.value);
       if (wrapper.data.data.currentPage + 1 === wrapper.data.data.totalPages) {
         isLastPage.value = true;
       }
@@ -36,7 +35,6 @@ export function useInfiniteScroll({
       const wrapper = await fetchFn(curPage.value + 1);
       items.value.push(...wrapper.data.data.content);
       curPage.value = wrapper.data.data.currentPage;
-      console.log(curPage.value, " / ", totalPage.value);
 
       if (wrapper.data.data.currentPage + 1 === wrapper.data.data.totalPages) {
         isLastPage.value = true;
