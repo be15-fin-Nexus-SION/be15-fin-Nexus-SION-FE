@@ -119,3 +119,15 @@ export function closeNotificationConnection() {
   }
   clearPingWatchdog();
 }
+
+export function initNotificationSse(onMessageCallback) {
+  window.addEventListener("beforeunload", () => {
+    // 새로고침 시 연결 안전 종료
+    closeNotificationConnection();
+  });
+
+  window.addEventListener("load", () => {
+    // 새로고침 후 다시 연결
+    subscribeToNotification(onMessageCallback);
+  });
+}
