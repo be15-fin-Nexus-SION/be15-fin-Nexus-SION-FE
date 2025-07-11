@@ -1,20 +1,12 @@
 <script setup>
 import NotificationList from "@/features/notification/components/NotificationList.vue";
-import { ref, toRef, watch } from "vue";
+import { ref } from "vue";
 import { getNotifications } from "@/api/notification.js";
 import { startLoading } from "@/composable/useLoadingBar.js";
 import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
 import { useNotificationStore } from "@/stores/notification.js";
 import Close_LG from "@/assets/icons/Close_LG.svg";
 
-const props = defineProps({
-  isModalOpen: {
-    type: Boolean,
-    required: true,
-  },
-});
-
-const isModalOpenRef = toRef(props, "isModalOpen");
 const emit = defineEmits(["close"]);
 const scrollContainer = ref(null);
 const notificationStore = useNotificationStore();
@@ -23,8 +15,7 @@ const fetchFn = async (page) => {
   try {
     startLoading();
     const data = await getNotifications(page);
-    console.log(data.data);
-    if (page === 1) {
+    if (page === 0) {
       notificationStore.setNotifications(data.data.data.content); // 초기화
     } else {
       notificationStore.appendNotifications(data.data.data.content); // 추가
@@ -41,7 +32,9 @@ const { isLastPage } = useInfiniteScroll({
   scrollTargetRef: scrollContainer,
 });
 
-function handleRead() {}
+async function handleAllRead() {
+  await notificationStore.markAllAsRead();
+}
 </script>
 
 <template>
@@ -52,9 +45,9 @@ function handleRead() {}
         <div class="flex gap-4">
           <button
             class="text-caption text-gray-400 hover:text-primary-hover"
-            @click="handleRead"
+            @click="handleAllRead"
           >
-            전부 읽기
+            모두 읽음 처리
           </button>
           <button class="cancel-button" @click="emit('close')">
             <img :src="Close_LG" alt="닫기 버튼" class="close-icon" />
@@ -74,7 +67,6 @@ function handleRead() {}
           <NotificationList
             @close="emit('close')"
             :notifications="notificationStore.notifications"
-            :is-modal-open="isModalOpen"
           />
           <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">
             sion
