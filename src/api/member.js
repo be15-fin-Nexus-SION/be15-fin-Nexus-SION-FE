@@ -1,5 +1,4 @@
 import api from "./axios.js";
-import axios from "axios";
 
 export function reissueAccessToken() {
   return api.get("/members/refresh");
@@ -138,6 +137,6 @@ export function fetchMyCertificates() {
   return api.get("/user-certificates/me");
 }
 
-export const developerregisterCertificate = (employeeId, formData) => {
+export const developerRegisterCertificate = (employeeId, formData) => {
   return api.post(`/members/${employeeId}/certificates`, formData);
 };

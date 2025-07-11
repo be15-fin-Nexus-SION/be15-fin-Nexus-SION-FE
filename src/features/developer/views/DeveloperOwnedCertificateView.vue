@@ -196,10 +196,12 @@ import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import Pagination from "@/components/Pagination.vue";
 import {
   fetchMyCertificates,
-  developerregisterCertificate,
+  developerRegisterCertificate,
 } from "@/api/member.js";
 import { useAuthStore } from "@/stores/auth";
+import { useToast } from "vue-toastification";
 
+const toast = useToast();
 const authStore = useAuthStore();
 const allCertificates = ref([]);
 const currentPage = ref(1);
@@ -272,7 +274,7 @@ const submitCertificate = async () => {
   try {
     const id = authStore.memberId;
     if (!id) {
-      alert("사용자 정보가 확인되지 않아 등록할 수 없습니다.");
+      toast.warning("사용자 정보가 확인되지 않아 등록할 수 없습니다.");
       return;
     }
 
@@ -282,7 +284,7 @@ const submitCertificate = async () => {
     formData.append("issueDate", form.value.issueDate);
     formData.append("pdfFileUrl", form.value.file);
 
-    await developerregisterCertificate(id, formData);
+    await developerRegisterCertificate(id, formData);
     await loadCertificates();
 
     form.value = {
@@ -294,8 +296,7 @@ const submitCertificate = async () => {
 
     isRegisterModalOpen.value = false;
   } catch (e) {
-    console.error("자격증 등록 실패", e);
-    alert("자격증 등록 중 오류가 발생했습니다.");
+    toast.error("자격증 등록 중 오류가 발생했습니다.");
   }
 };
 
