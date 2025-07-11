@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import { getRecommendedCandidates } from "@/api/squad";
 import SelectRoleModal from "@/features/squad/components/modal/SelectRoleModal.vue";
 import { useSquadStore } from "@/stores/squadCreateStore.js";
+import { useDeveloperModal } from "@/composable/useDeveloperModal.js";
 
 const route = useRoute();
 const projectId = route.params.projectId;
@@ -49,6 +50,8 @@ function updateScrollButtons() {
   showLeft.value = el.scrollLeft > 10;
   showRight.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 10;
 }
+
+const { openModal } = useDeveloperModal();
 </script>
 
 <template>
@@ -96,11 +99,19 @@ function updateScrollButtons() {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="dev in developers" :key="dev.id">
+                <tr
+                  v-for="dev in developers"
+                  :key="dev.id"
+                  @click="openModal(dev.id)"
+                  class="transition-all duration-200 ease-in hover:bg-gray-50 hover:shadow-md cursor-pointer"
+                >
                   <td>{{ dev.name }}</td>
                   <td class="font-bold">{{ dev.grade }}</td>
                   <td class="text-primary font-semibold">
                     {{ dev.avgTechScore }}
+                    <span class="text-xs font-medium text-gray-400 ml-0.5"
+                      >점</span
+                    >
                   </td>
                   <td>
                     <span class="text-gray-800 font-medium">{{
@@ -112,7 +123,7 @@ function updateScrollButtons() {
                     {{ dev.monthlyUnitPrice.toLocaleString() }}원
                   </td>
                   <td>
-                    <button @click="handleAdd(dev)" class="btn-add">
+                    <button @click.stop="handleAdd(dev)" class="btn-add">
                       추가
                     </button>
                   </td>

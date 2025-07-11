@@ -1,5 +1,6 @@
 <script setup>
 import SquadMemberRenderer from "@/features/squad/components/presentation/SquadMemberRenderer.vue";
+import { computed } from "vue";
 
 const props = defineProps({
   members: {
@@ -10,6 +11,14 @@ const props = defineProps({
     type: Boolean,
   },
 });
+
+const mappedMembers = computed(() =>
+  props.members.map(({ memberId, ...rest }) => ({
+    ...rest,
+    id: memberId,
+  })),
+);
+
 const emit = defineEmits(["update:members"]);
 
 function setLeader(target) {
@@ -24,7 +33,7 @@ function setLeader(target) {
 <template>
   <SquadMemberRenderer
     title="스쿼드 구성"
-    :members="members"
+    :members="mappedMembers"
     :readonly="readonly"
     @set-leader="setLeader"
   />

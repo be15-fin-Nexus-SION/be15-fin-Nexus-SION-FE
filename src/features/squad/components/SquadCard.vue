@@ -23,7 +23,7 @@ const confirmDelete = () => {
 };
 
 const goToDetail = () => {
-  router.push(`/squads/${props.squad.squadCode}?projectId=${props.projectId}`);
+  router.push(`/squads/${props.squad.squadCode}`);
 };
 
 const MAX_DISPLAY_MEMBERS = 3;

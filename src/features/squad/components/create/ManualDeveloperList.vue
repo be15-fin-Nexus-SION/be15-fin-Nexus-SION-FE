@@ -1,11 +1,14 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import FilterModal from "@/features/squad/components/modal/FilterModal.vue";
 import SortModal from "@/features/squad/components/modal/SortModal.vue";
 import { searchSquadDevelopers } from "@/api/squad.js";
 import BasePagination from "@/components/Pagination.vue";
 import { useSquadStore } from "@/stores/squadCreateStore.js";
 import SelectRoleModal from "@/features/squad/components/modal/SelectRoleModal.vue";
+import { useSquadProjectStore } from "@/stores/squadProject.js";
+import { storeToRefs } from "pinia";
+import { useDeveloperModal } from "@/composable/useDeveloperModal.js";
 
 const searchQuery = ref("");
 const developers = ref([]);
@@ -18,7 +21,6 @@ const selectedDeveloper = ref(null);
 
 function handleAddDeveloper(id) {
   const dev = developers.value.find((d) => d.id === id);
-  console.log(dev);
   selectedDeveloper.value = dev;
   showRoleModal.value = true;
 }
@@ -97,6 +99,7 @@ function handleDocumentClick(e) {
 
 onMounted(() => {
   document.addEventListener("click", handleDocumentClick);
+  handleSearch();
 });
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleDocumentClick);
@@ -140,6 +143,15 @@ function addTechStack(stack) {
     selectedFilters.value.techStacks.push(stack);
   }
 }
+
+const squadProjectStore = useSquadProjectStore();
+const { projectDetail, loading, error } = storeToRefs(squadProjectStore);
+
+const roles = computed(() => {
+  return projectDetail.value?.data.jobRequirements?.map((j) => j.jobName) || [];
+});
+
+const { openModal } = useDeveloperModal();
 </script>
 
 <template>
@@ -156,7 +168,6 @@ function addTechStack(stack) {
         @keyup.enter="handleSearch"
       />
 
-      <!-- 필터 버튼 + 모달 -->
       <div class="relative">
         <button class="btn-icon" @click.stop="toggleFilter">
           <i class="fa-solid fa-filter"></i>
@@ -169,7 +180,6 @@ function addTechStack(stack) {
         />
       </div>
 
-      <!-- 정렬 버튼 + 모달 -->
       <div class="relative">
         <button class="btn-icon" @click.stop="toggleSort">
           <i class="fa-solid fa-align-center"></i>
@@ -182,14 +192,12 @@ function addTechStack(stack) {
       </button>
     </div>
 
-    <!-- 필터 요약 -->
     <div class="filter-summary">
       <div class="overflow-hidden whitespace-nowrap text-ellipsis">
         {{ renderSummary() }}
       </div>
     </div>
 
-    <!-- 테이블 -->
     <div class="table-wrapper">
       <template v-if="developers.length > 0">
         <table class="dev-table">
@@ -204,7 +212,12 @@ function addTechStack(stack) {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(dev, index) in developers" :key="dev.id">
+            <tr
+              v-for="(dev, index) in developers"
+              :key="dev.id"
+              @click="openModal(dev.id)"
+              class="transition-all duration-200 ease-in hover:bg-gray-50 hover:shadow-md cursor-pointer"
+            >
               <td class="text-center">{{ index + 1 }}</td>
               <td class="text-center">{{ dev.name }}</td>
               <td class="text-center font-bold">{{ dev.grade }}</td>
@@ -223,7 +236,10 @@ function addTechStack(stack) {
                 </div>
               </td>
               <td class="text-center">
-                <button class="btn-add" @click="handleAddDeveloper(dev.id)">
+                <button
+                  class="btn-add"
+                  @click.stop="handleAddDeveloper(dev.id)"
+                >
                   추가
                 </button>
               </td>
@@ -247,7 +263,7 @@ function addTechStack(stack) {
     <SelectRoleModal
       v-if="showRoleModal"
       :developer="selectedDeveloper"
-      :roles="['프론트엔드', '백엔드', '서버/인프라']"
+      :roles="roles"
       @select="handleSelectRole"
       @close="showRoleModal = false"
     />

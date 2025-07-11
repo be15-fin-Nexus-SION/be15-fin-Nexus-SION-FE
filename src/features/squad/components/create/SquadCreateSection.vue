@@ -5,20 +5,19 @@ import { useSquadStore } from "@/stores/squadCreateStore.js";
 import SquadCardList from "@/features/squad/components/create/SquadCardList.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import { useRoute, useRouter } from "vue-router";
-import {
-  getSquadProjectDetail,
-  registerManualSquad,
-  updateManualSquad,
-} from "@/api/squad.js";
+import { registerManualSquad, updateManualSquad } from "@/api/squad.js";
 import SquadRegisterModal from "@/features/squad/components/modal/SquadRegisterModal.vue";
 import { showSuccessToast } from "@/utills/toast.js";
+import { useSquadProjectStore } from "@/stores/squadProject.js";
 
 const squadStore = useSquadStore();
 const members = computed(() => squadStore.selectedMembers);
 const route = useRoute();
 
 const projectCode = route.params.projectId;
-const projectDetail = ref(null);
+const squadProjectStore = useSquadProjectStore();
+const projectDetail = computed(() => squadProjectStore.projectDetail.data);
+const fetchProjectDetail = squadProjectStore.fetchProjectDetail;
 
 const showRegisterModal = ref(false); // 등록 정보 확인 모달
 const isRegistering = ref(false); // 중복 등록 방지
@@ -76,20 +75,8 @@ function handleRegisterConfirm({ title, description }) {
     });
 }
 
-// 프로젝트 분석 API 호출
-async function fetchProjectDetail() {
-  try {
-    const res = await getSquadProjectDetail(projectCode);
-    if (res.success) {
-      projectDetail.value = res.data;
-    }
-  } catch (e) {
-    console.error("프로젝트 분석 데이터 로딩 실패:", e);
-  }
-}
-
 onMounted(() => {
-  fetchProjectDetail();
+  fetchProjectDetail(projectCode);
 });
 
 // 애니메이션 대상
@@ -182,13 +169,13 @@ watchEffect(() => {
   rawDuration.value = Math.round(duration * 10) / 10;
 
   gsap.to(totalBudget, {
-    duration: 0.4,
+    duration: 0.8,
     value: budget,
     roundProps: "value",
   });
 
   gsap.to(estimatedDuration, {
-    duration: 0.4,
+    duration: 0.8,
     value: duration,
     onUpdate: () => {
       estimatedDuration.value = Math.round(estimatedDuration.value * 10) / 10;
