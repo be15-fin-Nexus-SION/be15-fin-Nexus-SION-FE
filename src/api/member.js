@@ -95,3 +95,40 @@ export function getUnitPriceByGrade() {
 export function setUnitPriceByGrade(grades) {
   return api.post(`/grades`, grades);
 }
+
+export function fetchCertificates() {
+  return api.get("/certificates");
+}
+
+export function registerCertificate(certificateRequest) {
+  return api.post("/certificates/register", certificateRequest);
+}
+
+export function updateCertificate(certificateName, payload) {
+  return api.patch(`/certificates/${certificateName}`, payload);
+}
+
+export function deleteCertificate(id) {
+  return api.delete(`/certificates/${id}`);
+}
+
+export function fetchCertificateApprovals({
+  status,
+  page = 0,
+  size = 10,
+} = {}) {
+  const query = { page, size };
+  if (status) query.status = status;
+
+  return api.get("/admin/certificates", { params: query });
+}
+
+export function approveCertificate(certificateId) {
+  return api.patch(`/admin/certificates/${certificateId}/approve`);
+}
+
+export function rejectCertificate(certificateId, reason) {
+  return api.patch(`/admin/certificates/${certificateId}/reject`, {
+    rejectedReason: reason,
+  });
+}

@@ -55,7 +55,7 @@ onBeforeUnmount(() => {
 }
 
 .action-button {
-  @apply flex items-center justify-center w-[110px] h-[52px] px-4 border-b border-natural-gray cursor-pointer gap-[8px] text-support-stack;
+  @apply flex items-center justify-center w-[110px] h-[48px] px-4 border-b border-natural-gray cursor-pointer gap-[8px] text-support-stack;
 }
 
 .action-button--top:hover {

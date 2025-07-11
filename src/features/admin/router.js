@@ -53,4 +53,24 @@ export const adminRoutes = [
       roles: ["ADMIN"],
     },
   },
+
+  {
+    path: "/admin/certificates",
+    name: "AdminCertificateTypeSetting",
+    component: () => import("./views/AdminCertificateTypeSetting.vue"),
+    meta: {
+      requiresAuth: true,
+      roles: ["ADMIN"],
+    },
+  },
+
+  {
+    path: "/admin/certificates/approval",
+    name: "AdminCertificateApprovalView",
+    component: () => import("./views/AdminCertificateApprovalView.vue"),
+    meta: {
+      requiresAuth: true,
+      roles: ["ADMIN"],
+    },
+  },
 ];

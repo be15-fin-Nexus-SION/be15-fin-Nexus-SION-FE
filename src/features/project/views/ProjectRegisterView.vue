@@ -74,6 +74,16 @@ function handleFileUpload(e) {
     return;
   }
 
+  // ✅ 파일 크기 검사 (10MB 제한)
+  if (selectedFile.size > 10 * 1024 * 1024) {
+    showErrorToast("10MB 이하의 파일만 업로드할 수 있습니다");
+    form.file = null;
+    form.fileName = "";
+    form.fileUrl = "";
+    e.target.value = "";
+    return;
+  }
+
   form.file = selectedFile;
   form.fileName = selectedFile.name;
 }
@@ -82,6 +92,14 @@ function removeFile() {
   form.file = null;
   form.fileName = "";
   form.fileUrl = "";
+}
+
+function removeJob(jobId) {
+  if (form.jobs.length === 1) {
+    showErrorToast("직무는 최소 1개 이상이어야 합니다.");
+    return;
+  }
+  form.jobs = form.jobs.filter((j) => j.id !== jobId);
 }
 
 function addJob() {
@@ -343,7 +361,16 @@ async function submitForm() {
           >
         </div>
 
-        <div v-for="job in form.jobs" :key="job.id" class="mb-6">
+        <div v-for="job in form.jobs" :key="job.id" class="mb-6 relative">
+          <!-- ❌ 삭제 버튼 -->
+          <button
+            class="absolute top-1/2 -translate-y-1/2 -right-2 text-gray-400 hover:text-red-500 text-xl z-10"
+            @click="removeJob(job.id)"
+            title="직무 삭제"
+          >
+            &times;
+          </button>
+
           <div class="grid grid-cols-3 gap-2 items-center mb-2">
             <DropdownSelect
               v-model="job.name"
