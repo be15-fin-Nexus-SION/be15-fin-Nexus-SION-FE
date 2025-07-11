@@ -132,3 +132,9 @@ export function rejectCertificate(certificateId, reason) {
     rejectedReason: reason,
   });
 }
+
+export function searchAdmins(payload) {
+  return api.get("/members/search/admins", {
+    params: payload,
+  });
+}
