@@ -16,6 +16,9 @@ import { VueQueryPlugin } from "@tanstack/vue-query";
 
 import App from "./App.vue";
 import router from "./router/index.js";
+import { useNotificationStore } from "@/stores/notification.js";
+import { initNotificationSse } from "@/api/notificationSse.js";
+import { useAuthStore } from "@/stores/auth.js";
 
 async function bootstrap() {
   const app = createApp(App);
@@ -47,6 +50,15 @@ async function bootstrap() {
     icon: true,
     rtl: false,
   });
+
+  // SSE 연결 초기화
+  const authStore = useAuthStore();
+  if (authStore.isAuthenticated) {
+    const notificationStore = useNotificationStore();
+    initNotificationSse((data) => {
+      notificationStore.addNotification(data);
+    });
+  }
 
   // 마운트
   app.mount("#app");

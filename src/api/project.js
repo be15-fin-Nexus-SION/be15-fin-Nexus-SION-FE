@@ -32,6 +32,20 @@ export function fetchProjectList({
   });
 }
 
+export function fetchMyProjectList({
+  employeeId,
+  page = 0,
+  size = 4,
+  statuses = [],
+}) {
+  return api.post("/projects/list/my", {
+    employeeId,
+    page,
+    size,
+    statuses,
+  });
+}
+
 export function fetchProjectDetail(projectCode) {
   return api.get(`/projects/list/${projectCode}`);
 }
@@ -42,4 +56,52 @@ export function updateProjectStatus(projectCode, status) {
 
 export function uploadDocument(formData) {
   return api.post("/documents/upload", formData);
+}
+
+export async function analyzeProject(projectCode, file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return api.post(`/projects/${projectCode}/analyze`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+}
+
+export function addWorkHistories(workId, payload) {
+  return api.put(`/dev-project-works/${workId}/histories`, payload);
+}
+
+export function approveWorkHistory(id, adminId) {
+  return api.put(`/dev-project-works/${id}/approve`, null, {
+    params: { adminId },
+  });
+}
+
+export function rejectWorkHistory(id, adminId) {
+  return api.put(`/dev-project-works/${id}/reject`, null, {
+    params: { adminId },
+  });
+}
+
+export function getMyProjectWorkRequests(page = 0, size = 10) {
+  return api.get("/dev-project-works/me", {
+    params: {
+      page,
+      size,
+    },
+  });
+}
+
+export function getProjectHistoryDetail(projectWorkId) {
+  return api.get(`/dev-project-works/${projectWorkId}`);
+}
+
+export function getProjectInfo(id) {
+  return api.get(`/projects/${id}/project-info`);
+}
+
+export function fetchFunctionTypes() {
+  return api.get("/dev-project-works/function-types");
 }

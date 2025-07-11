@@ -119,7 +119,12 @@ async function submitForm() {
       requestSpecificationUrl: form.fileUrl || null,
     };
 
-    emit("submit", payload);
+    const data = {
+      payload,
+      file: form.file,
+    };
+
+    emit("submit", data);
   } catch (e) {
     showErrorToast("저장 중 오류가 발생했습니다.");
   }
