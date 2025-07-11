@@ -44,7 +44,8 @@
     </div>
 
     <div class="w-full">
-      <table class="min-w-full text-sm mt-4">
+      <LoadingSpinner v-if="isLoading" />
+      <table v-else class="min-w-full text-sm mt-4">
         <thead>
           <tr class="text-gray-500 border-b">
             <th class="p-2 text-center w-[12%]">사번</th>
@@ -193,6 +194,9 @@ import SearchBar from "@/components/searchBar/SearchBar.vue";
 import { useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import GradeBadge from "@/components/badge/GradeBadge.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+
+const isLoading = ref(true);
 
 const router = useRouter();
 const developers = ref([]);
@@ -285,6 +289,8 @@ const fetchDevelopers = async () => {
     }));
   } catch (e) {
     console.error("개발자 목록 불러오기 실패:", e);
+  } finally {
+    isLoading.value = false;
   }
 };
 
