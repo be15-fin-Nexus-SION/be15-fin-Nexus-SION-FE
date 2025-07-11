@@ -1,5 +1,6 @@
 <template>
-  <div class="max-w-5xl mx-auto py-10 px-4 space-y-8">
+  <LoadingSpinner v-if="isLoading" />
+  <div v-else class="max-w-5xl mx-auto py-10 px-4 space-y-8">
     <!-- 상단 버튼 -->
     <div class="flex items-center justify-between">
       <div class="text-xl font-semibold">개발자 상세</div>
@@ -96,16 +97,78 @@
       </div>
     </section>
 
-    <section class="grid grid-cols-2 gap-6">
-      <div class="bg-white p-4 rounded-xl shadow">
-        <div class="font-semibold mb-4">이력 관리</div>
-        <div class="flex gap-4 text-sm mb-2">
-          <span class="font-semibold text-primary">프로젝트 이력</span>
-          <span class="text-gray-400">자격증</span>
-          <span class="text-gray-400">교육 이력</span>
+    <!-- 점수 카드 영역 -->
+    <section class="grid grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-xl shadow text-start">
+        <div class="text-sm text-gray-500 font-semibold mb-2">총 점수</div>
+        <div class="text-3xl font-bold mb-1">
+          {{ scoreSummary?.currentTotalScore ?? "-" }}
         </div>
+        <div class="flex justify-start items-center gap-2">
+          <div class="text-xs text-green-600">
+            {{ totalDiffText }}
+          </div>
+          <div v-if="totalDiffDate" class="text-[10px] text-gray-400 mt-0.5">
+            ({{ totalDiffDate }} 대비)
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow text-start">
+        <div class="text-sm text-gray-500 font-semibold mb-2">
+          기술스택 점수
+        </div>
+        <div class="text-3xl font-bold mb-1">
+          {{ scoreSummary?.currentTechScore ?? "-" }}
+        </div>
+        <div class="flex justify-start items-center gap-2">
+          <div class="text-xs text-green-600">
+            {{ techDiffText }}
+          </div>
+          <div v-if="totalDiffDate" class="text-[10px] text-gray-400 mt-0.5">
+            ({{ techDiffDate }} 대비)
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow text-start">
+        <div class="text-sm text-gray-500 font-semibold mb-2">자격증 점수</div>
+        <div class="text-3xl font-bold mb-1">
+          {{ scoreSummary?.currentCertificateScore ?? "-" }}
+        </div>
+        <div class="flex justify-start items-center gap-2">
+          <div class="text-xs text-green-600">
+            {{ certificateDiffText }}
+          </div>
+          <div v-if="totalDiffDate" class="text-[10px] text-gray-400 mt-0.5">
+            ({{ certificateDiffDate }} 대비)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-2 gap-6">
+      <!--      <div class="bg-white p-4 rounded-xl shadow">-->
+      <!--        <div class="font-semibold mb-4">보유 자격증</div>-->
+      <!--        <ul v-if="certifications.length > 0" class="space-y-2 text-sm text-gray-800">-->
+      <!--          <li-->
+      <!--              v-for="(cert, index) in certifications"-->
+      <!--              :key="index"-->
+      <!--              class="flex items-center gap-2"-->
+      <!--          >-->
+      <!--            <span class="text-primary font-medium">•</span>-->
+      <!--            <span>{{ cert.name }}</span>-->
+      <!--            <span class="text-gray-400 text-xs ml-auto">{{ cert.issuedDate }}</span>-->
+      <!--          </li>-->
+      <!--        </ul>-->
+      <!--        <div v-else class="h-40 flex items-center justify-center">-->
+      <!--          <p class="text-gray-400 text-sm">보유한 자격증이 없습니다.</p>-->
+      <!--        </div>-->
+      <!--      </div>-->
+      <div class="bg-white p-4 rounded-xl shadow">
+        <div class="font-semibold mb-4">보유 자격증</div>
         <div class="h-40 flex items-center justify-center">
-          <p class="text-gray-400 text-sm">프로젝트 이력이 없습니다.</p>
+          <p class="text-gray-400 text-sm">보유한 자격증이 없습니다.</p>
         </div>
       </div>
 
@@ -132,17 +195,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import BarChart from "@/features/developer/components/BarChart.vue";
 import RadarChart from "@/features/developer/components/RadarChart.vue";
 import {
   fetchDeveloperDetail,
   fetchTechStacksByEmployeeId,
+  fetchScoreSummary,
   deleteDeveloper,
 } from "@/api/member";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+
+const isLoading = ref(true);
 
 const props = defineProps({
   employeeId: String,
@@ -161,6 +228,53 @@ const techList = ref([]);
 const barData = ref(null);
 const radarData = ref(null);
 const showDeleteConfirm = ref(false);
+const scoreSummary = ref(null);
+
+const formatDateTime = (iso) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const h = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${y}.${m}.${day} ${h}:${min}`;
+};
+
+const totalDiffText = computed(() => {
+  if (!scoreSummary.value) return "-";
+  const diff =
+    scoreSummary.value.currentTotalScore -
+    scoreSummary.value.previousTotalScore;
+  return diff !== 0 ? `+${diff}` : "-";
+});
+const totalDiffDate = computed(() => {
+  if (!scoreSummary.value) return "";
+  return formatDateTime(scoreSummary.value.previousTotalScoreDate);
+});
+
+const techDiffText = computed(() => {
+  if (!scoreSummary.value) return "-";
+  const diff =
+    scoreSummary.value.currentTechScore - scoreSummary.value.previousTechScore;
+  return diff !== 0 ? `+${diff}` : "-";
+});
+const techDiffDate = computed(() => {
+  if (!scoreSummary.value) return "";
+  return formatDateTime(scoreSummary.value.previousTechScoreDate);
+});
+
+const certificateDiffText = computed(() => {
+  if (!scoreSummary.value) return "-";
+  const diff =
+    scoreSummary.value.currentCertificateScore -
+    scoreSummary.value.previousCertificateScore;
+  return diff !== 0 ? `+${diff}` : "-";
+});
+const certificateDiffDate = computed(() => {
+  if (!scoreSummary.value) return "";
+  return formatDateTime(scoreSummary.value.previousCertificateScoreDate);
+});
 
 const statusLabel = (status) => {
   switch (status) {
@@ -216,8 +330,14 @@ onMounted(async () => {
         },
       ],
     };
+
+    const { data: scoreRes } = await fetchScoreSummary(employeeId);
+    scoreSummary.value = scoreRes.data;
+    console.log("scoreSummary: ", scoreSummary.value);
   } catch (e) {
     console.error("개발자 상세 정보 불러오기 실패", e);
+  } finally {
+    isLoading.value = false;
   }
 });
 </script>
