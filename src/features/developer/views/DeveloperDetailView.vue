@@ -207,6 +207,7 @@ import {
 import TechBadge from "@/components/badge/TechBadge.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const isLoading = ref(true);
 
@@ -295,11 +296,10 @@ function goToEdit() {
 async function deleteDeveloperHandler() {
   try {
     await deleteDeveloper(employeeId);
-    alert("삭제가 완료되었습니다.");
+    showSuccessToast("삭제가 완료되었습니다.");
     router.push({ name: "developer-list" });
   } catch (e) {
-    alert("삭제에 실패했습니다.");
-    console.error("삭제 오류:", e);
+    showErrorToast("삭제에 실패했습니다.");
   } finally {
     showDeleteConfirm.value = false;
   }
