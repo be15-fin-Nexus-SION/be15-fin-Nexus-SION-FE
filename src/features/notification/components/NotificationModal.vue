@@ -15,8 +15,7 @@ const fetchFn = async (page) => {
   try {
     startLoading();
     const data = await getNotifications(page);
-    console.log(data.data);
-    if (page === 1) {
+    if (page === 0) {
       notificationStore.setNotifications(data.data.data.content); // 초기화
     } else {
       notificationStore.appendNotifications(data.data.data.content); // 추가
