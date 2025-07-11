@@ -3,7 +3,6 @@ import { ref, reactive, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import TechStackSelectModal from "@/components/modal/TechStackSelectModal.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import ProjectHistoryCard from "@/features/project/components/ProjectHistoryRegisterCard.vue";
 import { getProjectInfo, addWorkHistories } from "@/api/project.js";
@@ -23,7 +22,6 @@ const showAlreadyRequestedModal = ref(false);
 
 const workHistoryItems = reactive([createNewWork()]);
 const isModalOpen = ref(false);
-const showConfirm = ref(false);
 const currentIndex = ref(null);
 const selectedTechStacks = ref([]);
 const allTechStacks = ref([]);
@@ -123,12 +121,6 @@ const closeModal = () => {
 };
 
 async function submit() {
-  const topError = {};
-  if (Object.keys(topError).length > 0) {
-    alert(Object.values(topError).join("\n"));
-    return;
-  }
-
   errors.value = workHistoryItems.map(validate);
   const hasError = errors.value.some((e) => Object.keys(e).length > 0);
   if (hasError) return;
@@ -180,8 +172,8 @@ async function submit() {
 
       <!-- 등록 카드 리스트 -->
       <div
-        v-for="(dev, index) in workHistoryItems"
-        :key="dev.id"
+        v-for="(item, index) in workHistoryItems"
+        :key="item.id"
         class="card-wrapper"
       >
         <ProjectHistoryCard
@@ -205,15 +197,6 @@ async function submit() {
         :initial-selected="selectedTechStacks"
         @apply="applyTechStacks"
         @close="isModalOpen = false"
-      />
-
-      <!-- 등록 확인 모달 -->
-      <ConfirmModal
-        v-if="showConfirm"
-        message="등록하시겠습니까?"
-        confirmText="등록"
-        @confirm="submit"
-        @close="showConfirm = false"
       />
     </div>
   </div>

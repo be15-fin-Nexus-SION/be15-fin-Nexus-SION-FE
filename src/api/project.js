@@ -87,10 +87,10 @@ export function getProjectHistoryDetail(projectWorkId) {
   return api.get(`/dev-project-works/${projectWorkId}`);
 }
 
-export const getProjectInfo = (id) => {
+export function getProjectInfo(id) {
   return api.get(`/projects/${id}/project-info`);
-};
+}
 
-export async function fetchFunctionTypes() {
+export function fetchFunctionTypes() {
   return api.get("/dev-project-works/function-types");
 }

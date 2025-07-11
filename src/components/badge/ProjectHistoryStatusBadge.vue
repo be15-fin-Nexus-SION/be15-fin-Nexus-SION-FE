@@ -11,7 +11,8 @@ const props = defineProps({
   status: {
     type: String,
     required: true,
-    validator: (value) => ["PENDING", "APPROVED", "REJECTED"].includes(value),
+    validator: (value) =>
+      ["PENDING", "APPROVED", "REJECTED", "NOT_REQUESTED"].includes(value),
   },
 });
 

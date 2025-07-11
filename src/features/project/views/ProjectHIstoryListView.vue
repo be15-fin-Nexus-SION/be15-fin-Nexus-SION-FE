@@ -3,6 +3,7 @@ import { onMounted, ref } from "vue";
 import { getMyProjectWorkRequests } from "@/api/project";
 import ProjectHistoryList from "@/features/project/components/ProjectHistoryList.vue";
 import Pagination from "@/components/Pagination.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const projectHistories = ref({
   content: [],
@@ -19,8 +20,9 @@ async function fetchHistories(page = 1) {
       projectHistories.value = res.data.data;
       currentPage.value = res.data.data.currentPage + 1;
     }
-  } catch (err) {
-    console.error("요청 목록 불러오기 실패:", err);
+  } catch (e) {
+    const errorMessage = e.response?.data?.message || "목록 불러오기 실패";
+    showErrorToast(errorMessage);
   }
 }
 

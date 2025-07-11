@@ -12,6 +12,7 @@ import ProjectCard from "@/features/project/components/ProjectCard.vue";
 import Pagination from "@/components/Pagination.vue";
 import StatusFilter from "@/features/project/components/StatusFilter.vue";
 import ProjectHistoryList from "@/features/project/components/ProjectHistoryList.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -93,9 +94,16 @@ function goToRegister() {
 }
 
 async function fetchProjectHistories() {
-  const res = await getMyProjectWorkRequests();
-  if (res.data.success) {
-    projectHistories.value = res.data.data;
+  try {
+    const res = await getMyProjectWorkRequests();
+    if (res.data.success) {
+      projectHistories.value = res.data.data;
+    } else {
+      showErrorToast("요청 목록 불러오기 실패");
+    }
+  } catch (e) {
+    const errorMessage = e.response?.data?.message || "요청 목록 불러오기 실패";
+    showErrorToast(errorMessage);
   }
 }
 
