@@ -132,3 +132,7 @@ export function rejectCertificate(certificateId, reason) {
     rejectedReason: reason,
   });
 }
+
+export function fetchScoreSummary(id) {
+  return api.get(`/member-scores/${id}`);
+}
