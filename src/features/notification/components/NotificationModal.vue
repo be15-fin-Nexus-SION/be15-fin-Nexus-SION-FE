@@ -48,7 +48,7 @@ async function handleAllRead() {
             class="text-caption text-gray-400 hover:text-primary-hover"
             @click="handleAllRead"
           >
-            전부 읽기
+            모두 읽음 처리
           </button>
           <button class="cancel-button" @click="emit('close')">
             <img :src="Close_LG" alt="닫기 버튼" class="close-icon" />
@@ -68,7 +68,6 @@ async function handleAllRead() {
           <NotificationList
             @close="emit('close')"
             :notifications="notificationStore.notifications"
-            :is-modal-open="isModalOpen"
           />
           <div v-if="isLastPage" class="text-gray-400 text-sm text-center py-2">
             sion

@@ -25,7 +25,9 @@ export const useNotificationStore = defineStore("notification", {
     },
     // ✅ [신규] 단일 알림 읽음 처리 + 낙관적 업데이트 + 서버 싱크
     async markAsRead(notificationId) {
-      const target = this.notifications.find((n) => n.id === notificationId);
+      const target = this.notifications.find(
+        (n) => n.notificationId === notificationId,
+      );
       if (!target) return;
       try {
         target.isRead = true;

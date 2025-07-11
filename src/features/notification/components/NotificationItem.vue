@@ -8,10 +8,6 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  isModalOpen: {
-    type: Boolean,
-    required: true,
-  },
 });
 
 const emit = defineEmits(["close"]);
