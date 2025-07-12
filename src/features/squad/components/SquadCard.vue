@@ -4,7 +4,7 @@ import { useRouter } from "vue-router";
 import ConfirmDeleteModal from "@/features/squad/components/ConfirmDeleteModal.vue";
 import { shareSquad } from "@/api/notification.js";
 import AdminSearchModal from "@/features/squad/components/modal/AdminSearchModal.vue";
-import { showSuccessToast } from "@/utills/toast.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const props = defineProps({
   squad: Object,
@@ -52,6 +52,7 @@ async function handleShareSquad(adminList) {
     showAdminSearchModal.value = false;
   } catch (e) {
     console.log("스쿼드 공유 실패했습니다.", e);
+    showErrorToast("스쿼드 공유에 실패했습니다.");
   }
 }
 </script>

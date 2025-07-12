@@ -25,7 +25,7 @@ const fetchFn = async (page, params) => {
     });
   } catch (e) {
     console.error("관리자 목록 검색 실패", e);
-    return [];
+    return { data: { data: { content: [], currentPage: 0, totalPages: 0 } } };
   }
 };
 
@@ -36,7 +36,7 @@ const { items: adminList, reset } = useInfiniteScroll({
 });
 
 async function handleSearch() {
-  searchParams.value.keyword = keyword;
+  searchParams.value.keyword = keyword.value;
   await reset();
 }
 
@@ -108,7 +108,7 @@ function handleShare() {
           </div>
 
           <!-- 선택된 관리자 -->
-          <div class="selected-admin-list max-h-40">
+          <div class="selected-admin-list">
             <div
               v-if="selectedAdmin.length === 0"
               class="text-gray-400 text-sm"

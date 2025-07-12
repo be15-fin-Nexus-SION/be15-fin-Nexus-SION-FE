@@ -21,7 +21,7 @@ function handleSelect() {
     <img
       :src="props.admin.profileImageUrl"
       alt="프로필사진"
-      class="w-[56px] h-[56px] rounded-full object-cover"
+      class="w-[36px] h-[36px] rounded-full object-cover"
     />
     <div class="text-start text-bodySm leading-snug flex-1">
       <span>{{ props.admin.name }}</span>
