@@ -133,6 +133,12 @@ export function rejectCertificate(certificateId, reason) {
   });
 }
 
+export function searchAdmins(payload) {
+  return api.get("/members/search/admins", {
+    params: payload,
+  });
+}
+
 export function fetchMyCertificates() {
   return api.get("/user-certificates/me");
 }
@@ -144,3 +150,4 @@ export const developerRegisterCertificate = (employeeId, formData) => {
 export function fetchScoreSummary(id) {
   return api.get(`/member-scores/${id}`);
 }
+
