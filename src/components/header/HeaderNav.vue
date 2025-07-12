@@ -1,17 +1,49 @@
 <template>
   <div class="menu-container">
-    <router-link to="/statistics/stack/member-count" class="menu-text menu-box"
-      >통계</router-link
-    >
-    <router-link to="/developers" class="menu-text menu-box"
-      >개발자</router-link
-    >
-    <router-link to="/projects" class="menu-text menu-box"
-      >프로젝트</router-link
-    >
-    <router-link to="/squads" class="menu-text menu-box">스쿼드</router-link>
+    <!-- 관리자 메뉴 -->
+    <template v-if="isAdmin">
+      <router-link
+        to="/statistics/stack/member-count"
+        class="menu-text menu-box"
+        >통계</router-link
+      >
+      <router-link to="/developers" class="menu-text menu-box"
+        >개발자</router-link
+      >
+      <router-link to="/projects" class="menu-text menu-box"
+        >프로젝트</router-link
+      >
+      <router-link to="/squads" class="menu-text menu-box">스쿼드</router-link>
+    </template>
+
+    <!-- 개발자 메뉴 (INSIDER or OUTSIDER) -->
+    <template v-else-if="isDeveloper">
+      <router-link to="/projects" class="menu-text menu-box"
+        >프로젝트</router-link
+      >
+      <router-link
+        to="/self-development/certificates"
+        class="menu-text menu-box"
+        >자기계발</router-link
+      >
+      <router-link to="/notifications" class="menu-text menu-box"
+        >알림</router-link
+      >
+    </template>
   </div>
 </template>
+
+<script setup>
+import { computed } from "vue";
+import { useAuthStore } from "@/stores/auth";
+
+const authStore = useAuthStore();
+
+const isAdmin = computed(() => authStore.memberRole === "ADMIN");
+const isDeveloper = computed(() =>
+  ["INSIDER", "OUTSIDER"].includes(authStore.memberRole),
+);
+</script>
 
 <style scoped>
 .menu-container {
@@ -20,10 +52,10 @@
 
 .menu-text {
   @apply text-[18px] leading-[22px] font-semibold text-[#474747] flex items-center justify-center h-[63px];
-  text-decoration: none; /* 링크 기본 밑줄 제거 */
+  text-decoration: none;
 }
 
 .menu-text:hover {
-  color: #6574f6; /* 원하는 hover 색상으로 조정 가능 */
+  color: #6574f6;
 }
 </style>
