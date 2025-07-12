@@ -115,3 +115,11 @@ export function getProjectInfo(id) {
 export function fetchFunctionTypes() {
   return api.get("/dev-project-works/function-types");
 }
+
+export function replaceProjectSquad(payload) {
+  return api.put("/projects/replacement", payload);
+}
+
+export function replaceRecommendation(payload) {
+  return api.post("/projects/replacement", payload);
+}
