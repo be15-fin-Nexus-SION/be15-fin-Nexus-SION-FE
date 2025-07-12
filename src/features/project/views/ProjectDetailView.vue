@@ -32,7 +32,7 @@ onMounted(async () => {
     project.value = response.data.data;
 
     if (project.value?.members?.length > 0) {
-      replacingMember.value = project.value.members[0];
+      replacingMember.value = project.value.members[1];
       console.log(replacingMember.value);
     }
   } catch (error) {
@@ -105,22 +105,22 @@ const handleMemberClick = (member) => {
   }
 };
 
-const handleReplace = async ({ oldMember, newMember }) => {
+const handleReplace = async ({ oldMemberId, newMemberId }) => {
   try {
     await replaceProjectSquad({
       squadCode: project.value.squadCode,
-      oldEmployeeId: oldMember.employeeId,
-      newEmployeeId: newMember.employeeId,
+      oldEmployeeId: oldMemberId,
+      newEmployeeId: newMemberId,
     });
-    showSuccessToast("인재가 성공적으로 대체되었습니다.");
+    showSuccessToast("프로젝트 인원이 성공적으로 대체되었습니다.");
     isReplacementVisible.value = false;
     isReplacementMode.value = false;
 
     const response = await fetchProjectDetail(projectCode);
     project.value = response.data.data;
   } catch (e) {
-    console.error("인재 대체 실패", e);
-    showErrorToast("대체에 실패했습니다.");
+    console.error("프로젝트 인원 대체 실패", e);
+    showErrorToast("프로젝트 인원 대체에 실패했습니다.");
   }
 };
 </script>
@@ -332,6 +332,7 @@ const handleReplace = async ({ oldMember, newMember }) => {
       </div>
     </transition>
     <ReplacementPanel
+      :key="replacingMember?.employeeId"
       :project="project"
       v-show="isReplacementVisible"
       :leaving-member="replacingMember"

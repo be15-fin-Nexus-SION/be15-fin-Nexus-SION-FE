@@ -115,7 +115,10 @@ function renderSummary() {
 }
 
 function handleReplace(dev) {
-  emit("replace", dev); // 단순하게 선택한 개발자 객체 전달
+  emit("replace", {
+    oldMemberId: props.leavingMember.employeeId,
+    newMemberId: dev.value.employeeId,
+  });
 }
 
 onMounted(() => {

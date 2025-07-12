@@ -21,10 +21,10 @@ function switchToAI() {
   isLoading.value = false;
   showAISection.value = true;
 
-  // setTimeout(() => {
-  //   isLoading.value = false;
-  //   showAISection.value = true;
-  // }, 3000);
+  setTimeout(() => {
+    isLoading.value = false;
+    showAISection.value = true;
+  }, 1000);
 }
 </script>
 
