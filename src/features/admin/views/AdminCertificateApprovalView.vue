@@ -6,7 +6,7 @@
       <h1 class="text-2xl font-bold mb-6">자격증 승인 관리</h1>
 
       <!-- 필터 탭 -->
-      <div class="flex gap-2 mb-4">
+      <div class="flex gap-2 mb-2">
         <button
           v-for="s in statuses"
           :key="s"
@@ -17,7 +17,7 @@
             }
           "
           :class="[
-            'px-4 py-2 rounded-full font-medium transition-colors',
+            'px-4 py-2 rounded-full font-medium text-sm transition-colors',
             selectedStatus === s
               ? 'bg-primary text-white'
               : 'bg-gray-100 text-gray-800 hover:bg-gray-200',
@@ -45,7 +45,7 @@
             :key="cert.userCertificateHistoryId"
             class="border-b"
           >
-            <td class="py-4">{{ cert.employeeName }}</td>
+            <td class="py-3">{{ cert.employeeName }}</td>
             <td class="py-2">{{ cert.certificateName }}</td>
             <td class="py-2">{{ cert.issueDate }}</td>
             <td class="py-2 px-6">
@@ -61,10 +61,13 @@
             <td class="py-2">
               <span
                 :class="{
-                  'text-gray-700': cert.certificateStatus === 'PENDING',
-                  'text-blue-600': cert.certificateStatus === 'APPROVED',
-                  'text-red-500': cert.certificateStatus === 'REJECTED',
-                  'font-semibold': true,
+                  'bg-yellow-100 text-yellow-700':
+                    cert.certificateStatus === 'PENDING',
+                  'bg-green-100 text-green-700':
+                    cert.certificateStatus === 'APPROVED',
+                  'bg-red-100 text-red-700':
+                    cert.certificateStatus === 'REJECTED',
+                  'px-2 py-1 rounded-full text-sm font-semibold': true,
                 }"
               >
                 {{
@@ -75,13 +78,13 @@
             <td class="py-2">
               <template v-if="cert.certificateStatus === 'PENDING'">
                 <button
-                  class="px-3 py-1 bg-primary text-white rounded-md font-medium hover:bg-primary-hover mr-2"
+                  class="px-2 py-0.5 bg-primary text-white rounded-md font-medium hover:bg-primary-hover mr-2"
                   @click="openApproveModal(cert.userCertificateHistoryId)"
                 >
                   승인
                 </button>
                 <button
-                  class="px-3 py-1 bg-red-200 text-red-700 rounded-md font-medium hover:bg-red-300"
+                  class="px-2 py-0.5 bg-red-200 text-red-700 rounded-md font-medium hover:bg-red-300"
                   @click="openRejectModal(cert.userCertificateHistoryId)"
                 >
                   반려
@@ -139,12 +142,6 @@
         />
         <div class="flex justify-center mt-4 gap-2">
           <PrimaryButton @click="confirmReject" label="반려" />
-          <button
-            @click="isRejectModalOpen = false"
-            class="text-sm text-gray-500 hover:text-gray-700 px-4 py-2"
-          >
-            취소
-          </button>
         </div>
       </div>
     </div>

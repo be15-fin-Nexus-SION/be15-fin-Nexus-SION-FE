@@ -44,13 +44,13 @@
             <td class="py-2 flex justify-center gap-2">
               <button
                 @click="edit(certificate)"
-                class="px-3 py-1 bg-natural-gray text-gray-800 rounded-md font-medium transition-colors duration-200 hover:bg-natural-gray-hover"
+                class="px-2 py-0.5 bg-natural-gray text-gray-800 rounded-md font-medium transition-colors duration-200 hover:bg-natural-gray-hover"
               >
                 수정
               </button>
               <button
                 @click="requestDelete(certificate.certificateName)"
-                class="px-3 py-1 bg-red-200 text-red-700 rounded-md font-medium transition-colors duration-200 hover:bg-red-300"
+                class="px-2 py-0.5 bg-red-200 text-red-700 rounded-md font-medium transition-colors duration-200 hover:bg-red-300"
               >
                 삭제
               </button>

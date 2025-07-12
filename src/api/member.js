@@ -138,3 +138,16 @@ export function searchAdmins(payload) {
     params: payload,
   });
 }
+
+export function fetchMyCertificates() {
+  return api.get("/user-certificates/me");
+}
+
+export const developerRegisterCertificate = (employeeId, formData) => {
+  return api.post(`/members/${employeeId}/certificates`, formData);
+}
+
+export function fetchScoreSummary(id) {
+  return api.get(`/member-scores/${id}`);
+}
+

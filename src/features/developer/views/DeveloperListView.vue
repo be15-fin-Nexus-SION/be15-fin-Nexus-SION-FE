@@ -1,6 +1,5 @@
 <template>
   <div class="max-w-5xl mx-auto py-10 px-4 space-y-6">
-    <!-- 🔽 헤더 영역 -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
         <h1 class="text-2xl font-bold">개발자 목록</h1>
@@ -44,7 +43,8 @@
     </div>
 
     <div class="w-full">
-      <table class="min-w-full text-sm mt-4">
+      <LoadingSpinner v-if="isLoading" />
+      <table v-else class="min-w-full text-sm mt-4">
         <thead>
           <tr class="text-gray-500 border-b">
             <th class="p-2 text-center w-[12%]">사번</th>
@@ -58,7 +58,7 @@
                 trigger-label="유형"
               />
             </th>
-            <th class="p-2 text-center w-[22%]">이름</th>
+            <th class="p-2 text-center w-[16%]">이름</th>
             <th class="p-2 text-center w-[19%]">부서</th>
             <th class="p-2 text-center w-[19%]">직급</th>
             <th class="p-2 text-center w-[15%]">주요 기술</th>
@@ -93,14 +93,9 @@
             class="border-b py-4 hover:bg-gray-50 cursor-pointer"
             @click="goToDetail(developer.employeeId)"
           >
-            <!-- 사번 -->
             <td class="p-4 text-center">{{ developer.employeeId }}</td>
-
-            <!-- 유형 -->
             <td class="p-4 text-center">{{ developer.role }}</td>
-
-            <!-- 이름 + 프로필 이미지 -->
-            <td class="p-4 px-12 text-center align-middle">
+            <td class="p-4 px-8 text-center align-middle">
               <div class="flex items-center justify-start gap-3">
                 <img
                   :src="developer.profileImageUrl || fallbackImage"
@@ -110,14 +105,8 @@
                 <div>{{ developer.name }}</div>
               </div>
             </td>
-
-            <!-- 부서 -->
             <td class="p-4 text-center">{{ developer.department }}</td>
-
-            <!-- 직급 -->
             <td class="p-4 text-center">{{ developer.position }}</td>
-
-            <!-- 주요 기술 -->
             <td class="p-4 text-center text-xs font-medium">
               <div class="flex justify-center">
                 <TechBadge
@@ -128,15 +117,11 @@
                 <span v-else>-</span>
               </div>
             </td>
-
-            <!-- 등급 -->
             <td class="p-4 text-center">
               <div class="flex justify-center">
-                <GradeBadge :label="developer.grade" />
+                {{ developer.grade }}
               </div>
             </td>
-
-            <!-- 현재 상태 -->
             <td class="p-4 relative text-center" @click.stop>
               <div class="relative">
                 <div class="flex justify-center">
@@ -155,8 +140,6 @@
                     {{ developer.status }}
                   </button>
                 </div>
-
-                <!-- 상태 변경 드롭다운 -->
                 <ul
                   v-if="openDropdownIndex === index"
                   class="absolute top-full left-1/2 -translate-x-1/2 z-10 mt-1 w-24 bg-white border border-gray-200 rounded-md shadow text-sm"
@@ -180,10 +163,18 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Pagination Component -->
+      <div v-if="!isLoading" class="flex justify-center mt-6">
+        <Pagination
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          @change="onPageChange"
+        />
+      </div>
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { fetchDeveloperList, updateMemberStatus } from "@/api/member";
@@ -192,10 +183,17 @@ import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import { useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
-import GradeBadge from "@/components/badge/GradeBadge.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
+import Pagination from "@/components/Pagination.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const router = useRouter();
+const isLoading = ref(true);
 const developers = ref([]);
+const currentPage = ref(1);
+const totalPages = ref(1);
+const pageSize = 10;
+
 const statusFilter = ref("");
 const gradeFilter = ref("");
 const roleFilter = ref("");
@@ -259,6 +257,7 @@ const roleLabel = (role) => {
 
 const fetchDevelopers = async () => {
   try {
+    isLoading.value = true;
     const res = await fetchDeveloperList({
       keyword: searchKeyword.value,
       status: statusFilter.value,
@@ -266,11 +265,13 @@ const fetchDevelopers = async () => {
       role: roleFilter.value,
       sortBy: sortBy.value,
       sortDir: sortAsc.value ? "asc" : "desc",
-      page: 0,
-      size: 100,
+      page: currentPage.value - 1,
+      size: pageSize,
     });
 
-    const content = res?.data?.data?.content ?? [];
+    const pageData = res?.data?.data;
+    const content = pageData?.content ?? [];
+
     developers.value = content.map((dev) => ({
       name: dev.name,
       position: dev.position || "-",
@@ -283,63 +284,76 @@ const fetchDevelopers = async () => {
       topTechStackName: dev.topTechStackName,
       joinedAt: dev.joinedAt || "1900-01-01T00:00:00",
     }));
+
+    totalPages.value = pageData?.totalPages ?? 1;
   } catch (e) {
-    console.error("개발자 목록 불러오기 실패:", e);
+    developers.value = [];
+    totalPages.value = 1;
+  } finally {
+    isLoading.value = false;
   }
 };
 
-function goToFreelancerList() {
-  router.push({ name: "freelancer-list" });
-}
+const onPageChange = (page) => {
+  currentPage.value = page;
+};
 
-function toggleDropdown(index) {
+const onSearchKeywordChange = (keyword) => {
+  searchKeyword.value = keyword;
+  currentPage.value = 1;
+};
+
+const onSortChange = (selected) => {
+  sortBy.value = selected.value;
+  currentPage.value = 1;
+};
+
+const onStatusFilterChange = (selected) => {
+  statusFilter.value = selected.value;
+  currentPage.value = 1;
+};
+
+const onGradeFilterChange = (selected) => {
+  gradeFilter.value = selected.value;
+  currentPage.value = 1;
+};
+
+const onRoleFilterChange = (selected) => {
+  roleFilter.value = selected.value;
+  currentPage.value = 1;
+};
+
+const toggleDropdown = (index) => {
   openDropdownIndex.value = openDropdownIndex.value === index ? null : index;
-}
+};
 
-async function changeStatus(index, newStatusLabel, newStatusEnum) {
+const changeStatus = async (index, newStatusLabel, newStatusEnum) => {
   const employeeId = developers.value[index].employeeId;
   try {
     await updateMemberStatus(employeeId, newStatusEnum);
     developers.value[index].status = newStatusLabel;
   } catch (e) {
-    console.error("상태 변경 실패:", e);
-    alert("상태 변경에 실패했습니다.");
+    showErrorToast("상태 변경에 실패했습니다.");
   } finally {
     openDropdownIndex.value = null;
   }
-}
+};
 
-function onSearchKeywordChange(keyword) {
-  searchKeyword.value = keyword;
-}
+const goToDetail = (employeeId) => {
+  router.push({ name: "developer-detail", params: { employeeId } });
+};
 
-function onSortChange(selected) {
-  sortBy.value = selected.value;
-}
-
-function onStatusFilterChange(selected) {
-  statusFilter.value = selected.value;
-}
-
-function onGradeFilterChange(selected) {
-  gradeFilter.value = selected.value;
-}
-
-function onRoleFilterChange(selected) {
-  roleFilter.value = selected.value;
-}
-
-function handleClickOutside() {
-  openDropdownIndex.value = null;
-}
-
-function goToDetail(employeeId) {
-  router.push({ name: "developer-detail", params: { employeeId: employeeId } });
-}
-
-function goToAdd() {
+const goToAdd = () => {
   router.push({ name: "developer-add" });
-}
+};
+
+const goToFreelancerList = () => {
+  router.push({ name: "freelancer-list" });
+};
+
+const handleClickOutside = () => {
+  openDropdownIndex.value = null;
+};
 
 document.addEventListener("click", handleClickOutside);
 onBeforeUnmount(() => {
@@ -348,7 +362,15 @@ onBeforeUnmount(() => {
 
 onMounted(fetchDevelopers);
 watch(
-  [statusFilter, gradeFilter, roleFilter, sortBy, sortAsc, searchKeyword],
+  [
+    statusFilter,
+    gradeFilter,
+    roleFilter,
+    sortBy,
+    sortAsc,
+    searchKeyword,
+    currentPage,
+  ],
   fetchDevelopers,
 );
 </script>
