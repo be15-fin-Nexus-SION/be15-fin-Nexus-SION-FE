@@ -47,8 +47,8 @@ body {
 }
 
 .Vue-Toastification__toast--info {
-  background-color: #6574f6 !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #6574f6 !important;
   border-radius: 8px !important;
   padding: 8px 12px !important; /* 패딩 작게 */
   max-width: 320px !important; /* 최대 너비 제한 */
@@ -63,8 +63,21 @@ body {
   min-height: 32px !important; /* 높이 줄임 */
   font-size: 12px !important; /* 글자 작게 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
 
 .Vue-Toastification__toast--info .Vue-Toastification__toast-body {
   font-size: 13px !important;
+}
+
+.Vue-Toastification__toast--info::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px; /* 세로선 두께 */
+  background-color: #6574f6; /* 세로선 색상 */
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
 }
