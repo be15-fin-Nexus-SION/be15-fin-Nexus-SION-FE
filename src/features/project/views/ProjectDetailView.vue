@@ -10,20 +10,28 @@ import {
   deleteProject,
   updateProject,
   analyzeProject,
+  replaceProjectSquad,
 } from "@/api/project";
 import { showSuccessToast, showErrorToast } from "@/utills/toast";
+import ReplacementPanel from "@/features/project/components/ReplacementPanel.vue";
 
 const route = useRoute();
 const router = useRouter();
 const project = ref(null);
 const isLoading = ref(true);
 const isEditVisible = ref(false);
+const projectCode = route.params.projectCode;
 
 onMounted(async () => {
   const projectCode = route.params.projectCode;
   try {
     const response = await fetchProjectDetail(projectCode);
     project.value = response.data.data;
+
+    if (project.value?.members?.length > 0) {
+      replacingMember.value = project.value.members[0];
+      console.log(replacingMember.value);
+    }
   } catch (error) {
     console.error("프로젝트 상세 정보 로드 실패:", error);
   } finally {
@@ -35,7 +43,6 @@ function handleComplete() {
   const confirm = window.confirm("정말 프로젝트를 종료하시겠습니까?");
   if (!confirm) return;
 
-  const projectCode = route.params.projectCode;
   updateProjectStatus(projectCode, "COMPLETE")
     .then(() => {
       project.value.status = "COMPLETE";
@@ -51,7 +58,6 @@ function handleDelete() {
   const confirmDelete = window.confirm("정말 이 프로젝트를 삭제하시겠습니까?");
   if (!confirmDelete) return;
 
-  const projectCode = route.params.projectCode;
   deleteProject(projectCode)
     .then(() => {
       showSuccessToast("프로젝트가 삭제되었습니다.");
@@ -64,8 +70,6 @@ function handleDelete() {
 }
 
 async function handleEditSubmit(data) {
-  const projectCode = route.params.projectCode;
-
   try {
     await updateProject(projectCode, data.payload);
     showSuccessToast("프로젝트가 수정되었습니다.");
@@ -81,6 +85,41 @@ async function handleEditSubmit(data) {
     showErrorToast("수정 중 오류가 발생했습니다.");
   }
 }
+
+const isReplacementMode = ref(false); // 대체 모드 진입 여부
+const isReplacementVisible = ref(false); // 패널 열림 여부
+const replacingMember = ref(null); // 현재 대체 대상 멤버
+
+const enterReplacementMode = () => {
+  isReplacementMode.value = true;
+  showSuccessToast("대체할 대상을 선택하세요.");
+};
+
+const handleMemberClick = (member) => {
+  if (isReplacementMode.value) {
+    replacingMember.value = member;
+    isReplacementVisible.value = true;
+  }
+};
+
+const handleReplace = async ({ oldMember, newMember }) => {
+  try {
+    await replaceProjectSquad({
+      squadCode: project.value.squadCode,
+      oldEmployeeId: oldMember.employeeId,
+      newEmployeeId: newMember.employeeId,
+    });
+    showSuccessToast("인재가 성공적으로 대체되었습니다.");
+    isReplacementVisible.value = false;
+    isReplacementMode.value = false;
+
+    const response = await fetchProjectDetail(projectCode);
+    project.value = response.data.data;
+  } catch (e) {
+    console.error("인재 대체 실패", e);
+    showErrorToast("대체에 실패했습니다.");
+  }
+};
 </script>
 
 <template>
@@ -182,18 +221,33 @@ async function handleEditSubmit(data) {
       <!-- 구성 인원 -->
       <div class="mb-2 flex justify-between items-center">
         <h2 class="font-semibold">구성 인원</h2>
-        <button
-          class="text-sm text-blue-500"
-          @click="router.push({ name: 'squad-list' })"
-        >
-          스쿼드 수정
-        </button>
+        <template v-if="['WAITING', 'IN_PROGRESS'].includes(project.status)">
+          <button
+            class="text-sm text-blue-500"
+            @click="
+              project.status === 'WAITING'
+                ? router.push(
+                    `/squads/create/${projectCode}?squadCode=${project.squadCode}`,
+                  )
+                : enterReplacementMode()
+            "
+          >
+            {{ project.status === "WAITING" ? "스쿼드 수정" : "인재 대체" }}
+          </button>
+        </template>
       </div>
+
+      <p
+        v-if="isReplacementMode"
+        class="text-sm text-red-500 mb-2 font-medium animate-fade"
+      >
+        대체할 개발자를 선택하세요.
+      </p>
 
       <div class="rounded-md overflow-hidden border-y border-gray-200">
         <div
           v-if="project.members.length > 0"
-          class="rounded-md bg-[#F7FAFC] divide-y max-h-80 overflow-y-auto"
+          class="rounded-md bg-[#F7FAFC] divide-y-2 max-h-80"
         >
           <SquadCard
             v-for="(member, idx) in project.members"
@@ -202,6 +256,11 @@ async function handleEditSubmit(data) {
             :role="member.job"
             :isLeader="member.isLeader"
             :imageUrl="member.imageUrl"
+            :selected="
+              isReplacementMode &&
+              replacingMember?.employeeId === member.employeeId
+            "
+            @click="handleMemberClick(member)"
           />
         </div>
         <div v-else class="p-6 text-center text-gray-400 text-sm bg-[#F7FAFC]">
@@ -268,6 +327,13 @@ async function handleEditSubmit(data) {
         </div>
       </div>
     </transition>
+    <ReplacementPanel
+      :project="project"
+      v-show="isReplacementVisible"
+      :leaving-member="replacingMember"
+      @close="isReplacementVisible = false"
+      @replace="handleReplace"
+    />
   </div>
 </template>
 
