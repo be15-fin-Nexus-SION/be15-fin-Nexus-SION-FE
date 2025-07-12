@@ -1,3 +1,58 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import { replaceRecommendation } from "@/api/project.js";
+import { useRoute } from "vue-router";
+
+const props = defineProps({
+  project: Object,
+  leavingMember: Object,
+});
+
+const emit = defineEmits(["replace"]);
+
+const candidates = ref([]);
+const selected = ref(null);
+const isLoading = ref(true);
+
+const select = (dev) => {
+  selected.value = dev;
+};
+
+const emitReplace = () => {
+  emit("replace", {
+    oldMemberId: props.leavingMember.employeeId,
+    newMemberId: selected.value.id,
+  });
+};
+
+const route = useRoute();
+const projectCode = route.params.projectCode;
+
+onMounted(async () => {
+  try {
+    const response = await replaceRecommendation({
+      projectCode: projectCode,
+      leavingMember: props.leavingMember.employeeId,
+    });
+    candidates.value = response.data.data;
+  } catch (e) {
+    console.error("추천 인재 조회 실패", e);
+  } finally {
+    isLoading.value = false;
+  }
+});
+</script>
+
+<style scoped>
+/* Glow 효과 */
+.glow {
+  box-shadow:
+    0 0 8px rgba(101, 116, 246, 0.6),
+    0 0 12px rgba(101, 116, 246, 0.4),
+    0 0 20px rgba(101, 116, 246, 0.2);
+}
+</style>
+
 <template>
   <div>
     <h3 class="text-sm font-semibold mb-4">최적 인재 추천</h3>
@@ -64,58 +119,3 @@
     </button>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-import { replaceRecommendation } from "@/api/project.js";
-import { useRoute } from "vue-router";
-
-const props = defineProps({
-  project: Object,
-  leavingMember: Object,
-});
-
-const emit = defineEmits(["replace"]);
-
-const candidates = ref([]);
-const selected = ref(null);
-const isLoading = ref(true);
-
-const select = (dev) => {
-  selected.value = dev;
-};
-
-const emitReplace = () => {
-  emit("replace", {
-    oldMember: props.leavingMember,
-    newMember: selected.value,
-  });
-};
-
-const route = useRoute();
-const projectCode = route.params.projectCode;
-
-onMounted(async () => {
-  try {
-    const response = await replaceRecommendation({
-      projectCode: projectCode,
-      leavingMember: props.leavingMember.employeeId,
-    });
-    candidates.value = response.data.data;
-  } catch (e) {
-    console.error("추천 인재 조회 실패", e);
-  } finally {
-    isLoading.value = false;
-  }
-});
-</script>
-
-<style scoped>
-/* Glow 효과 */
-.glow {
-  box-shadow:
-    0 0 8px rgba(101, 116, 246, 0.6),
-    0 0 12px rgba(101, 116, 246, 0.4),
-    0 0 20px rgba(101, 116, 246, 0.2);
-}
-</style>
