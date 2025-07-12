@@ -107,7 +107,7 @@ export function fetchFunctionTypes() {
 }
 
 export function replaceProjectSquad(payload) {
-  return api.put("/projects/replacement", payload);
+  return api.put("/projects/squad/replacement", payload);
 }
 
 export function replaceRecommendation(payload) {
