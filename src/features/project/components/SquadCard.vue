@@ -1,5 +1,14 @@
 <template>
-  <div class="flex items-center justify-between px-6 py-4 bg-[#F7FAFC]">
+  <div
+    :class="[
+      'flex items-center justify-between px-6 py-4 transition-all duration-200 cursor-pointer',
+      selected
+        ? 'bg-yellow-50 border-yellow-400 border-2 rounded-md'
+        : isReplacementMode
+          ? 'hover:bg-yellow-50'
+          : 'bg-[#F7FAFC]',
+    ]"
+  >
     <!-- 프로필 + 이름/직무 -->
     <div class="flex items-center gap-4">
       <img
@@ -32,5 +41,13 @@ defineProps({
   role: String,
   isLeader: Number,
   imageUrl: String,
+  selected: {
+    type: Boolean,
+    default: false,
+  },
+  isReplacementMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 </script>
