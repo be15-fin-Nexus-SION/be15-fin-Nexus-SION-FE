@@ -1,13 +1,16 @@
 <template>
   <div
     :class="[
-      'flex items-center justify-between px-6 py-4 transition-all duration-200 cursor-pointer',
-      selected
-        ? 'bg-yellow-50 border-yellow-400 border-2 rounded-md'
-        : isReplacementMode
-          ? 'hover:bg-yellow-50'
-          : 'bg-[#F7FAFC]',
+      'flex items-center justify-between px-6 py-4 transition-all duration-200',
+      isLeader === 1
+        ? 'cursor-not-allowed opacity-50 bg-gray-100'
+        : selected
+          ? 'cursor-pointer bg-yellow-50 border-yellow-400 border-2 rounded-md'
+          : isReplacementMode
+            ? 'cursor-pointer hover:bg-yellow-50'
+            : 'cursor-pointer bg-[#F7FAFC]',
     ]"
+    @click="handleClick"
   >
     <!-- 프로필 + 이름/직무 -->
     <div class="flex items-center gap-4">
@@ -36,7 +39,9 @@
 </template>
 
 <script setup>
-defineProps({
+const emit = defineEmits(["click"]);
+
+const props = defineProps({
   name: String,
   role: String,
   isLeader: Number,
@@ -50,4 +55,10 @@ defineProps({
     default: false,
   },
 });
+
+function handleClick() {
+  // 리더일 경우 클릭 방지
+  if (props.isLeader === 1) return;
+  emit("click");
+}
 </script>
