@@ -13,7 +13,7 @@
       </div>
 
       <!-- 추천 목록 -->
-      <div v-else class="grid grid-cols-3 gap-x-44 gap-y-8">
+      <div v-else class="grid grid-cols-3 gap-x-40 gap-y-8">
         <TrainingCard
           v-for="training in pagedTrainings"
           :key="training.trainingId"
@@ -40,18 +40,15 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import Pagination from "@/components/Pagination.vue";
 import TrainingCard from "@/features/developer/components/TrainingCard.vue";
-import { useAuthStore } from "@/stores/auth";
 import { useTrainingStore } from "@/stores/useTrainingStore";
 
 // 스토어
-const authStore = useAuthStore();
 const trainingStore = useTrainingStore();
-const { memberId } = storeToRefs(authStore);
 const { trainings, isLoading } = storeToRefs(trainingStore);
 
 // 페이지네이션
@@ -72,16 +69,10 @@ const changePage = (page) => {
 };
 
 // 데이터 로딩
-watch(
-  memberId,
-  async (value) => {
-    if (value) {
-      await trainingStore.fetchRecommendations(value);
-      currentPage.value = 1;
-    }
-  },
-  { immediate: true },
-);
+onMounted(async () => {
+  await trainingStore.fetchRecommendations();
+  currentPage.value = 1;
+});
 </script>
 
 <style scoped>

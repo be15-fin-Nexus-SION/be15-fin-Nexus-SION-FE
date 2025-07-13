@@ -6,16 +6,11 @@ export const useTrainingStore = defineStore("training", () => {
   const trainings = ref([]);
   const isLoading = ref(false);
 
-  const fetchRecommendations = async (employeeId) => {
+  const fetchRecommendations = async () => {
     try {
       isLoading.value = true;
 
-      if (!employeeId) {
-        trainings.value = [];
-        return;
-      }
-
-      const res = await fetchRecommendedTrainings(employeeId);
+      const res = await fetchRecommendedTrainings();
       const trainingList = res?.data?.data;
 
       // 응답이 배열이면 정상 처리, 아니면 빈 배열로 초기화
