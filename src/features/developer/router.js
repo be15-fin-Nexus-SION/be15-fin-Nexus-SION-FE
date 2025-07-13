@@ -37,6 +37,16 @@ export const developerRoutes = [
   },
 
   {
+    path: "/self-development/recommend",
+    name: "self-development-recommendations",
+    component: () => import("./views/TrainingRecommendationView.vue"),
+    meta: {
+      requiresAuth: true,
+      roles: ["INSIDER", "OUTSIDER"],
+    },
+  },
+
+  {
     path: "/self-development/certificates",
     name: "self-development-certificates",
     component: () => import("./views/DeveloperCertificateTypeListView.vue"),
