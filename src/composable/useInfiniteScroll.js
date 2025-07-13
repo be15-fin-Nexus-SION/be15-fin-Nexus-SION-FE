@@ -1,10 +1,22 @@
-// src/composables/useInfiniteScroll.js
 import { ref, onMounted, onBeforeUnmount } from "vue";
+
+/**
+ * useInfiniteScroll - 무한 스크롤 composable
+ *
+ * @param {Object} options
+ * @param {Function} options.fetchFn - (page, params?) => Promise
+ * @param {Ref<HTMLElement>} options.scrollTargetRef - 스크롤 대상 엘리먼트 ref
+ * @param {number} [options.threshold=200] - 스크롤 트리거 임계값
+ * @param {Ref<Object>|undefined} [options.params] - 선택 파라미터 (예: { keyword: "" })
+ *
+ * @returns {Object} { items, isLoading, isLastPage, reset, loadMore }
+ */
 
 export function useInfiniteScroll({
   fetchFn,
   scrollTargetRef,
   threshold = 200,
+  params = ref(undefined),
 }) {
   const items = ref([]);
   const curPage = ref(0);
@@ -15,7 +27,7 @@ export function useInfiniteScroll({
   const fetchInitial = async () => {
     try {
       isLoading.value = true;
-      const wrapper = await fetchFn(0);
+      const wrapper = await fetchFn(0, params?.value);
       items.value = wrapper.data.data.content;
       curPage.value = wrapper.data.data.currentPage;
       totalPage.value = wrapper.data.data.totalPages;
@@ -32,7 +44,7 @@ export function useInfiniteScroll({
 
     try {
       isLoading.value = true;
-      const wrapper = await fetchFn(curPage.value + 1);
+      const wrapper = await fetchFn(curPage.value + 1, params?.value);
       items.value.push(...wrapper.data.data.content);
       curPage.value = wrapper.data.data.currentPage;
 

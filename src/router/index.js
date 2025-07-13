@@ -49,7 +49,6 @@ const router = createRouter({
 // 전역 가드: 인증 · 권한 · guestOnly · 로그인/회원가입 접근 제어
 router.beforeEach((to, from) => {
   const authStore = useAuthStore();
-
   // 1) 인증 필요 페이지인데 비로그인
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     showErrorToast("로그인이 필요한 페이지입니다.");
@@ -72,6 +71,8 @@ router.beforeEach((to, from) => {
 
   // 4) roles 메타로 권한 체크
   const { roles } = to.meta;
+  console.log(roles);
+  console.log(authStore.memberRole);
   if (
     Array.isArray(roles) &&
     roles.length > 0 &&
