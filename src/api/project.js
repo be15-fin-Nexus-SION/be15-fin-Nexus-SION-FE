@@ -43,3 +43,9 @@ export function updateProjectStatus(projectCode, status) {
 export function uploadDocument(formData) {
   return api.post("/documents/upload", formData);
 }
+
+export function fetchProjectListByMember(employeeId, page = 0, size = 1) {
+  return api.get(`/projects/member/${employeeId}/list`, {
+    params: { page, size },
+  });
+}

@@ -30,4 +30,9 @@ export const developerRoutes = [
     name: "developer-edit",
     component: () => import("./views/DeveloperEditView.vue"),
   },
+  {
+    path: "/developers/dashboard",
+    name: "developer-dashboard",
+    component: () => import("./views/DashboardView.vue"),
+  },
 ];

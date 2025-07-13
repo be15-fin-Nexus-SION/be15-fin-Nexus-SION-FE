@@ -111,3 +111,13 @@ export function updateCertificate(certificateName, payload) {
 export function deleteCertificate(id) {
   return api.delete(`/certificates/${id}`);
 }
+
+// 전체 점수 성장 추이
+export function fetchScoreTrend(employeeId) {
+  return api.get(`/members/${employeeId}/score-trend/total`);
+}
+
+// 기술스택 기반 성장 추이를 원한다면 아래 함수 추가
+export function fetchTechStackScoreTrend(employeeId) {
+  return api.get(`/members/${employeeId}/score-trend/techstack`);
+}
