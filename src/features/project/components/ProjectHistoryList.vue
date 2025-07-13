@@ -39,12 +39,15 @@ function goToDetail(workId) {
           :startDate="formatDate(item.createdAt)"
           :endDate="item.approvedAt ? formatDate(item.approvedAt) : '-'"
           :workPeriod="item.histories.length"
-          :status="item.approvalStatus"
+          :status="item.approvalStatus || 'UNKNOWN'"
+          :rejectedReason="item.rejectedReason"
           @click="goToDetail(item.workId)"
         />
       </template>
       <template v-else>
-        <div class="no-history-message">프로젝트 등록 이력이 없습니다.</div>
+        <div class="no-history-message">
+          프로젝트 이력 등록 기록이 없습니다.
+        </div>
       </template>
     </div>
   </div>

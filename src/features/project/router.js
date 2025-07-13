@@ -38,7 +38,7 @@ export const projectRoutes = [
     component: () => import("./views/ProjectHistoryListView.vue"),
     meta: {
       requiresAuth: true,
-      roles: ["INSIDER", "OUTSIDER"],
+      roles: ["ADMIN", "INSIDER", "OUTSIDER"],
     },
   },
   {
@@ -47,7 +47,7 @@ export const projectRoutes = [
     component: () => import("./views/ProjectHistoryDetailView.vue"),
     meta: {
       requiresAuth: true,
-      roles: ["INSIDER", "OUTSIDER"],
+      roles: ["ADMIN", "INSIDER", "OUTSIDER"],
     },
   },
 ];

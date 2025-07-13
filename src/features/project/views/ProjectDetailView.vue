@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import SquadCard from "@/features/project/components/SquadCard.vue";
@@ -12,12 +12,15 @@ import {
   analyzeProject,
 } from "@/api/project";
 import { showSuccessToast, showErrorToast } from "@/utills/toast";
+import { useAuthStore } from "@/stores/auth.js";
 
 const route = useRoute();
 const router = useRouter();
 const project = ref(null);
 const isLoading = ref(true);
 const isEditVisible = ref(false);
+const authStore = useAuthStore();
+const memberRole = computed(() => authStore.memberRole);
 
 onMounted(async () => {
   const projectCode = route.params.projectCode;
@@ -130,6 +133,7 @@ async function handleEditSubmit(data) {
 
         <template v-if="project.status === 'COMPLETE'">
           <button
+            v-if="memberRole === 'ADMIN'"
             class="bg-gray-300 text-gray-600 px-5 py-2 rounded-md cursor-not-allowed"
             disabled
           >
