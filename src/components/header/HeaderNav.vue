@@ -21,9 +21,7 @@
       <router-link to="/projects" class="menu-text menu-box"
         >프로젝트</router-link
       >
-      <router-link
-        to="/self-development/certificates"
-        class="menu-text menu-box"
+      <router-link to="/self-development/recommend" class="menu-text menu-box"
         >자기계발</router-link
       >
       <router-link to="/notifications" class="menu-text menu-box"
