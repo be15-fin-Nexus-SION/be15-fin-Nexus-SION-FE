@@ -11,12 +11,18 @@
     </div>
 
     <div class="flex gap-2 items-center justify-between">
-      <div class="w-64">
-        <SearchBar
-          placeholder="이름 또는 사번을 입력하세요"
-          @search="onSearchKeywordChange"
-        />
+      <div class="flex items-center gap-4 mt-2">
+        <div class="w-64">
+          <SearchBar
+            placeholder="이름 또는 사번을 입력하세요"
+            @search="onSearchKeywordChange"
+          />
+        </div>
+        <button class="text-xs text-blue-500" @click="resetFilters">
+          필터 초기화
+        </button>
       </div>
+
       <div class="w-20">
         <SortDropdown
           :options="sortOptions"
@@ -167,8 +173,18 @@
         </tbody>
       </table>
 
+      <div
+        v-if="!isLoading && developers.length === 0"
+        class="text-center text-gray-400 text-sm mt-6 p-12"
+      >
+        조건에 일치하는 개발자가 없습니다.
+      </div>
+
       <!-- Pagination Component -->
-      <div v-if="!isLoading" class="flex justify-center mt-6">
+      <div
+        v-if="!isLoading && developers.length !== 0"
+        class="flex justify-center mt-6"
+      >
         <Pagination
           :current-page="currentPage"
           :total-pages="totalPages"
@@ -354,6 +370,18 @@ const goToFreelancerList = () => {
 
 const handleClickOutside = () => {
   openDropdownIndex.value = null;
+};
+
+const resetFilters = () => {
+  searchKeyword.value = "";
+  statusFilter.value = "";
+  gradeFilter.value = "";
+  roleFilter.value = "";
+  sortBy.value = "employeeId";
+  sortAsc.value = true;
+  currentPage.value = 1;
+
+  fetchDevelopers();
 };
 
 document.addEventListener("click", handleClickOutside);
