@@ -164,7 +164,16 @@ async function submit() {
     showSuccessToast("등록에 성공했습니다.");
     await router.push({ name: "developer-list" });
   } catch (e) {
-    console.error(e);
+    const backendMessage = e.response?.data?.message;
+
+    if (backendMessage) {
+      if (developers.length === 1) {
+        errors.value[0] = { global: backendMessage };
+      } else {
+        errors.value = developers.map(() => ({ global: backendMessage }));
+      }
+    }
+
     showErrorToast("등록에 실패했습니다.");
   }
 }
