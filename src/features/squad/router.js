@@ -5,6 +5,7 @@ export const squadRoutes = [
     component: () => import("./views/SquadListView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {
@@ -13,6 +14,7 @@ export const squadRoutes = [
     component: () => import("./views/SquadDetailView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {
@@ -21,6 +23,7 @@ export const squadRoutes = [
     component: () => import("./views/SquadCreateView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 
@@ -30,6 +33,7 @@ export const squadRoutes = [
     component: () => import("@/features/project/views/ProjectRegisterView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
 ];
