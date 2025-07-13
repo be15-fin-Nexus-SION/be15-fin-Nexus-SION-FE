@@ -1,4 +1,5 @@
 import api from "./axios.js";
+import axios from "axios";
 
 export function getAllJobs() {
   return api.get("/jobs");
@@ -64,4 +65,8 @@ export function updateClient(clientCode, data) {
 
 export function deleteClient(clientCode) {
   return api.delete(`/client-companies/${clientCode}`);
+}
+
+export async function getAdminMainDashboard() {
+  return api.get("/members/dashboard-summary");
 }
