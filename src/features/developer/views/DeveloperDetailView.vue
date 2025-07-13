@@ -22,7 +22,7 @@
     <!-- 개인 정보 카드 -->
     <section
       v-if="developer"
-      class="relative bg-white p-10 rounded-xl border-b border-gray-100 flex gap-20 items-start"
+      class="relative bg-white p-10 rounded-xl border-b border-gray-150 flex gap-20 items-start"
     >
       <div class="absolute top-6 right-6">
         <span
@@ -41,7 +41,10 @@
 
       <div class="w-48 flex flex-col items-center">
         <img
-          :src="developer.profileImageUrl"
+          :src="
+            developer.profileImageUrl ||
+            `https://api.dicebear.com/9.x/notionists/svg?seed=${employeeId}`
+          "
           alt="프로필 이미지"
           class="w-48 h-48 rounded-full object-cover border mb-4"
         />
@@ -98,7 +101,7 @@
 
     <!-- 점수 카드 영역 -->
     <section class="grid grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-xl border border-gray-100 text-start">
+      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
         <div class="text-sm text-gray-500 font-semibold mb-2">총 점수</div>
         <div class="text-3xl font-bold mb-1">
           {{ scoreSummary?.currentTotalScore ?? "-" }}
@@ -113,7 +116,7 @@
         </div>
       </div>
 
-      <div class="bg-white p-6 rounded-xl border border-gray-100 text-start">
+      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
         <div class="text-sm text-gray-500 font-semibold mb-2">
           기술스택 점수
         </div>
@@ -130,7 +133,7 @@
         </div>
       </div>
 
-      <div class="bg-white p-6 rounded-xl border border-gray-100 text-start">
+      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
         <div class="text-sm text-gray-500 font-semibold mb-2">자격증 점수</div>
         <div class="text-3xl font-bold mb-1">
           {{ scoreSummary?.currentCertificateScore ?? "-" }}
@@ -164,20 +167,20 @@
       <!--          <p class="text-gray-400 text-sm">보유한 자격증이 없습니다.</p>-->
       <!--        </div>-->
       <!--      </div>-->
-      <div class="bg-white p-4 rounded-xl border border-gray-100">
+      <div class="bg-white p-4 rounded-xl border border-gray-150">
         <div class="font-semibold mb-4">보유 자격증</div>
         <div class="h-40 flex items-center justify-center">
           <p class="text-gray-400 text-sm">보유한 자격증이 없습니다.</p>
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-xl border border-gray-100">
+      <div class="bg-white p-4 rounded-xl border border-gray-150">
         <div class="font-semibold mb-4">주요 기술 스택</div>
         <RadarChart v-if="radarData" :data="radarData" />
       </div>
     </section>
 
-    <section class="bg-white p-4 rounded-xl border border-gray-100">
+    <section class="bg-white p-4 rounded-xl border border-gray-150">
       <div class="font-semibold mb-4">기술 스택별 점수</div>
       <BarChart v-if="barData" :data="barData" />
     </section>
@@ -334,7 +337,7 @@ onMounted(async () => {
     scoreSummary.value = scoreRes.data;
     console.log("scoreSummary: ", scoreSummary.value);
   } catch (e) {
-    console.error("개발자 상세 정보 불러오기 실패", e);
+    console.warn("총 점수 정보 없음");
   } finally {
     isLoading.value = false;
   }
