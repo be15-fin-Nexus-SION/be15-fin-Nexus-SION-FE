@@ -56,7 +56,7 @@ async function bootstrap() {
   if (authStore.isAuthenticated) {
     const notificationStore = useNotificationStore();
     initNotificationSse((data) => {
-      notificationStore.addNotification(data);
+      notificationStore.prependNotification(data);
     });
   }
 
