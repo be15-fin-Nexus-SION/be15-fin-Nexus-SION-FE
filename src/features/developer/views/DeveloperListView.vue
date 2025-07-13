@@ -98,7 +98,10 @@
             <td class="p-4 px-8 text-center align-middle">
               <div class="flex items-center justify-start gap-3">
                 <img
-                  :src="developer.profileImageUrl || fallbackImage"
+                  :src="
+                    developer.profileImageUrl ||
+                    `https://api.dicebear.com/9.x/notionists/svg?seed=${developer.employeeId}`
+                  "
                   class="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover flex-shrink-0 bg-gray-200"
                   alt="프로필"
                 />
@@ -192,7 +195,7 @@ const isLoading = ref(true);
 const developers = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
-const pageSize = 10;
+const pageSize = 15;
 
 const statusFilter = ref("");
 const gradeFilter = ref("");
@@ -201,8 +204,6 @@ const sortBy = ref("employeeId");
 const sortAsc = ref(true);
 const searchKeyword = ref("");
 const openDropdownIndex = ref(null);
-const fallbackImage = "https://placehold.co/32x32";
-
 const sortOptions = [
   { name: "사번순", value: "employeeId" },
   { name: "이름순", value: "name" },
