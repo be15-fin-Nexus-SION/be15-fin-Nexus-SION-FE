@@ -110,7 +110,9 @@
           <input
             v-model.number="form.salary"
             type="number"
+            step="1000000"
             class="w-full border rounded-md p-2 text-sm"
+            required
           />
         </div>
 

@@ -6,7 +6,7 @@ export function reissueAccessToken() {
 
 export function fetchDeveloperList({
   page = 0,
-  size = 10,
+  size = 15,
   status,
   gradeCode,
   role,
@@ -26,17 +26,6 @@ export function fetchDeveloperList({
   if (keyword) query.keyword = keyword;
 
   return api.get("/members", { params: query });
-}
-
-export function searchDeveloperList({ keyword, page = 0, size = 10 }) {
-  console.log("search 호출, " + keyword);
-  return api.get("/members/search", {
-    params: {
-      keyword,
-      page,
-      size,
-    },
-  });
 }
 
 export const updateMemberStatus = (employeeId, status) => {

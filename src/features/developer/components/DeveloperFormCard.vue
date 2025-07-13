@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-white p-8 rounded-xl shadow-base w-full max-w-3xl space-y-6">
+  <div
+    class="bg-white p-8 rounded-xl border border-gray-150 w-full max-w-3xl space-y-6"
+  >
     <div class="grid grid-cols-2 gap-6">
       <!-- 이름 -->
       <div>
@@ -102,6 +104,7 @@
         <input
           v-model.number="form.salary"
           type="number"
+          step="1000000"
           class="w-full border rounded-md p-2 text-sm"
           required
         />
@@ -216,7 +219,10 @@ const props = defineProps({
 });
 const emit = defineEmits(["update:modelValue", "remove", "open-tech-modal"]);
 
-const form = reactive({});
+const form = reactive({
+  birthday: "2000-01-01",
+});
+
 const selectedFileName = ref("");
 const uploading = ref(false);
 const positionOptions = ref([]);
@@ -224,7 +230,13 @@ const departmentOptions = ref([]);
 
 watch(
   () => props.modelValue,
-  (newVal) => Object.assign(form, newVal),
+  (newVal) => {
+    Object.assign(form, newVal);
+
+    if (!form.birthday) {
+      form.birthday = "2000-01-01";
+    }
+  },
   { immediate: true, deep: true },
 );
 
