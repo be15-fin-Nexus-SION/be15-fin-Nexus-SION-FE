@@ -17,7 +17,7 @@
       </div>
 
       <!-- 자격증 테이블 -->
-      <table class="w-[730px] border text-center">
+      <table class="w-[730px] border text-center table-fixed">
         <thead class="bg-blue-100">
           <tr>
             <th class="py-2 px-5">자격증명</th>
