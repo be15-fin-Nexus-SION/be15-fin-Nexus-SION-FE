@@ -337,7 +337,7 @@ onMounted(async () => {
     scoreSummary.value = scoreRes.data;
     console.log("scoreSummary: ", scoreSummary.value);
   } catch (e) {
-    console.error("개발자 상세 정보 불러오기 실패", e);
+    console.warn("총 점수 정보 없음");
   } finally {
     isLoading.value = false;
   }
