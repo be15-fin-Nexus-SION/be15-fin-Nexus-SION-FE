@@ -24,7 +24,7 @@ const routes = [
         return { name: "login" }; // 미로그인 시 로그인 페이지로
       }
       if (authStore.memberRole === "ADMIN") {
-        return { path: "/developers" }; // 관리자면 도메인 관리로
+        return { name: "AdminDashboardView" }; // 관리자면 대시보드로 이동
       }
       return { path: `/developers/dashboard` }; // 그 외는 자신의 프로필로
     },
