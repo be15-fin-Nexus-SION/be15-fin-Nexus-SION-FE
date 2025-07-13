@@ -139,8 +139,12 @@ export function fetchMyCertificates() {
 
 export const developerRegisterCertificate = (employeeId, formData) => {
   return api.post(`/members/${employeeId}/certificates`, formData);
-}
+};
 
 export function fetchScoreSummary(id) {
   return api.get(`/member-scores/${id}`);
+}
+
+export function fetchRecommendedTrainings() {
+  return api.get(`/trainings/recommend/me`);
 }
