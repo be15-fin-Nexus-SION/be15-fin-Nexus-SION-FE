@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useNotificationStore } from "@/stores/notification.js";
+import { closeNotificationConnection } from "@/api/notificationSse";
 
 const props = defineProps({
   notification: {
@@ -51,10 +52,11 @@ async function goToRelatedPage() {
       url = `/squads/${props.notification.linkedContentId}`;
       break;
     case "GRADE_CHANGE":
-      // 이동하지 않음
       return;
     case "TASK_APPROVAL_REQUEST":
-      url = `/projects/works/approval/${props.notification.linkedContentId}`;
+    case "TASK_APPROVAL_RESULT":
+    case "TASK_APPROVAL_REQUEST_AGAIN":
+      url = `/projects/history/${props.notification.linkedContentId}`;
       break;
     case "CERTIFICATION_APPROVAL_REQUEST":
       url = `/admin/certificates/approval`;
@@ -63,10 +65,12 @@ async function goToRelatedPage() {
       return;
   }
 
-  // 읽음 api 요청 보내기
+  closeNotificationConnection();
   await notificationStore.markAsRead(props.notification.notificationId);
   emit("close");
-  await router.push(url);
+
+  // 🔄 새로고침하면서 페이지 이동
+  window.location.href = url;
 }
 </script>
 
