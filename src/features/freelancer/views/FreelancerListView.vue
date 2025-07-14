@@ -27,7 +27,7 @@
       <div class="space-y-2">
         <FreelancerCard
           v-for="freelancer in freelancers"
-          :key="freelancer.id"
+          :key="freelancer.freelancerId"
           :freelancer="freelancer"
           @click="selectFreelancer(freelancer)"
         />
@@ -66,7 +66,7 @@ import { showErrorToast } from "@/utills/toast";
 
 const freelancers = ref([]);
 const selectedFreelancer = ref(null);
-const currentPage = ref(1);
+const currentPage = ref(0);
 const totalPages = ref(1);
 const size = 10;
 
@@ -77,24 +77,33 @@ onMounted(() => {
 async function loadFreelancers() {
   try {
     const res = await fetchFreelancerList({ page: currentPage.value, size });
+    console.log("✅ 프리랜서 목록 응답:", res.data.data);
+
     const pageData = res.data.data;
     freelancers.value = pageData.content;
     totalPages.value = pageData.totalPages;
+
+    console.log("📦 freelancers 배열:", freelancers.value);
   } catch (e) {
+    console.error("❌ 프리랜서 목록 불러오기 실패:", e);
     showErrorToast("프리랜서 목록 불러오기 실패");
   }
 }
 
 async function selectFreelancer(freelancer) {
   try {
+    console.log("👤 선택된 프리랜서:", freelancer);
     const res = await fetchFreelancerDetail(freelancer.freelancerId);
     selectedFreelancer.value = res.data.data;
+    console.log("✅ 상세 정보:", selectedFreelancer.value);
   } catch (e) {
+    console.error("❌ 프리랜서 상세 조회 실패:", e);
     showErrorToast("프리랜서 상세 조회 실패");
   }
 }
 
 function handlePageChange(page) {
+  console.log("📄 페이지 변경:", page);
   currentPage.value = page;
   loadFreelancers();
 }

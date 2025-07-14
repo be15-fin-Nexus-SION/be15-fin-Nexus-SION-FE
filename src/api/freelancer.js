@@ -1,6 +1,6 @@
 import api from "./axios";
 
-export function fetchFreelancerList({ page = 1, size = 10 }) {
+export function fetchFreelancerList({ page = 0, size = 10 }) {
   return api.get("/freelancers", {
     params: { page, size },
   });

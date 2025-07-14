@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8 space-y-8">
+  <div v-if="authStore.memberId" class="p-8 space-y-8">
     <!-- 프로젝트 + 알람 제목 줄 -->
     <div class="flex gap-6 items-center">
       <div class="flex-1 text-xl font-bold">프로젝트</div>
@@ -20,18 +20,8 @@
       </div>
 
       <!-- 알림 카드 -->
-      <div
-        class="flex-1 h-[178px] p-6 rounded-xl bg-white shadow-[0_0_2px_rgba(0,0,0,0.25)]"
-      >
-        <ul
-          class="space-y-2 text-sm text-gray-700"
-          v-if="notifications.length > 0"
-        >
-          <li v-for="n in notifications" :key="n.id">
-            ✔ {{ n.message }} ({{ n.date }})
-          </li>
-        </ul>
-        <p v-else class="text-gray-400 text-sm">알림이 없습니다.</p>
+      <div class="flex-1">
+        <NotificationList />
       </div>
     </div>
 
@@ -41,20 +31,9 @@
       <div
         class="flex gap-6 p-6 bg-white rounded-xl shadow-[0_0_2px_rgba(0,0,0,0.25)]"
       >
-        <!-- 자격증 -->
+        <!-- ✅ 자격증: 너비를 절반으로 제한 -->
         <div class="w-1/2">
-          <ul class="space-y-3 text-sm">
-            <li
-              v-for="cert in certifications"
-              :key="cert.name"
-              class="flex justify-between items-center border-b pb-1"
-            >
-              <span>{{ cert.name }}</span>
-              <span :class="cert.acquired ? 'text-green-500' : 'text-gray-300'"
-                >✔</span
-              >
-            </li>
-          </ul>
+          <CertificateList />
         </div>
 
         <!-- 추천 교육 -->
@@ -101,45 +80,23 @@
       </div>
     </div>
   </div>
+
+  <div v-else class="p-8 text-center text-gray-400">
+    로그인 후 이용 가능한 화면입니다.
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import ProjectCard from "@/features/project/components/ProjectCard.vue";
 import GrowthChart from "@/features/developer/components/GrowthChart.vue";
-import { useAuthStore } from "@/stores/auth.js";
+import NotificationList from "@/features/developer/components/NotificationList.vue";
+import CertificateList from "@/features/developer/components/CertificateList.vue";
 import { fetchProjectListByMember } from "@/api/project.js";
+import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 const project = ref(null);
-
-// 알림은 더미 데이터 유지
-const notifications = [
-  {
-    id: 1,
-    message: "Project Alpha: Milestone 1 completed",
-    date: "2024-07-25",
-  },
-  {
-    id: 2,
-    message: "Project Alpha: Milestone 2 completed",
-    date: "2024-07-25",
-  },
-  {
-    id: 3,
-    message: "Project Alpha: Milestone 3 completed",
-    date: "2024-08-15",
-  },
-];
-
-// 자격증과 추천 교육도 유지
-const certifications = [
-  { name: "SQLD", acquired: true },
-  { name: "데이터 분석 전문가", acquired: true },
-  { name: "정보처리기사", acquired: false },
-  { name: "컴퓨터 활용능력 1급", acquired: false },
-  { name: "AWS Certified Developer", acquired: false },
-];
 
 const recommendedCourses = [
   {
@@ -149,7 +106,7 @@ const recommendedCourses = [
     school: "서울사이버대학교",
     imageUrl:
       "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
-    link: "https://www.kmooc.kr/", // 🔗 수강 링크 추가
+    link: "https://www.kmooc.kr/",
   },
   {
     id: 2,
@@ -192,7 +149,3 @@ onMounted(async () => {
   }
 });
 </script>
-
-<style scoped>
-/* 필요시 추가 커스텀 */
-</style>
