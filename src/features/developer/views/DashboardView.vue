@@ -76,11 +76,14 @@
                 </div>
                 <div class="text-base font-semibold">{{ course.title }}</div>
                 <div class="text-xs text-gray-500">{{ course.school }}</div>
-                <button
-                  class="mt-2 w-full bg-blue-600 text-white rounded px-3 py-1 text-sm"
+                <a
+                  :href="course.link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mt-2 w-full bg-blue-600 text-white rounded px-3 py-1 text-sm block text-center"
                 >
                   수강하기
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -144,28 +147,36 @@ const recommendedCourses = [
     title: "파이썬 실전 코딩",
     category: "백엔드",
     school: "서울사이버대학교",
-    imageUrl: "/course/python1.png",
+    imageUrl:
+      "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
+    link: "https://www.kmooc.kr/", // 🔗 수강 링크 추가
   },
   {
     id: 2,
     title: "프론트엔드 기초",
     category: "프론트엔드",
     school: "패스트캠퍼스",
-    imageUrl: "/course/frontend1.png",
+    imageUrl:
+      "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
+    link: "https://www.kmooc.kr/",
   },
   {
     id: 3,
     title: "데이터 분석 실습",
     category: "데이터",
     school: "멋쟁이사자처럼",
-    imageUrl: "/course/data1.png",
+    imageUrl:
+      "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
+    link: "https://www.kmooc.kr/",
   },
   {
     id: 4,
     title: "클라우드 기초",
     category: "DevOps",
     school: "Inflearn",
-    imageUrl: "/course/cloud1.png",
+    imageUrl:
+      "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
+    link: "https://www.kmooc.kr/",
   },
 ];
 

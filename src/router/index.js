@@ -28,7 +28,7 @@ const routes = [
       if (authStore.memberRole === "ADMIN") {
         return { path: "/developers" }; // 관리자면 도메인 관리로
       }
-      return { path: `/developers/${authStore.memberId}` }; // 그 외는 자신의 프로필로
+      return { path: `/developers/dashboard` }; // 그 외는 자신의 프로필로
     },
     children: [
       ...developerRoutes,

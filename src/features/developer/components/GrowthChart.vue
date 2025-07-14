@@ -5,10 +5,10 @@ import { fetchScoreTrend } from "@/api/member";
 
 Chart.register(...registerables);
 
-// ✅ JavaScript에서 구조 분해 방식으로 props 안전하게 꺼내기
 const { employeeId } = defineProps(["employeeId"]);
 
 const canvasRef = ref(null);
+const hasData = ref(true);
 
 async function drawChart() {
   try {
@@ -16,6 +16,7 @@ async function drawChart() {
 
     if (!employeeId) {
       console.warn("⚠️ employeeId가 없습니다.");
+      hasData.value = false;
       return;
     }
 
@@ -24,7 +25,13 @@ async function drawChart() {
 
     console.log("📊 받아온 성장 점수 데이터:", trendData);
 
-    await nextTick(); // DOM 준비
+    if (!trendData || trendData.length === 0) {
+      hasData.value = false;
+      return;
+    }
+
+    hasData.value = true;
+    await nextTick();
 
     const ctx = canvasRef.value?.getContext("2d");
     if (!ctx) {
@@ -32,17 +39,26 @@ async function drawChart() {
       return;
     }
 
+    const labelsWithScores = labels.map((label) => {
+      const item = trendData.find((d) => d.month === label);
+      return { label, score: item ? item.score : 0 };
+    });
+
+    const scores = labelsWithScores.map((item) => item.score);
+    const minScore = Math.min(...scores);
+    const maxScore = Math.max(...scores);
+
+    const adjustedMin = Math.floor(minScore * 0.8);
+    const adjustedMax = Math.ceil(maxScore * 1.1);
+
     new Chart(ctx, {
       type: "line",
       data: {
-        labels,
+        labels: labelsWithScores.map((item) => item.label),
         datasets: [
           {
-            label: "기술 성장 점수",
-            data: labels.map((label) => {
-              const item = trendData.find((d) => d.month === label);
-              return item ? item.score : 0;
-            }),
+            label: "총점수",
+            data: scores,
             borderColor: "#3B82F6",
             backgroundColor: "rgba(59, 130, 246, 0.2)",
             fill: true,
@@ -57,10 +73,30 @@ async function drawChart() {
         maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const index = context.dataIndex;
+                const current = context.dataset.data[index];
+                const prev = context.dataset.data[index - 1];
+
+                let diffStr = "";
+                if (index > 0 && typeof prev === "number") {
+                  const diff = current - prev;
+                  const sign = diff > 0 ? "+" : diff < 0 ? "" : "±";
+                  diffStr = ` (${sign}${diff})`;
+                }
+
+                return `총점수: ${current}${diffStr}`;
+              },
+            },
+          },
         },
         scales: {
           y: {
-            beginAtZero: true,
+            beginAtZero: false,
+            min: adjustedMin,
+            max: adjustedMax,
             title: { display: true, text: "점수" },
           },
           x: {
@@ -71,6 +107,7 @@ async function drawChart() {
     });
   } catch (error) {
     console.error("점수 추이 데이터를 불러오는 중 오류 발생:", error);
+    hasData.value = false;
   }
 }
 
@@ -92,7 +129,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full h-72">
-    <canvas ref="canvasRef" class="w-full h-full block"></canvas>
+  <div class="w-full h-72 relative">
+    <canvas v-if="hasData" ref="canvasRef" class="w-full h-full block"></canvas>
+    <div
+      v-else
+      class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm"
+    >
+      표시할 데이터가 없습니다.
+    </div>
   </div>
 </template>
