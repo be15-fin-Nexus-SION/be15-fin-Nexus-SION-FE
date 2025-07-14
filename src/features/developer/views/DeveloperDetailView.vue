@@ -126,7 +126,7 @@
     <!-- 성장 추이 -->
     <section class="bg-white p-4 rounded-xl shadow">
       <div class="font-semibold mb-4">성장 추이</div>
-      <GrowthChart :employeeId="employeeId" />
+      <GrowthChart v-if="developer" :employeeId="developer.employeeId" />
     </section>
 
     <!-- 삭제 확인 모달 -->
@@ -156,6 +156,7 @@ import {
   fetchTechStacksByEmployeeId,
   deleteDeveloper,
 } from "@/api/member";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 // 경로 및 상태
 const route = useRoute();
@@ -196,10 +197,10 @@ function goToEdit() {
 async function deleteDeveloperHandler() {
   try {
     await deleteDeveloper(employeeId);
-    alert("삭제가 완료되었습니다.");
+    showSuccessToast("삭제가 완료되었습니다.");
     router.push({ name: "developer-list" });
   } catch (e) {
-    alert("삭제에 실패했습니다.");
+    showErrorToast("삭제에 실패했습니다.");
     console.error("삭제 오류:", e);
   } finally {
     showDeleteConfirm.value = false;
