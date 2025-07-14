@@ -2,6 +2,9 @@
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import ConfirmDeleteModal from "@/features/squad/components/ConfirmDeleteModal.vue";
+import { shareSquad } from "@/api/notification.js";
+import AdminSearchModal from "@/features/squad/components/modal/AdminSearchModal.vue";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const props = defineProps({
   squad: Object,
@@ -10,11 +13,16 @@ const props = defineProps({
 
 const emit = defineEmits(["delete"]);
 const showDeleteModal = ref(false);
+const showAdminSearchModal = ref(false);
 const router = useRouter();
 
 const openDeleteModal = () => {
   showDeleteModal.value = true;
 };
+
+function openAdminSearchModal() {
+  showAdminSearchModal.value = true;
+}
 
 const confirmDelete = () => {
   emit("delete", props.squad.squadCode);
@@ -22,7 +30,7 @@ const confirmDelete = () => {
 };
 
 const goToDetail = () => {
-  router.push(`/squads/${props.squad.squadCode}?projectId=${props.projectId}`);
+  router.push(`/squads/${props.squad.squadCode}`);
 };
 
 const MAX_DISPLAY_MEMBERS = 3;
@@ -32,6 +40,21 @@ const displayedMembers = computed(() =>
 const remainingCount = computed(
   () => props.squad.members.length - MAX_DISPLAY_MEMBERS,
 );
+
+async function handleShareSquad(adminList) {
+  try {
+    await shareSquad({
+      squadCode: props.squad.squadCode,
+      receivers: adminList,
+    });
+
+    showSuccessToast("스쿼드 공유 완료");
+    showAdminSearchModal.value = false;
+  } catch (e) {
+    console.log("스쿼드 공유 실패했습니다.", e);
+    showErrorToast("스쿼드 공유에 실패했습니다.");
+  }
+}
 </script>
 
 <template>
@@ -95,7 +118,7 @@ const remainingCount = computed(
       <!-- 하단 버튼 -->
       <div class="flex gap-2 mt-auto">
         <button
-          @click.stop
+          @click.stop="openAdminSearchModal"
           class="flex-1 px-4 py-2 bg-secondary-green text-white rounded-md font-semibold transition-colors duration-200 hover:bg-secondary-green-hover"
         >
           스쿼드 공유
@@ -115,6 +138,12 @@ const remainingCount = computed(
         confirmText="삭제"
         @confirm="confirmDelete"
         @close="showDeleteModal = false"
+      />
+
+      <AdminSearchModal
+        v-if="showAdminSearchModal"
+        @share="handleShareSquad"
+        @close="showAdminSearchModal = false"
       />
     </div>
   </div>

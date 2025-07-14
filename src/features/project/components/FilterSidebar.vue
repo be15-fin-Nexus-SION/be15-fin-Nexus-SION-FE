@@ -1,7 +1,13 @@
 <script setup>
 import { ref, computed } from "vue";
-
 const emit = defineEmits(["filter-change"]);
+
+const props = defineProps({
+  mode: {
+    type: String,
+    default: "project",
+  },
+});
 
 const selectedFilters = ref({
   keyword: "",
@@ -11,12 +17,22 @@ const selectedFilters = ref({
   status: null,
 });
 
-const statusOptions = [
-  { label: "미완료", value: "INCOMPLETE", color: "#9e9e9e" },
-  { label: "종료", value: "COMPLETE", color: "#FF4444" },
-  { label: "진행중", value: "IN_PROGRESS", color: "#00C851" },
-  { label: "시작 전", value: "WAITING", color: "#FFD700" },
-];
+const statusOptions = computed(() => {
+  if (props.mode === "history") {
+    return [
+      { label: "요청중", value: "PENDING", color: "#FFD700" },
+      { label: "승인됨", value: "APPROVED", color: "#64CF8B" },
+      { label: "거부됨", value: "REJECTED", color: "#EC4D4D" },
+    ];
+  } else {
+    return [
+      { label: "미완료", value: "INCOMPLETE", color: "#9e9e9e" },
+      { label: "시작 전", value: "WAITING", color: "#FFD700" },
+      { label: "진행중", value: "IN_PROGRESS", color: "#00C851" },
+      { label: "종료", value: "COMPLETE", color: "#FF4444" },
+    ];
+  }
+});
 
 const periodFill = computed(
   () => `${(selectedFilters.value.period / 36) * 100}%`,
@@ -31,6 +47,11 @@ const memberFill = computed(
 function handleStatusClick(value) {
   selectedFilters.value.status =
     selectedFilters.value.status === value ? null : value;
+
+  // 'history' 모드일 때만 즉시 검색 실행
+  if (props.mode === "history") {
+    emit("filter-change", selectedFilters.value);
+  }
 }
 
 function handleSearchClick() {
@@ -42,7 +63,7 @@ function handleSearchClick() {
 <template>
   <aside class="sidebar-filter">
     <div class="filter-card">
-      <div class="mb-6">
+      <div v-if="props.mode === 'project'" class="mb-6">
         <div class="flex gap-2">
           <input
             type="text"
@@ -56,7 +77,7 @@ function handleSearchClick() {
 
       <div class="space-y-6">
         <!-- 기간 -->
-        <div>
+        <div v-if="props.mode === 'project'">
           <p class="text-sm font-semibold text-gray-900 mb-1">
             {{ Math.floor(selectedFilters.period / 12) }} 년
             {{ selectedFilters.period % 12 }} 개월 이하
@@ -74,7 +95,7 @@ function handleSearchClick() {
         </div>
 
         <!-- 예산 -->
-        <div>
+        <div v-if="props.mode === 'project'">
           <p class="text-sm font-semibold text-gray-900 mb-1">
             {{ selectedFilters.budget.toLocaleString() }} 만원 이하
           </p>
@@ -92,7 +113,7 @@ function handleSearchClick() {
         </div>
 
         <!-- 인원 -->
-        <div>
+        <div v-if="props.mode === 'project'">
           <p class="text-sm font-semibold text-gray-900 mb-1">
             {{ selectedFilters.memberCount }} 명 이하
           </p>
@@ -152,7 +173,6 @@ function handleSearchClick() {
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.25);
 }
 
-/* 검색창 input */
 .search-input {
   flex: 1;
   padding: 10px 16px;
@@ -164,7 +184,6 @@ function handleSearchClick() {
   outline: none;
 }
 
-/* 검색 버튼 */
 .search-button {
   background-color: #e7e9f9;
   color: #1e293b;
@@ -176,16 +195,15 @@ function handleSearchClick() {
   cursor: pointer;
   transition: background-color 0.2s;
 }
+
 .search-button:hover {
   background-color: #d8daef;
 }
 
-/* 라벨 공통 */
 .filter-label {
   @apply block mb-2 text-sm font-bold text-black;
 }
 
-/* 슬라이더 */
 .custom-slider {
   width: 100%;
   height: 6px;
@@ -196,7 +214,6 @@ function handleSearchClick() {
   background-color: #e5e7eb;
 }
 
-/* WebKit (Chrome, Safari) */
 .custom-slider::-webkit-slider-thumb {
   appearance: none;
   height: 0;
@@ -205,7 +222,6 @@ function handleSearchClick() {
   pointer-events: auto;
 }
 
-/* Firefox */
 .custom-slider::-moz-range-thumb {
   height: 0;
   width: 0;

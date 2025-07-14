@@ -2,6 +2,7 @@
 import { ref, computed, watchEffect, onMounted, onUnmounted } from "vue";
 import CrownFilled from "@/assets/icons/Crown_filled.svg";
 import CrownUnfilled from "@/assets/icons/Crown_Unfilled.svg";
+import { useDeveloperModal } from "@/composable/useDeveloperModal.js";
 
 const props = defineProps({
   title: {
@@ -48,6 +49,8 @@ const filteredMembers = computed(() => {
   if (roleFilter.value === "전체") return props.members;
   return props.members.filter((m) => (m.role || m.job) === roleFilter.value);
 });
+
+const { openModal } = useDeveloperModal();
 </script>
 
 <template>
@@ -83,92 +86,46 @@ const filteredMembers = computed(() => {
 
     <!-- 카드 뷰 -->
     <div v-if="viewMode === 'card'" class="card-grid">
-      <article
-        v-for="member in filteredMembers"
-        :key="member.id"
-        class="member-card border-gradient"
-      >
-        <div class="relative group w-full flex flex-col items-center h-[220px]">
-          <div class="hexagon-frame">
-            <img
-              :src="member.imageUrl || '/default-profile.png'"
-              alt="profile"
-              class="hexagon-image"
-            />
-          </div>
-          <div class="flex-1 info flex flex-col justify-end">
-            <p class="name">{{ member.name }}</p>
-            <p class="role">{{ member.role || member.job }}</p>
-          </div>
-
-          <!-- 리더 버튼 -->
-          <button
-            class="btn-leader absolute top-0 left-0 text-yellow-500"
-            @click="!readonly && $emit('set-leader', member)"
-            :disabled="readonly"
-            :class="[{ 'animated-crown': member.isLeader || member.leader }]"
-            :title="
-              member.isLeader || member.leader
-                ? '현재 리더'
-                : readonly
-                  ? '리더 지정 불가'
-                  : '리더로 지정'
-            "
+      <template v-if="filteredMembers.length">
+        <article
+          v-for="member in filteredMembers"
+          :key="member.id"
+          class="member-card border-gradient"
+        >
+          <div
+            class="relative group w-full flex flex-col items-center h-[220px]"
           >
-            <img
-              :src="
-                member.isLeader || member.leader ? CrownFilled : CrownUnfilled
-              "
-              alt="리더 아이콘"
-            />
-          </button>
-
-          <!-- 삭제 버튼 -->
-          <button
-            v-if="!readonly"
-            class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 -top-1 right-0"
-            @click="$emit('remove', member.id)"
-          >
-            ✕
-          </button>
-        </div>
-      </article>
-    </div>
-
-    <!-- 리스트 뷰 -->
-    <ul v-else class="list-view">
-      <li
-        v-for="member in filteredMembers"
-        :key="member.id"
-        class="list-item border-gradient group"
-      >
-        <div class="flex items-center gap-4 justify-between">
-          <div class="flex items-center gap-4">
-            <img :src="member.imageUrl" alt="avatar" class="avatar-sm" />
-            <div class="flex flex-col">
-              <p class="name">{{ member.name }}</p>
-              <p class="role text-sm text-gray-500">
-                {{ member.role || member.job }}
-              </p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <span
-              class="grade-text"
-              :class="`text-gradient-grade-${member.grade?.toLowerCase?.()}`"
+            <div
+              class="hexagon-frame cursor-pointer"
+              @click="openModal(member.id)"
             >
-              {{ member.grade }}
-            </span>
+              <img
+                :src="
+                  member.imageUrl ||
+                  `https://api.dicebear.com/9.x/notionists/svg?seed=` +
+                    member.id
+                "
+                alt="profile"
+                class="hexagon-image"
+              />
+            </div>
+            <div class="flex-1 info flex flex-col justify-end">
+              <p class="name">{{ member.name }}</p>
+              <p class="role">{{ member.role || member.job }}</p>
+            </div>
 
             <!-- 리더 버튼 -->
             <button
-              class="btn-leader text-yellow-500"
+              class="btn-leader absolute top-0 left-0 text-yellow-500"
+              @click.stop="!readonly && $emit('set-leader', member)"
               :disabled="readonly"
-              @click="$emit('set-leader', member)"
-              :class="{ 'animated-crown': member.isLeader || member.leader }"
+              :class="[{ 'animated-crown': member.isLeader || member.leader }]"
               :title="
-                member.isLeader || member.leader ? '현재 리더' : '리더로 지정'
+                member.isLeader || member.leader
+                  ? '현재 리더'
+                  : readonly
+                    ? '리더 지정 불가'
+                    : '리더로 지정'
               "
             >
               <img
@@ -182,13 +139,101 @@ const filteredMembers = computed(() => {
             <!-- 삭제 버튼 -->
             <button
               v-if="!readonly"
-              class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 top-0 right-2"
-              @click="$emit('remove', member.id)"
+              class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 -top-1 right-0"
+              @click.stop="$emit('remove', member.id)"
             >
               ✕
             </button>
           </div>
-        </div>
+        </article>
+      </template>
+      <div
+        v-else
+        class="flex flex-col items-center justify-center w-full col-span-2 py-12 text-gray-500 animate-pulse bg-gray-50 rounded-xl border border-dashed border-gray-300"
+      >
+        <i class="fa-solid fa-users text-4xl mb-4 text-primary"></i>
+        <p class="text-lg font-medium">
+          프로젝트에 투입될 인재들을 선택해주세요
+        </p>
+      </div>
+    </div>
+
+    <!-- 리스트 뷰 -->
+    <ul v-else class="list-view">
+      <template v-if="filteredMembers.length">
+        <li
+          v-for="member in filteredMembers"
+          :key="member.id"
+          class="list-item border-gradient group"
+          @click="openModal(member.id)"
+        >
+          <div class="flex items-center gap-4 justify-between">
+            <div class="flex items-center gap-4">
+              <img
+                :src="
+                  member.imageUrl ||
+                  `https://api.dicebear.com/9.x/notionists/svg?seed=` +
+                    member.id
+                "
+                alt="avatar"
+                class="avatar-sm bg-gray-100"
+              />
+              <div class="flex flex-col">
+                <p class="name">{{ member.name }}</p>
+                <p class="role text-sm text-gray-500">
+                  {{ member.role || member.job }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <span
+                class="grade-text"
+                :class="`text-gradient-grade-${member.grade?.toLowerCase?.()}`"
+              >
+                {{ member.grade }}
+              </span>
+
+              <!-- 리더 버튼 -->
+              <button
+                class="btn-leader text-yellow-500"
+                :disabled="readonly"
+                @click.stop="$emit('set-leader', member)"
+                :class="{ 'animated-crown': member.isLeader || member.leader }"
+                :title="
+                  member.isLeader || member.leader ? '현재 리더' : '리더로 지정'
+                "
+              >
+                <img
+                  :src="
+                    member.isLeader || member.leader
+                      ? CrownFilled
+                      : CrownUnfilled
+                  "
+                  alt="리더 아이콘"
+                />
+              </button>
+
+              <!-- 삭제 버튼 -->
+              <button
+                v-if="!readonly"
+                class="btn-remove transition-opacity duration-200 opacity-0 group-hover:opacity-100 top-0 right-2"
+                @click.stop="$emit('remove', member.id)"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </li>
+      </template>
+      <li
+        v-else
+        class="animate-pulse w-full text-center py-10 text-gray-500 animate-fadeIn border border-dashed border-gray-300 rounded-lg"
+      >
+        <i class="fa-solid fa-users text-3xl mb-3 text-primary"></i><br />
+        <span class="text-base font-medium"
+          >스쿼드 구성원이 아직 없습니다.</span
+        >
       </li>
     </ul>
   </section>
@@ -290,7 +335,7 @@ const filteredMembers = computed(() => {
   object-fit: cover;
   transform: translate(-50%, -50%);
   clip-path: inherit;
-  @apply bg-red-50;
+  @apply bg-white;
 }
 
 .info {

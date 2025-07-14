@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import SquadCard from "@/features/project/components/SquadCard.vue";
@@ -9,14 +9,18 @@ import {
   updateProjectStatus,
   deleteProject,
   updateProject,
+  analyzeProject,
 } from "@/api/project";
 import { showSuccessToast, showErrorToast } from "@/utills/toast";
+import { useAuthStore } from "@/stores/auth.js";
 
 const route = useRoute();
 const router = useRouter();
 const project = ref(null);
 const isLoading = ref(true);
 const isEditVisible = ref(false);
+const authStore = useAuthStore();
+const memberRole = computed(() => authStore.memberRole);
 
 onMounted(async () => {
   const projectCode = route.params.projectCode;
@@ -62,13 +66,18 @@ function handleDelete() {
     });
 }
 
-async function handleEditSubmit(payload) {
+async function handleEditSubmit(data) {
   const projectCode = route.params.projectCode;
 
   try {
-    await updateProject(projectCode, payload);
+    await updateProject(projectCode, data.payload);
     showSuccessToast("프로젝트가 수정되었습니다.");
-    Object.assign(project.value, payload);
+
+    await analyzeProject(projectCode, data.file);
+
+    // UI 반영
+    Object.assign(project.value, data.payload);
+
     isEditVisible.value = false;
   } catch (error) {
     console.error("프로젝트 수정 실패:", error);
@@ -84,7 +93,7 @@ async function handleEditSubmit(payload) {
     <div v-if="isLoading">로딩 중...</div>
 
     <template v-else-if="project">
-      <!-- 제목 + 분석 상태 + 종료 버튼 -->
+      <!-- 제목 + 상태 버튼 -->
       <div class="flex justify-between items-center mb-4">
         <div class="flex items-center gap-3">
           <h1 class="text-2xl font-bold">{{ project.title }}</h1>
@@ -124,6 +133,7 @@ async function handleEditSubmit(payload) {
 
         <template v-if="project.status === 'COMPLETE'">
           <button
+            v-if="memberRole === 'ADMIN'"
             class="bg-gray-300 text-gray-600 px-5 py-2 rounded-md cursor-not-allowed"
             disabled
           >
@@ -285,5 +295,20 @@ async function handleEditSubmit(payload) {
 .slide-leave-to {
   transform: translateX(100%);
   opacity: 0;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade {
+  animation: fade 0.4s ease-out forwards;
 }
 </style>

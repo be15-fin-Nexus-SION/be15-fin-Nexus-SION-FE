@@ -1,5 +1,3 @@
-// src/router/index.js
-
 import { createRouter, createWebHistory } from "vue-router";
 import AppShell from "@/components/AppShell.vue";
 
@@ -51,7 +49,6 @@ const router = createRouter({
 // 전역 가드: 인증 · 권한 · guestOnly · 로그인/회원가입 접근 제어
 router.beforeEach((to, from) => {
   const authStore = useAuthStore();
-
   // 1) 인증 필요 페이지인데 비로그인
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     showErrorToast("로그인이 필요한 페이지입니다.");
@@ -74,6 +71,8 @@ router.beforeEach((to, from) => {
 
   // 4) roles 메타로 권한 체크
   const { roles } = to.meta;
+  console.log(roles);
+  console.log(authStore.memberRole);
   if (
     Array.isArray(roles) &&
     roles.length > 0 &&
@@ -83,6 +82,16 @@ router.beforeEach((to, from) => {
     return { path: `/developers/${authStore.memberId}` };
   }
 
+  if (to.meta.allowSelfOrAdmin) {
+    const targetId = to.params.employeeId;
+    const isAdmin = authStore.memberRole === "ADMIN";
+    const isSelf = authStore.memberId === targetId;
+
+    if (!isAdmin && !isSelf) {
+      showErrorToast("접근 권한이 없습니다.");
+      return { path: `/developers/${authStore.memberId}` };
+    }
+  }
   // 정상 진행
 });
 

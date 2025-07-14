@@ -94,7 +94,7 @@ function handleClose() {
         </div>
         <div v-else class="body-scroll" ref="scrollContainer">
           <div
-            class="flex flex-wrap justify-center gap-x-7 gap-y-4 overflow-y-auto"
+            class="flex flex-wrap justify-left gap-x-7 gap-y-4 overflow-y-auto"
           >
             <ExistSquadCard
               v-for="(squad, idx) in squads"

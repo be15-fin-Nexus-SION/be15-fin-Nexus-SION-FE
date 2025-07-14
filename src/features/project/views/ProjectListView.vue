@@ -1,116 +1,304 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
-import { fetchProjectList } from "@/api/project.js";
+import {
+  fetchProjectList,
+  fetchMyProjectList,
+  getMyProjectWorkRequests,
+  getRequestsForAdmin,
+} from "@/api/project.js";
+import { useAuthStore } from "@/stores/auth";
 import FilterSidebar from "@/features/project/components/FilterSidebar.vue";
 import ProjectCard from "@/features/project/components/ProjectCard.vue";
 import Pagination from "@/components/Pagination.vue";
+import StatusFilter from "@/features/project/components/StatusFilter.vue";
+import ProjectHistoryList from "@/features/project/components/ProjectHistoryList.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const router = useRouter();
+const authStore = useAuthStore();
 
 const allProjects = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
 const perPage = 4;
 const selectedFilter = ref({});
+const projectHistories = ref([]);
+const activeTab = ref("list");
 
-// 👉 상세 이동 함수 추가
+const memberRole = computed(() => authStore.memberRole);
+const employeeId = computed(() => authStore.memberId);
+const selectedStatusForUser = ref(null);
+const selectedStatusForAdmin = ref(null);
+
 function goToDetail(projectCode) {
   router.push({ name: "project-detail", params: { projectCode } });
 }
 
-async function fetchProjects(filter) {
-  const requestPayload = {
-    ...filter,
-    page: currentPage.value - 1,
-    size: perPage,
-    statuses: filter.status ? [filter.status] : [],
-    maxPeriodInMonth: filter.period,
-    maxBudget: filter.budget * 10000,
-    maxNumberOfMembers: filter.memberCount,
-  };
+async function fetchProjects(filter = {}) {
+  const page = currentPage.value - 1;
 
-  const response = await fetchProjectList(requestPayload);
-  const pageData = response.data?.data;
-  allProjects.value = pageData?.content ?? [];
-  totalPages.value = pageData?.totalPages ?? 1;
+  if (memberRole.value === "ADMIN") {
+    const requestPayload = {
+      ...filter,
+      page,
+      size: perPage,
+      statuses: filter.status ? [filter.status] : [],
+      maxPeriodInMonth: filter.period,
+      maxBudget: filter.budget * 10000,
+      maxNumberOfMembers: filter.memberCount,
+    };
+    const response = await fetchProjectList(requestPayload);
+    const pageData = response.data?.data;
+
+    allProjects.value = pageData?.content ?? [];
+    totalPages.value = pageData?.totalPages ?? 1;
+  } else {
+    const statuses = selectedStatusForUser.value
+      ? [selectedStatusForUser.value]
+      : [];
+    const requestPayload = {
+      employeeId: employeeId.value,
+      page,
+      size: perPage,
+      statuses,
+    };
+    const response = await fetchMyProjectList(requestPayload);
+    const pageData = response.data?.data;
+
+    allProjects.value = pageData?.content ?? [];
+    totalPages.value = pageData?.totalPages ?? 1;
+  }
+}
+
+async function fetchProjectHistories() {
+  const page = currentPage.value - 1;
+  try {
+    const query = {
+      page, // 페이지네이션을 위한 현재 페이지
+      size: perPage, // 페이지당 항목 수
+      status: selectedStatusForAdmin.value, // 관리자의 경우 필터된 상태
+    };
+
+    const res =
+      memberRole.value === "ADMIN"
+        ? await getRequestsForAdmin(query) // 관리자일 경우
+        : await getMyProjectWorkRequests(page, perPage); // 일반 사용자의 경우
+
+    if (res.data.success) {
+      const content = res.data.data?.content ?? [];
+      projectHistories.value = content;
+      totalPages.value = res.data.data?.totalPages ?? 1; // 페이지네이션 관련 정보 업데이트
+    } else {
+      showErrorToast("요청 목록 불러오기 실패");
+    }
+  } catch (e) {
+    const errorMessage = e.response?.data?.message || "요청 목록 불러오기 실패";
+    showErrorToast(errorMessage);
+  }
 }
 
 function handleFilterChange(filter) {
   currentPage.value = 1;
   selectedFilter.value = filter;
-  fetchProjects(filter);
+
+  if (activeTab.value === "list") {
+    fetchProjects(filter); // 프로젝트 목록 갱신
+  } else if (activeTab.value === "history") {
+    selectedStatusForAdmin.value = filter.status; // 필터에 따라 status 업데이트
+    fetchProjectHistories(); // 프로젝트 이력 갱신
+  }
+}
+
+function handleStatusRadioChange(statusValue) {
+  selectedStatusForUser.value =
+    selectedStatusForUser.value === statusValue ? null : statusValue;
+  currentPage.value = 1;
+  fetchProjects();
 }
 
 function goToPage(page) {
   currentPage.value = page;
-  fetchProjects(selectedFilter.value);
+  if (memberRole.value === "ADMIN") {
+    fetchProjects(selectedFilter.value);
+  } else {
+    fetchProjects();
+  }
 }
 
 function goToRegister() {
   router.push("/projects/register");
 }
 
+const statusOptions = [
+  { label: "미완료", value: "INCOMPLETE", color: "#9e9e9e" },
+  { label: "시작 전", value: "WAITING", color: "#FFD700" },
+  { label: "진행중", value: "IN_PROGRESS", color: "#00C851" },
+  { label: "종료", value: "COMPLETE", color: "#FF4444" },
+];
+
 const pagedProjects = computed(() => allProjects.value ?? []);
 const hasNoProjects = computed(() => pagedProjects.value.length === 0);
 
 onMounted(() => {
-  fetchProjects({
-    keyword: "",
-    period: 36,
-    budget: 50000,
-    memberCount: 50,
-    status: null,
-  });
+  if (!memberRole.value) return;
+  if (memberRole.value === "ADMIN") {
+    fetchProjects({
+      keyword: "",
+      period: 36,
+      budget: 50000,
+      memberCount: 50,
+      status: null,
+    });
+  } else {
+    fetchProjects();
+  }
 });
+
+watch(
+  () => activeTab.value,
+  (tab) => {
+    if (tab === "history") {
+      fetchProjectHistories(); // 이력 탭 클릭 시 이력 갱신
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
   <div class="page-layout">
-    <div class="py-4">
-      <FilterSidebar @filter-change="handleFilterChange" />
+    <div class="filter-sidebar-wrapper" v-if="memberRole === 'ADMIN'">
+      <FilterSidebar
+        :mode="activeTab === 'list' ? 'project' : 'history'"
+        @filter-change="handleFilterChange"
+      />
     </div>
 
     <div class="project-content-wrapper">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">프로젝트 목록</h1>
+      <div class="header">
+        <div class="tabs">
+          <h1
+            class="title-tab"
+            :class="{ active: activeTab === 'list' }"
+            @click="activeTab = 'list'"
+          >
+            프로젝트 목록
+          </h1>
+          <h1
+            class="title-tab"
+            :class="{ active: activeTab === 'history' }"
+            @click="activeTab = 'history'"
+          >
+            프로젝트 이력 등록
+          </h1>
+        </div>
+
         <button
-          class="bg-primary px-5 py-2 text-white rounded-md"
+          class="register-button"
+          v-if="memberRole === 'ADMIN' && activeTab === 'list'"
           @click="goToRegister"
         >
           등록
         </button>
       </div>
 
-      <div v-if="hasNoProjects" class="text-center text-gray-500 mt-10">
-        조건에 맞는 프로젝트가 없습니다.
-      </div>
-
-      <div v-else class="flex flex-col gap-4">
-        <ProjectCard
-          v-for="project in pagedProjects"
-          :key="project.projectCode"
-          :project="project"
-          @click="goToDetail(project.projectCode)"
+      <!-- 프로젝트 목록 탭 -->
+      <template v-if="activeTab === 'list'">
+        <StatusFilter
+          v-if="memberRole !== 'ADMIN'"
+          :selected-status="selectedStatusForUser"
+          :options="statusOptions"
+          @change="handleStatusRadioChange"
         />
-      </div>
 
-      <div v-if="!hasNoProjects" class="mt-10 flex justify-center">
-        <Pagination
-          :current-page="currentPage"
-          :total-pages="totalPages"
-          @change="goToPage"
-        />
-      </div>
+        <div v-if="hasNoProjects" class="empty-message">
+          조건에 맞는 프로젝트가 없습니다.
+        </div>
+
+        <div v-else class="project-list">
+          <ProjectCard
+            v-for="project in pagedProjects"
+            :key="project.projectCode"
+            :project="project"
+            @click="goToDetail(project.projectCode)"
+          />
+        </div>
+
+        <div v-if="!hasNoProjects" class="pagination-wrapper">
+          <Pagination
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @change="goToPage"
+          />
+        </div>
+      </template>
+
+      <!-- 프로젝트 이력 탭 -->
+      <template v-if="activeTab === 'history'">
+        <div class="page-full">
+          <div class="page-container">
+            <ProjectHistoryList :histories="projectHistories" />
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
 
 <style scoped>
 .page-layout {
-  @apply flex relative;
+  @apply flex justify-center;
 }
+
+.filter-sidebar-wrapper {
+  @apply py-4;
+}
+
 .project-content-wrapper {
   @apply flex-1 px-6 py-10 max-w-[970px];
+}
+
+.header {
+  @apply flex justify-between items-start mb-6;
+}
+
+.tabs {
+  @apply flex gap-6;
+}
+
+.title-tab {
+  @apply text-2xl font-bold cursor-pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.title-tab.active {
+  opacity: 1;
+  border-bottom: 2px solid #000;
+}
+
+.register-button {
+  @apply bg-primary px-5 py-2 text-white rounded-md;
+}
+
+.empty-message {
+  @apply text-center text-gray-500 mt-10;
+}
+
+.project-list {
+  @apply flex flex-col gap-4;
+}
+
+.pagination-wrapper {
+  @apply mt-10 flex justify-center;
+}
+
+.page-full {
+  @apply w-full h-fit flex justify-center;
+}
+
+.page-container {
+  @apply flex flex-col w-[782px] h-fit items-center px-[30px] py-[30px] gap-[30px];
 }
 </style>

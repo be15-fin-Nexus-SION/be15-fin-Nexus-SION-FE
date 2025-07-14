@@ -44,13 +44,13 @@
             <td class="py-2 flex justify-center gap-2">
               <button
                 @click="edit(certificate)"
-                class="px-3 py-1 bg-natural-gray text-gray-800 rounded-md font-medium transition-colors duration-200 hover:bg-natural-gray-hover"
+                class="px-2 py-0.5 bg-natural-gray text-gray-800 rounded-md font-medium transition-colors duration-200 hover:bg-natural-gray-hover"
               >
                 수정
               </button>
               <button
                 @click="requestDelete(certificate.certificateName)"
-                class="px-3 py-1 bg-red-200 text-red-700 rounded-md font-medium transition-colors duration-200 hover:bg-red-300"
+                class="px-2 py-0.5 bg-red-200 text-red-700 rounded-md font-medium transition-colors duration-200 hover:bg-red-300"
               >
                 삭제
               </button>
@@ -156,7 +156,6 @@ const confirmDelete = async () => {
     toast.success("자격증이 삭제되었습니다.");
   } catch (error) {
     toast.error("삭제에 실패했습니다.");
-    console.error("삭제 실패:", error);
   } finally {
     cancelDelete();
   }
@@ -169,7 +168,6 @@ const handleRegisterSubmit = async (newCertificate) => {
     toast.success("자격증이 등록되었습니다.");
     closeRegisterModal();
   } catch (e) {
-    console.error("등록 실패:", e);
     toast.error("자격증 등록에 실패했습니다.");
   }
 };
@@ -184,7 +182,6 @@ const handleEditSubmit = async (updatedCertificate) => {
     toast.success("자격증 정보가 수정되었습니다.");
     closeEditModal();
   } catch (e) {
-    console.error("수정 실패:", e);
     toast.error("자격증 수정에 실패했습니다.");
   }
 };

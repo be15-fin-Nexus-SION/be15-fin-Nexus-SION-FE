@@ -6,7 +6,7 @@ export function reissueAccessToken() {
 
 export function fetchDeveloperList({
   page = 0,
-  size = 10,
+  size = 15,
   status,
   gradeCode,
   role,
@@ -26,17 +26,6 @@ export function fetchDeveloperList({
   if (keyword) query.keyword = keyword;
 
   return api.get("/members", { params: query });
-}
-
-export function searchDeveloperList({ keyword, page = 0, size = 10 }) {
-  console.log("search 호출, " + keyword);
-  return api.get("/members/search", {
-    params: {
-      keyword,
-      page,
-      size,
-    },
-  });
 }
 
 export const updateMemberStatus = (employeeId, status) => {
@@ -112,6 +101,7 @@ export function deleteCertificate(id) {
   return api.delete(`/certificates/${id}`);
 }
 
+
 // 전체 점수 성장 추이
 export function fetchScoreTrend(employeeId) {
   return api.get(`/members/${employeeId}/score-trend/total`);
@@ -120,4 +110,47 @@ export function fetchScoreTrend(employeeId) {
 // 기술스택 기반 성장 추이를 원한다면 아래 함수 추가
 export function fetchTechStackScoreTrend(employeeId) {
   return api.get(`/members/${employeeId}/score-trend/techstack`);
+}
+
+export function fetchCertificateApprovals({
+  status,
+  page = 0,
+  size = 10,
+} = {}) {
+  const query = { page, size };
+  if (status) query.status = status;
+
+  return api.get("/admin/certificates", { params: query });
+}
+
+export function approveCertificate(certificateId) {
+  return api.patch(`/admin/certificates/${certificateId}/approve`);
+}
+
+export function rejectCertificate(certificateId, reason) {
+  return api.patch(`/admin/certificates/${certificateId}/reject`, {
+    rejectedReason: reason,
+  });
+}
+
+export function searchAdmins(payload) {
+  return api.get("/members/search/admins", {
+    params: payload,
+  });
+}
+
+export function fetchMyCertificates() {
+  return api.get("/user-certificates/me");
+}
+
+export const developerRegisterCertificate = (employeeId, formData) => {
+  return api.post(`/members/${employeeId}/certificates`, formData);
+};
+
+export function fetchScoreSummary(id) {
+  return api.get(`/member-scores/${id}`);
+}
+
+export function fetchRecommendedTrainings() {
+  return api.get(`/trainings/recommend/me`);
 }

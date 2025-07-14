@@ -2,7 +2,6 @@
 import { showNotificationToast } from "@/utills/toast.js";
 import { useAuthStore } from "@/stores/auth.js";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { showNotificationBadge } from "@/features/notification/utils/notificationBadge.js";
 
 let eventSource = null;
 let lastPing = Date.now();
@@ -59,8 +58,7 @@ export function subscribeToNotification(onMessageCallback) {
 
       // store 업데이트
       onMessageCallback(data);
-      showNotificationToast(data.content);
-      showNotificationBadge();
+      showNotificationToast(data.message);
     } catch (err) {
       console.error("❌ [SSE] 알림 파싱 실패:", err);
     }
@@ -120,4 +118,16 @@ export function closeNotificationConnection() {
     console.log("🔌 [SSE] 연결 종료");
   }
   clearPingWatchdog();
+}
+
+export function initNotificationSse(onMessageCallback) {
+  window.addEventListener("beforeunload", () => {
+    // 새로고침 시 연결 안전 종료
+    closeNotificationConnection();
+  });
+
+  window.addEventListener("load", () => {
+    // 새로고침 후 다시 연결
+    subscribeToNotification(onMessageCallback);
+  });
 }
