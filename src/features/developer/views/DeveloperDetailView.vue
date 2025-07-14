@@ -162,7 +162,7 @@ const showDeleteConfirm = ref(false);
 
 // 사용자 권한 확인
 const authStore = useAuthStore();
-const isAdmin = computed(() => authStore.role === "ADMIN"); // 혹은 authStore.user.role === "ADMIN"
+const isAdmin = computed(() => authStore.memberRole === "ADMIN"); // 혹은 authStore.user.role === "ADMIN"
 
 // 개발자 정보
 const developer = ref(null);
@@ -183,7 +183,7 @@ const statusLabel = (status) => {
       return status;
   }
 };
-
+console.log("현재 사용자 권한:", authStore.memberRole);
 // 수정 이동
 function goToEdit() {
   router.push({ name: "developer-edit", params: { employeeId } });

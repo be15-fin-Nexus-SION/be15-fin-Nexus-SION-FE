@@ -7,7 +7,7 @@
     <div class="text-sm text-gray-600 font-medium text-left truncate">
       {{
         freelancer.freelancerId
-          ? freelancer.freelancerId.slice(0, 4) +
+          ? freelancer.freelancerId.slice(0, 3) +
             freelancer.freelancerId.slice(-3)
           : ""
       }}
@@ -16,7 +16,7 @@
     <!-- 프로필 -->
     <div>
       <img
-        :src="freelancer.profileUrl"
+        :src="freelancer.profileImageUrl"
         class="w-10 h-10 rounded-full object-cover shrink-0"
         alt="프로필"
       />
