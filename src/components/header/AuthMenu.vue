@@ -70,8 +70,8 @@ const notificationStore = useNotificationStore();
       <div class="profile" @click="openModal">
         <img :src="BasicProfile" alt="기본프로필이미지" />
         <span
-          v-if="notificationStore"
-          class="absolute top-[6px] right-[-1px] w-2 h-2 rounded-full bg-red-500 animate-bounce"
+          v-if="notificationStore.hasUnreadNotification"
+          class="absolute top-[6px] right-[-1px] w-2.5 h-2.5 rounded-full bg-red-500"
         ></span>
       </div>
 
