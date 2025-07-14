@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import {
   fetchProjectList,
   fetchMyProjectList,
@@ -16,6 +16,7 @@ import ProjectHistoryList from "@/features/project/components/ProjectHistoryList
 import { showErrorToast } from "@/utills/toast.js";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 const allProjects = ref([]);
@@ -75,20 +76,20 @@ async function fetchProjectHistories() {
   const page = currentPage.value - 1;
   try {
     const query = {
-      page, // 페이지네이션을 위한 현재 페이지
-      size: perPage, // 페이지당 항목 수
-      status: selectedStatusForAdmin.value, // 관리자의 경우 필터된 상태
+      page,
+      size: perPage,
+      status: selectedStatusForAdmin.value,
     };
 
     const res =
       memberRole.value === "ADMIN"
-        ? await getRequestsForAdmin(query) // 관리자일 경우
-        : await getMyProjectWorkRequests(page, perPage); // 일반 사용자의 경우
+        ? await getRequestsForAdmin(query)
+        : await getMyProjectWorkRequests(page, perPage);
 
     if (res.data.success) {
       const content = res.data.data?.content ?? [];
       projectHistories.value = content;
-      totalPages.value = res.data.data?.totalPages ?? 1; // 페이지네이션 관련 정보 업데이트
+      totalPages.value = res.data.data?.totalPages ?? 1;
     } else {
       showErrorToast("요청 목록 불러오기 실패");
     }
@@ -103,10 +104,10 @@ function handleFilterChange(filter) {
   selectedFilter.value = filter;
 
   if (activeTab.value === "list") {
-    fetchProjects(filter); // 프로젝트 목록 갱신
+    fetchProjects(filter);
   } else if (activeTab.value === "history") {
-    selectedStatusForAdmin.value = filter.status; // 필터에 따라 status 업데이트
-    fetchProjectHistories(); // 프로젝트 이력 갱신
+    selectedStatusForAdmin.value = filter.status;
+    fetchProjectHistories();
   }
 }
 
@@ -140,6 +141,19 @@ const statusOptions = [
 const pagedProjects = computed(() => allProjects.value ?? []);
 const hasNoProjects = computed(() => pagedProjects.value.length === 0);
 
+// ✅ 새로고침 파라미터 있을 경우 목록 다시 불러오기
+watch(
+  () => route.query.refresh,
+  (refresh) => {
+    if (refresh === "true") {
+      fetchProjects(selectedFilter.value);
+      router.replace({ path: "/projects" }); // 쿼리 제거
+    }
+  },
+  { immediate: true },
+);
+
+// 초기 로딩
 onMounted(() => {
   if (!memberRole.value) return;
   if (memberRole.value === "ADMIN") {
@@ -155,11 +169,12 @@ onMounted(() => {
   }
 });
 
+// 탭 전환 감시
 watch(
   () => activeTab.value,
   (tab) => {
     if (tab === "history") {
-      fetchProjectHistories(); // 이력 탭 클릭 시 이력 갱신
+      fetchProjectHistories();
     }
   },
   { immediate: true },
@@ -203,7 +218,6 @@ watch(
         </button>
       </div>
 
-      <!-- 프로젝트 목록 탭 -->
       <template v-if="activeTab === 'list'">
         <StatusFilter
           v-if="memberRole !== 'ADMIN'"
@@ -234,7 +248,6 @@ watch(
         </div>
       </template>
 
-      <!-- 프로젝트 이력 탭 -->
       <template v-if="activeTab === 'history'">
         <div class="page-full">
           <div class="page-container">

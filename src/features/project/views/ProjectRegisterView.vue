@@ -189,7 +189,7 @@ async function submitForm() {
     await analyzeProject(resp.data.data.projectCode, form.file);
     showSuccessToast("프로젝트가 성공적으로 등록되었습니다.");
     setTimeout(() => {
-      router.push("/projects");
+      router.push({ path: "/projects", query: { refresh: "true" } });
     }, 1000);
   } catch (e) {
     showErrorToast("프로젝트 등록 중 오류가 발생했습니다");
