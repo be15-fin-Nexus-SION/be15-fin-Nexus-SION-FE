@@ -65,4 +65,9 @@ export const developerRoutes = [
       roles: ["INSIDER", "OUTSIDER"],
     },
   },
+  {
+    path: "/developers/dashboard",
+    name: "developer-dashboard",
+    component: () => import("./views/DashboardView.vue"),
+  },
 ];

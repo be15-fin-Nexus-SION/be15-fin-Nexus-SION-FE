@@ -2,8 +2,10 @@
   <LoadingSpinner v-if="isLoading" />
   <div v-else class="max-w-5xl mx-auto py-10 px-4 space-y-8">
     <!-- 상단 버튼 -->
-    <div class="flex items-center justify-end">
-      <div class="space-x-2" v-if="!props.readonly">
+
+    <div class="flex items-center justify-between">
+      <div class="text-xl font-semibold">개발자 상세</div>
+      <div class="space-x-2" v-if="isAdmin">
         <button
           class="px-4 py-2 rounded-md bg-primary text-white text-sm"
           @click="goToEdit"
@@ -185,6 +187,12 @@
       <BarChart v-if="barData" :data="barData" />
     </section>
 
+    <!-- 성장 추이 -->
+    <section class="bg-white p-4 rounded-xl shadow">
+      <div class="font-semibold mb-4">성장 추이</div>
+      <GrowthChart :employeeId="employeeId" />
+    </section>
+
     <!-- 삭제 확인 모달 -->
     <ConfirmModal
       v-if="showDeleteConfirm"
@@ -199,8 +207,14 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+
 import BarChart from "@/features/developer/components/BarChart.vue";
 import RadarChart from "@/features/developer/components/RadarChart.vue";
+import GrowthChart from "@/features/developer/components/GrowthChart.vue";
+import TechBadge from "@/components/badge/TechBadge.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+
 import {
   fetchDeveloperDetail,
   fetchTechStacksByEmployeeId,
@@ -222,10 +236,19 @@ const props = defineProps({
   },
 });
 
+// 경로 및 상태
 const route = useRoute();
 const router = useRouter();
-const employeeId = props.employeeId || route.params.employeeId;
 
+const employeeId = route.params.employeeId;
+const showDeleteConfirm = ref(false);
+
+// 사용자 권한 확인
+const authStore = useAuthStore();
+const isAdmin = computed(() => authStore.role === "ADMIN"); // 혹은 authStore.user.role === "ADMIN"
+
+
+// 개발자 정보
 const developer = ref(null);
 const techList = ref([]);
 const barData = ref(null);
@@ -279,6 +302,7 @@ const certificateDiffDate = computed(() => {
   return formatDateTime(scoreSummary.value.previousCertificateScoreDate);
 });
 
+// 상태 라벨 변환
 const statusLabel = (status) => {
   switch (status) {
     case "AVAILABLE":
@@ -292,10 +316,12 @@ const statusLabel = (status) => {
   }
 };
 
+// 수정 이동
 function goToEdit() {
   router.push({ name: "developer-edit", params: { employeeId } });
 }
 
+// 삭제 처리
 async function deleteDeveloperHandler() {
   try {
     await deleteDeveloper(employeeId);
@@ -308,6 +334,7 @@ async function deleteDeveloperHandler() {
   }
 }
 
+// 데이터 로딩
 onMounted(async () => {
   try {
     const { data: devRes } = await fetchDeveloperDetail(employeeId);
