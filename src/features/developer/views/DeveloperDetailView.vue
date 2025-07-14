@@ -1,5 +1,6 @@
 <template>
-  <div class="max-w-5xl mx-auto py-10 px-4 space-y-8">
+  <LoadingSpinner v-if="isLoading" />
+  <div v-else class="max-w-5xl mx-auto py-10 px-4 space-y-8">
     <!-- 상단 버튼 -->
     <div class="flex items-center justify-between">
       <div class="text-xl font-semibold">개발자 상세</div>
@@ -99,6 +100,53 @@
       </div>
     </section>
 
+    <!-- 점수 카드 -->
+    <section class="grid grid-cols-3 gap-6">
+      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
+        <div class="text-sm text-gray-500 font-semibold mb-2">총 점수</div>
+        <div class="text-3xl font-bold mb-1">
+          {{ scoreSummary?.currentTotalScore ?? "-" }}
+        </div>
+        <div class="flex justify-start items-center gap-2">
+          <div class="text-xs text-green-600">{{ totalDiffText }}</div>
+          <div v-if="totalDiffDate" class="text-[10px] text-gray-400 mt-0.5">
+            ({{ totalDiffDate }} 대비)
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
+        <div class="text-sm text-gray-500 font-semibold mb-2">
+          기술스택 점수
+        </div>
+        <div class="text-3xl font-bold mb-1">
+          {{ scoreSummary?.currentTechScore ?? "-" }}
+        </div>
+        <div class="flex justify-start items-center gap-2">
+          <div class="text-xs text-green-600">{{ techDiffText }}</div>
+          <div v-if="techDiffDate" class="text-[10px] text-gray-400 mt-0.5">
+            ({{ techDiffDate }} 대비)
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
+        <div class="text-sm text-gray-500 font-semibold mb-2">자격증 점수</div>
+        <div class="text-3xl font-bold mb-1">
+          {{ scoreSummary?.currentCertificateScore ?? "-" }}
+        </div>
+        <div class="flex justify-start items-center gap-2">
+          <div class="text-xs text-green-600">{{ certificateDiffText }}</div>
+          <div
+            v-if="certificateDiffDate"
+            class="text-[10px] text-gray-400 mt-0.5"
+          >
+            ({{ certificateDiffDate }} 대비)
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="grid grid-cols-2 gap-6">
       <div class="bg-white p-4 rounded-xl shadow">
         <div class="font-semibold mb-4">이력 관리</div>
@@ -123,13 +171,11 @@
       <BarChart v-if="barData" :data="barData" />
     </section>
 
-    <!-- 성장 추이 -->
     <section class="bg-white p-4 rounded-xl shadow">
       <div class="font-semibold mb-4">성장 추이</div>
       <GrowthChart v-if="developer" :employeeId="developer.employeeId" />
     </section>
 
-    <!-- 삭제 확인 모달 -->
     <ConfirmModal
       v-if="showDeleteConfirm"
       message="정말 삭제하시겠습니까?"
@@ -144,37 +190,77 @@
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
-
 import BarChart from "@/features/developer/components/BarChart.vue";
 import RadarChart from "@/features/developer/components/RadarChart.vue";
 import GrowthChart from "@/features/developer/components/GrowthChart.vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
-
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import {
   fetchDeveloperDetail,
   fetchTechStacksByEmployeeId,
+  fetchScoreSummary,
   deleteDeveloper,
 } from "@/api/member";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
-// 경로 및 상태
+const isLoading = ref(true);
 const route = useRoute();
 const router = useRouter();
 const employeeId = route.params.employeeId;
 const showDeleteConfirm = ref(false);
 
-// 사용자 권한 확인
 const authStore = useAuthStore();
-const isAdmin = computed(() => authStore.memberRole === "ADMIN"); // 혹은 authStore.user.role === "ADMIN"
+const isAdmin = computed(() => authStore.memberRole === "ADMIN");
 
-// 개발자 정보
 const developer = ref(null);
 const techList = ref([]);
 const barData = ref(null);
 const radarData = ref(null);
+const scoreSummary = ref(null);
 
-// 상태 라벨 변환
+const formatDateTime = (iso) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+const totalDiffText = computed(() => {
+  if (!scoreSummary.value) return "-";
+  const diff =
+    scoreSummary.value.currentTotalScore -
+    scoreSummary.value.previousTotalScore;
+  return diff !== 0 ? `+${diff}` : "-";
+});
+const totalDiffDate = computed(() =>
+  scoreSummary.value
+    ? formatDateTime(scoreSummary.value.previousTotalScoreDate)
+    : "",
+);
+const techDiffText = computed(() => {
+  if (!scoreSummary.value) return "-";
+  const diff =
+    scoreSummary.value.currentTechScore - scoreSummary.value.previousTechScore;
+  return diff !== 0 ? `+${diff}` : "-";
+});
+const techDiffDate = computed(() =>
+  scoreSummary.value
+    ? formatDateTime(scoreSummary.value.previousTechScoreDate)
+    : "",
+);
+const certificateDiffText = computed(() => {
+  if (!scoreSummary.value) return "-";
+  const diff =
+    scoreSummary.value.currentCertificateScore -
+    scoreSummary.value.previousCertificateScore;
+  return diff !== 0 ? `+${diff}` : "-";
+});
+const certificateDiffDate = computed(() =>
+  scoreSummary.value
+    ? formatDateTime(scoreSummary.value.previousCertificateScoreDate)
+    : "",
+);
+
 const statusLabel = (status) => {
   switch (status) {
     case "AVAILABLE":
@@ -187,13 +273,11 @@ const statusLabel = (status) => {
       return status;
   }
 };
-console.log("현재 사용자 권한:", authStore.memberRole);
-// 수정 이동
+
 function goToEdit() {
   router.push({ name: "developer-edit", params: { employeeId } });
 }
 
-// 삭제 처리
 async function deleteDeveloperHandler() {
   try {
     await deleteDeveloper(employeeId);
@@ -207,7 +291,6 @@ async function deleteDeveloperHandler() {
   }
 }
 
-// 데이터 로딩
 onMounted(async () => {
   try {
     const { data: devRes } = await fetchDeveloperDetail(employeeId);
@@ -215,7 +298,6 @@ onMounted(async () => {
 
     const { data: stackRes } = await fetchTechStacksByEmployeeId(employeeId);
     const stackData = stackRes.data;
-
     techList.value = stackData.map((s) => s.techStackName);
     barData.value = stackData;
 
@@ -232,8 +314,13 @@ onMounted(async () => {
         },
       ],
     };
+
+    const { data: scoreRes } = await fetchScoreSummary(employeeId);
+    scoreSummary.value = scoreRes.data;
   } catch (e) {
     console.error("개발자 상세 정보 불러오기 실패", e);
+  } finally {
+    isLoading.value = false;
   }
 });
 </script>
