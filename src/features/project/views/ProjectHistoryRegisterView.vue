@@ -242,7 +242,7 @@ async function submit() {
 }
 
 .project-link {
-  @apply text-bodySm text-primary hover:text-primary-hover hover:underline cursor-pointer;
+  @apply text-bodySm text-primary hover:text-primary-hover hover:underline cursor-pointer w-fit;
 }
 
 .submit-button-wrapper {

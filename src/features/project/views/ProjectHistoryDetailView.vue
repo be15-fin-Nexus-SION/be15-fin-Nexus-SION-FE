@@ -1,26 +1,39 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import ProjectHistoryQueryCard from "@/features/project/components/ProjectHistoryQueryCard.vue";
-import { getProjectHistoryDetail } from "@/api/project.js";
+import ProjectHistoryRejectCard from "@/features/project/components/ProjectHistoryRejectCard.vue";
 import ProjectHistoryStatusBadge from "@/components/badge/ProjectHistoryStatusBadge.vue";
 import ProjectModal from "@/features/project/components/ProjectModal.vue";
+import {
+  getProjectHistoryDetail,
+  rejectWorkHistory,
+  approveWorkHistory,
+} from "@/api/project.js";
+import { useAuthStore } from "@/stores/auth.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const route = useRoute();
 const router = useRouter();
 const projectId = route.params.id;
+const authStore = useAuthStore();
+const memberRole = computed(() => authStore.memberRole);
+const adminId = computed(() => authStore.memberId);
 
 const project = ref(null);
 const expandedIndex = ref(null);
 const showModal = ref(false);
+const rejectCardRef = ref(null);
+const showRejectReason = ref(false);
 
 onMounted(async () => {
   try {
     const res = await getProjectHistoryDetail(projectId);
     project.value = res.data.data;
-  } catch (err) {
-    console.error("이력 상세 조회 실패:", err);
+  } catch (e) {
+    const errorMessage = e.response?.data?.message || "이력 상세 조회 실패";
+    showErrorToast(errorMessage);
   }
 });
 
@@ -41,6 +54,55 @@ const openModal = () => {
 const closeModal = () => {
   showModal.value = false;
 };
+
+const getRejectReason = () => rejectCardRef.value?.getReason?.() || "";
+
+const onReject = async () => {
+  const reason = getRejectReason();
+
+  // 거부 사유가 없으면 사유 입력을 열고, 있으면 거부 처리 로직 실행
+  if (!reason.trim()) {
+    toggleInput();
+    return;
+  }
+
+  try {
+    // 거부 처리 API 호출
+    await rejectWorkHistory({
+      id: projectId,
+      adminId: adminId.value,
+      reason,
+    });
+    showSuccessToast("프로젝트 이력 등록이 거부되었습니다.");
+
+    showRejectReason.value = false;
+
+    // 페이지 새로고침 (0초로 돌아가기)
+    router.go(0);
+  } catch (e) {
+    const errorMessage =
+      e.response?.data?.message || "거부 처리 중 오류가 발생했습니다.";
+    showErrorToast(errorMessage);
+  }
+};
+
+const onApprove = async () => {
+  try {
+    await approveWorkHistory(projectId, adminId.value);
+    showSuccessToast("프로젝트 이력 등록이 승인되었습니다.");
+
+    // 페이지 새로고침
+    router.go(0);
+  } catch (e) {
+    const errorMessage =
+      e.response?.data?.message || "승인 처리 중 오류가 발생했습니다.";
+    showErrorToast(errorMessage);
+  }
+};
+
+const toggleInput = () => {
+  showRejectReason.value = !showRejectReason.value; // 자식에서 실행할 toggleInput 메서드
+};
 </script>
 
 <template>
@@ -48,20 +110,41 @@ const closeModal = () => {
     <div class="page-container">
       <h1 class="page-title">{{ project?.projectTitle }}</h1>
 
-      <div class="project-info">
-        <div class="project-status">
-          <ProjectHistoryStatusBadge :status="project?.approvalStatus" />
-          <span>|</span>
-          <span class="project-dates">
-            {{ project?.createdAt?.slice(0, 10) }}
-            <template v-if="project?.actualEndDate">
-              ~ {{ project.actualEndDate.slice(0, 10) }}
-            </template>
-          </span>
+      <div class="project-area">
+        <div class="project-info">
+          <div class="project-status">
+            <ProjectHistoryStatusBadge :status="project?.approvalStatus" />
+            <span>|</span>
+            <span class="project-dates">
+              {{ project?.createdAt?.slice(0, 10) }}
+              <template v-if="project?.actualEndDate">
+                ~ {{ project.actualEndDate.slice(0, 10) }}
+              </template>
+            </span>
+          </div>
+          <span class="project-link" @click="openModal"
+            >해당 프로젝트 자세히 보기</span
+          >
         </div>
-        <span class="project-link" @click="openModal"
-          >해당 프로젝트 자세히 보기</span
+
+        <div
+          class="header-button"
+          v-if="memberRole === 'ADMIN' && project?.approvalStatus === 'PENDING'"
         >
+          <PrimaryButton
+            label="거부"
+            bg-color-class="bg-natural-gray"
+            hover-color-class="hover:bg-natural-gray-hover"
+            text-color-class="text-black"
+            :disabled="!getRejectReason().trim()"
+            @click="onReject"
+          />
+          <PrimaryButton
+            label="승인"
+            :disabled="!!getRejectReason().trim()"
+            @click="onApprove"
+          />
+        </div>
       </div>
 
       <div v-if="isUnrequested()" class="unrequested-wrapper">
@@ -72,6 +155,25 @@ const closeModal = () => {
       </div>
 
       <div v-else class="work-list-wrapper">
+        <!-- REJECTED 상태에서 거부 사유 표시 -->
+        <ProjectHistoryRejectCard
+          v-if="project?.approvalStatus === 'REJECTED'"
+          ref="rejectCardRef"
+          :expanded="showRejectReason"
+          :rejectedReason="project?.rejectedReason || '거부 사유 없음'"
+          :toggleInput="toggleInput"
+        />
+
+        <!-- PENDING 상태에서 관리자가 거부 사유 입력 가능 -->
+        <ProjectHistoryRejectCard
+          v-if="project?.approvalStatus === 'PENDING' && memberRole === 'ADMIN'"
+          ref="rejectCardRef"
+          :expanded="showRejectReason"
+          :rejectedReason="project?.rejectedReason || ''"
+          :toggleInput="toggleInput"
+        />
+
+        <!-- 프로젝트 기능 이력 리스트 -->
         <div
           v-for="(history, index) in project?.histories"
           :key="history.historyId"
@@ -107,6 +209,10 @@ const closeModal = () => {
   @apply w-full text-headlineLg flex px-[12px] justify-start;
 }
 
+.project-area {
+  @apply w-full flex justify-between;
+}
+
 .project-info {
   @apply w-full flex flex-col justify-start px-[12px] gap-[10px];
 }
@@ -120,11 +226,15 @@ const closeModal = () => {
 }
 
 .project-link {
-  @apply text-bodySm text-primary hover:text-primary-hover hover:underline cursor-pointer;
+  @apply text-bodySm text-primary hover:text-primary-hover hover:underline cursor-pointer w-fit;
 }
 
 .unrequested-wrapper {
   @apply w-full flex flex-col items-center gap-[30px];
+}
+
+.header-button {
+  @apply w-full flex justify-end h-fit items-end gap-[10px];
 }
 
 .button {

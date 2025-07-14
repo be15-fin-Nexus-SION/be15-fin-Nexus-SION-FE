@@ -79,9 +79,9 @@ export function approveWorkHistory(id, adminId) {
   });
 }
 
-export function rejectWorkHistory(id, adminId) {
+export async function rejectWorkHistory({ id, adminId, reason }) {
   return api.put(`/dev-project-works/${id}/reject`, null, {
-    params: { adminId },
+    params: { adminId, reason },
   });
 }
 
@@ -92,6 +92,10 @@ export function getMyProjectWorkRequests(page = 0, size = 10) {
       size,
     },
   });
+}
+
+export function getRequestsForAdmin(query) {
+  return api.get("/dev-project-works/admin", { params: query });
 }
 
 export function getProjectHistoryDetail(projectWorkId) {
