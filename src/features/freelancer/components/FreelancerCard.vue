@@ -16,7 +16,10 @@
     <!-- 프로필 -->
     <div>
       <img
-        :src="freelancer.profileImageUrl"
+        :src="
+          freelancer.profileImageUrl ||
+          `https://api.dicebear.com/9.x/notionists/svg?seed=${freelancer.freelancerId}`
+        "
         class="w-10 h-10 rounded-full object-cover shrink-0"
         alt="프로필"
       />
