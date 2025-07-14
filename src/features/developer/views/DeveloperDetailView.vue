@@ -41,7 +41,10 @@
 
       <div class="w-48 flex flex-col items-center">
         <img
-          :src="developer.profileImageUrl"
+          :src="
+            developer.profileImageUrl ||
+            `https://api.dicebear.com/9.x/notionists/svg?seed=${developer.employeeId}`
+          "
           alt="프로필 이미지"
           class="w-48 h-48 rounded-full object-cover border mb-4"
         />
