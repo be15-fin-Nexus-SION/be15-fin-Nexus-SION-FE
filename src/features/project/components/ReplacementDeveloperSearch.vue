@@ -1,71 +1,20 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import FilterModal from "@/features/squad/components/modal/FilterModal.vue";
 import SortModal from "@/features/squad/components/modal/SortModal.vue";
-import { searchSquadDevelopers } from "@/api/squad.js";
 import BasePagination from "@/components/Pagination.vue";
-import { useSquadStore } from "@/stores/squadCreateStore.js";
-import SelectRoleModal from "@/features/squad/components/modal/SelectRoleModal.vue";
-import { useSquadProjectStore } from "@/stores/squadProject.js";
-import { storeToRefs } from "pinia";
-import { useDeveloperModal } from "@/composable/useDeveloperModal.js";
+import { searchSquadDevelopers } from "@/api/squad.js";
+
+const props = defineProps({
+  project: Object,
+  leavingMember: Object,
+});
+const emit = defineEmits(["replace"]);
 
 const searchQuery = ref("");
 const developers = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
-
-const squadStore = useSquadStore();
-const showRoleModal = ref(false);
-const selectedDeveloper = ref(null);
-
-function handleAddDeveloper(id) {
-  const dev = developers.value.find((d) => d.id === id);
-  selectedDeveloper.value = dev;
-  showRoleModal.value = true;
-}
-
-function handleSelectRole(devWithRole) {
-  squadStore.addMember(devWithRole);
-  showRoleModal.value = false;
-  selectedDeveloper.value = null;
-}
-
-async function handleSearch(page = 1) {
-  const payload = {
-    keyword: searchQuery.value,
-    status: selectedFilters.value.statuses[0] || null,
-    grades: selectedFilters.value.grades,
-    stacks: selectedFilters.value.techStacks,
-    memberRoles: selectedFilters.value.freelancer
-      ? [selectedFilters.value.freelancer]
-      : [],
-    sortBy: selectedFilters.value.sortBy || "grade",
-    sortDir: selectedFilters.value.sortOrder || "asc",
-    page: page - 1, // 백엔드는 0부터 시작
-    size: 10,
-  };
-
-  try {
-    const result = await searchSquadDevelopers(payload);
-    developers.value = result.content.map((dev) => ({
-      id: dev.employeeId,
-      name: dev.name,
-      grade: dev.grade,
-      status: dev.status === "AVAILABLE" ? "대기중" : "투입중",
-      techStack: [dev.topTechStackName],
-      monthlyUnitPrice: dev.monthlyUnitPrice,
-      productivity: dev.productivity,
-    }));
-
-    currentPage.value = result.currentPage + 1;
-    totalPages.value = result.totalPages;
-  } catch (e) {
-    developers.value = [];
-    currentPage.value = 1;
-    totalPages.value = 1;
-  }
-}
 
 const isFocused = ref(false);
 const showFilter = ref(false);
@@ -80,10 +29,59 @@ const selectedFilters = ref({
   sortOrder: "",
 });
 
+async function handleSearch(page = 1) {
+  const payload = {
+    keyword: searchQuery.value,
+    status: selectedFilters.value.statuses[0] || null,
+    grades: selectedFilters.value.grades,
+    stacks: selectedFilters.value.techStacks,
+    memberRoles: selectedFilters.value.freelancer
+      ? [selectedFilters.value.freelancer]
+      : [],
+    sortBy: selectedFilters.value.sortBy || "grade",
+    sortDir: selectedFilters.value.sortOrder || "asc",
+    page: page - 1,
+    size: 10,
+  };
+
+  try {
+    const result = await searchSquadDevelopers(payload);
+    developers.value = result.content.map((dev) => ({
+      id: dev.employeeId,
+      name: dev.name,
+      grade: dev.grade,
+      status: dev.status === "AVAILABLE" ? "대기중" : "투입중",
+      techStack: [dev.topTechStackName],
+    }));
+
+    currentPage.value = result.currentPage + 1;
+    totalPages.value = result.totalPages;
+  } catch (e) {
+    developers.value = [];
+    currentPage.value = 1;
+    totalPages.value = 1;
+  }
+}
+
 function removeTechStack(stack) {
   selectedFilters.value.techStacks = selectedFilters.value.techStacks.filter(
     (s) => s !== stack,
   );
+}
+
+function addTechStack(stack) {
+  if (!selectedFilters.value.techStacks.includes(stack)) {
+    selectedFilters.value.techStacks.push(stack);
+  }
+}
+
+function toggleFilter() {
+  showSort.value = false;
+  showFilter.value = !showFilter.value;
+}
+function toggleSort() {
+  showFilter.value = false;
+  showSort.value = !showSort.value;
 }
 
 function handleDocumentClick(e) {
@@ -97,6 +95,33 @@ function handleDocumentClick(e) {
   }
 }
 
+function renderSummary() {
+  const parts = [];
+
+  if (selectedFilters.value.techStacks.length)
+    parts.push(selectedFilters.value.techStacks.join(", "));
+  if (selectedFilters.value.grades.length)
+    parts.push(selectedFilters.value.grades.join(", "));
+  if (selectedFilters.value.statuses.length)
+    parts.push(selectedFilters.value.statuses.join(", "));
+  if (selectedFilters.value.freelancer)
+    parts.push(selectedFilters.value.freelancer);
+  if (selectedFilters.value.sortBy || selectedFilters.value.sortOrder)
+    parts.push(
+      `${selectedFilters.value.sortBy}-${selectedFilters.value.sortOrder}`,
+    );
+
+  return parts.join(" / ");
+}
+
+function handleReplace(dev) {
+  console.log(dev);
+  emit("replace", {
+    oldMemberId: props.leavingMember.employeeId,
+    newMemberId: dev.id,
+  });
+}
+
 onMounted(() => {
   document.addEventListener("click", handleDocumentClick);
   handleSearch();
@@ -104,85 +129,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleDocumentClick);
 });
-
-function toggleFilter() {
-  showSort.value = false;
-  showFilter.value = !showFilter.value;
-}
-function toggleSort() {
-  showFilter.value = false;
-  showSort.value = !showSort.value;
-}
-
-const statusMap = {
-  AVAILABLE: "대기중",
-  IN_PROJECT: "투입중",
-};
-
-const freelancerMap = {
-  INSIDER: "내부인",
-  OUTSIDER: "프리랜서",
-};
-
-const sortByMap = {
-  이름: "employeeName",
-  등급: "grade",
-};
-
-const sortOrderMap = {
-  오름차순: "asc",
-  내림차순: "desc",
-};
-
-function renderSummary() {
-  const parts = [];
-
-  if (selectedFilters.value.techStacks.length) {
-    parts.push(selectedFilters.value.techStacks.join(", "));
-  }
-  if (selectedFilters.value.sortBy || selectedFilters.value.sortOrder) {
-    const sortByLabel =
-      Object.entries(sortByMap).find(
-        ([, value]) => value === selectedFilters.value.sortBy,
-      )?.[0] || selectedFilters.value.sortBy;
-
-    const sortOrderLabel =
-      Object.entries(sortOrderMap).find(
-        ([, value]) => value === selectedFilters.value.sortOrder,
-      )?.[0] || selectedFilters.value.sortOrder;
-
-    parts.push(`${sortByLabel}-${sortOrderLabel}`);
-  }
-  if (selectedFilters.value.freelancer) {
-    const freelancerLabel =
-      freelancerMap[selectedFilters.value.freelancer] ||
-      selectedFilters.value.freelancer;
-    parts.push(freelancerLabel);
-  }
-  if (selectedFilters.value.statuses.length) {
-    const statusLabels = selectedFilters.value.statuses
-      .map((status) => statusMap[status] || status)
-      .join(", ");
-    parts.push(statusLabels);
-  }
-
-  return parts.join(" / ");
-}
-
-function addTechStack(stack) {
-  if (!selectedFilters.value.techStacks.includes(stack)) {
-    selectedFilters.value.techStacks.push(stack);
-  }
-}
-
-const squadProjectStore = useSquadProjectStore();
-const { projectDetail, loading, error } = storeToRefs(squadProjectStore);
-
-const roles = computed(() => {
-  return projectDetail.value?.data.jobRequirements?.map((j) => j.jobName) || [];
-});
-
-const { openModal } = useDeveloperModal();
 </script>
 
 <template>
@@ -238,7 +184,7 @@ const { openModal } = useDeveloperModal();
               <th>개발자명</th>
               <th>등급</th>
               <th>상태</th>
-              <th>최고점 기술스택</th>
+              <th>기술스택</th>
               <th></th>
             </tr>
           </thead>
@@ -246,8 +192,7 @@ const { openModal } = useDeveloperModal();
             <tr
               v-for="(dev, index) in developers"
               :key="dev.id"
-              @click="openModal(dev.id)"
-              class="transition-all duration-200 ease-in hover:bg-gray-50 hover:shadow-md cursor-pointer"
+              class="hover:bg-gray-50 cursor-pointer"
             >
               <td class="text-center">{{ index + 1 }}</td>
               <td class="text-center">{{ dev.name }}</td>
@@ -267,11 +212,8 @@ const { openModal } = useDeveloperModal();
                 </div>
               </td>
               <td class="text-center">
-                <button
-                  class="btn-add"
-                  @click.stop="handleAddDeveloper(dev.id)"
-                >
-                  추가
+                <button class="btn-add" @click="handleReplace(dev)">
+                  교체
                 </button>
               </td>
             </tr>
@@ -290,14 +232,6 @@ const { openModal } = useDeveloperModal();
         @change="handleSearch"
       />
     </div>
-
-    <SelectRoleModal
-      v-if="showRoleModal"
-      :developer="selectedDeveloper"
-      :roles="roles"
-      @select="handleSelectRole"
-      @close="showRoleModal = false"
-    />
   </div>
 </template>
 

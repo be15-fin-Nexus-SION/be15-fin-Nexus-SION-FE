@@ -3,7 +3,6 @@ import { watch } from "vue";
 
 const props = defineProps(["selectedFilters"]);
 
-// 매핑 테이블 정의
 const sortByMap = {
   이름: "employeeName",
   등급: "grade",

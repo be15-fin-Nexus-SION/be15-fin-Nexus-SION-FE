@@ -16,22 +16,22 @@ const totalCount = ref(0); // 총 스쿼드 수
 const toast = useToast();
 
 const showMoreModal = ref(false);
-const selectedMoreType = ref(""); // 예: 'waiting', 'inprogress', 'complete'
+const selectedMoreType = ref("");
 
 const squads = ref([]);
 const page = ref(1);
 const size = 9;
 const totalPages = ref(1);
 
-const selectedProjectCode = ref("");
+const route = useRoute();
+
+const selectedProjectCode = ref();
 const selectedProjectTitle = ref("");
 const selectedProjectStatus = computed(() => {
   return (
     projectMap.value[selectedProjectCode.value]?.status?.toUpperCase() ?? ""
   );
 });
-
-const route = useRoute();
 
 const projectGroups = ref({ waiting: [], inprogress: [], complete: [] });
 const projectMap = ref({}); // title → { projectCode, title, status }
@@ -159,7 +159,10 @@ const openMoreModal = (type) => {
   showMoreModal.value = true;
 };
 
-onMounted(fetchProjects);
+onMounted(() => {
+  selectedProjectCode.value = route.query.projectId;
+  fetchProjects();
+});
 </script>
 
 <template>

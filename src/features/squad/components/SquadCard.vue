@@ -69,7 +69,7 @@ async function handleShareSquad(adminList) {
       <!-- 헤더 영역 -->
       <div class="flex items-start justify-between mb-4">
         <h3 class="text-lg font-bold truncate max-w-[70%]">
-          스쿼드 {{ squad.squadCode?.split("_").pop() }}
+          {{ squad.squadName }}
         </h3>
         <div
           v-if="squad.aiRecommended"

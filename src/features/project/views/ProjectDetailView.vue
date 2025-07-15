@@ -10,43 +10,49 @@ import {
   deleteProject,
   updateProject,
   analyzeProject,
+  replaceProjectSquad,
+  fetchDeveloperApprovals,
 } from "@/api/project";
 import { showSuccessToast, showErrorToast } from "@/utills/toast";
 import { useAuthStore } from "@/stores/auth.js";
+import ReplacementPanel from "@/features/project/components/ReplacementPanel.vue";
 
 const route = useRoute();
 const router = useRouter();
 const project = ref(null);
 const isLoading = ref(true);
 const isEditVisible = ref(false);
+const projectCode = route.params.projectCode;
 const authStore = useAuthStore();
 const memberRole = computed(() => authStore.memberRole);
 
-onMounted(async () => {
-  const projectCode = route.params.projectCode;
-  try {
-    const response = await fetchProjectDetail(projectCode);
-    project.value = response.data.data;
-  } catch (error) {
-    console.error("프로젝트 상세 정보 로드 실패:", error);
-  } finally {
-    isLoading.value = false;
-  }
-});
-
-function handleComplete() {
-  const confirm = window.confirm("정말 프로젝트를 종료하시겠습니까?");
+function handleEvaluate() {
+  const confirm = window.confirm("프로젝트를 종료하시겠습니까?");
   if (!confirm) return;
 
-  const projectCode = route.params.projectCode;
+  updateProjectStatus(projectCode, "EVALUATION")
+    .then(() => {
+      project.value.status = "EVALUATION";
+      showSuccessToast("프로젝트 평가 상태로 변경되었습니다.");
+    })
+    .catch((e) => {
+      console.error("프로젝트 종료 실패", e);
+      showErrorToast("상태 변경 중 오류가 발생했습니다.");
+    });
+}
+
+function handleComplete() {
+  const confirm = window.confirm("프로젝트 평가를 종료하겠습니까?");
+  if (!confirm) return;
+
   updateProjectStatus(projectCode, "COMPLETE")
     .then(() => {
-      project.value.status = "COMPLETE";
+      project.value.status = "EVALUATION";
       showSuccessToast("프로젝트가 종료되었습니다.");
     })
     .catch((e) => {
       console.error("프로젝트 종료 실패", e);
-      showErrorToast("종료 중 오류가 발생했습니다.");
+      showErrorToast("상태 변경 중 오류가 발생했습니다.");
     });
 }
 
@@ -54,7 +60,6 @@ function handleDelete() {
   const confirmDelete = window.confirm("정말 이 프로젝트를 삭제하시겠습니까?");
   if (!confirmDelete) return;
 
-  const projectCode = route.params.projectCode;
   deleteProject(projectCode)
     .then(() => {
       showSuccessToast("프로젝트가 삭제되었습니다.");
@@ -67,8 +72,6 @@ function handleDelete() {
 }
 
 async function handleEditSubmit(data) {
-  const projectCode = route.params.projectCode;
-
   try {
     await updateProject(projectCode, data.payload);
     showSuccessToast("프로젝트가 수정되었습니다.");
@@ -84,6 +87,80 @@ async function handleEditSubmit(data) {
     showErrorToast("수정 중 오류가 발생했습니다.");
   }
 }
+
+const isReplacementMode = ref(false); // 대체 모드 진입 여부
+const isReplacementVisible = ref(false); // 패널 열림 여부
+const replacingMember = ref(null); // 현재 대체 대상 멤버
+
+const enterReplacementMode = () => {
+  isReplacementMode.value = true;
+  showSuccessToast("대체할 대상을 선택하세요.");
+};
+
+const handleMemberClick = (member) => {
+  if (isReplacementMode.value) {
+    replacingMember.value = member;
+    isReplacementVisible.value = true;
+  }
+};
+
+const handleReplace = async ({ oldMemberId, newMemberId }) => {
+  try {
+    await replaceProjectSquad({
+      squadCode: project.value.squadCode,
+      oldEmployeeId: oldMemberId,
+      newEmployeeId: newMemberId,
+    });
+    showSuccessToast("프로젝트 인원이 성공적으로 대체되었습니다.");
+    isReplacementVisible.value = false;
+    isReplacementMode.value = false;
+
+    const response = await fetchProjectDetail(projectCode);
+    project.value = response.data.data;
+  } catch (e) {
+    console.error("프로젝트 인원 대체 실패", e);
+    showErrorToast("프로젝트 인원 대체에 실패했습니다.");
+  }
+};
+
+const approvalStatuses = ref([]);
+
+async function fetchApprovalStatuses() {
+  const { data } = await fetchDeveloperApprovals(projectCode);
+  approvalStatuses.value = data;
+}
+
+onMounted(async () => {
+  const projectCode = route.params.projectCode;
+  try {
+    const response = await fetchProjectDetail(projectCode);
+    project.value = response.data.data;
+
+    if (project.value?.members?.length > 0) {
+      replacingMember.value = project.value.members[1];
+    }
+  } catch (error) {
+    console.error("프로젝트 상세 정보 로드 실패:", error);
+  } finally {
+    isLoading.value = false;
+  }
+
+  await fetchApprovalStatuses();
+});
+
+const approvalStatusMap = computed(() => {
+  return approvalStatuses.value.reduce((map, status) => {
+    map[status.employeeId] = status.approvalStatus;
+    return map;
+  }, {});
+});
+
+const approvedCount = computed(
+  () =>
+    Object.values(approvalStatusMap.value).filter(
+      (status) => status === "APPROVED",
+    ).length,
+);
 </script>
 
 <template>
@@ -131,19 +208,26 @@ async function handleEditSubmit(data) {
           </span>
         </div>
 
-        <template v-if="project.status === 'COMPLETE'">
+        <template v-if="project.status === 'EVALUATION'">
           <button
             v-if="memberRole === 'ADMIN'"
             class="bg-gray-300 text-gray-600 px-5 py-2 rounded-md cursor-not-allowed"
             disabled
+            :class="[
+              'px-5 py-2 rounded-md font-semibold',
+              approvalStatuses.every((a) => a.approvalStatus === 'APPROVED')
+                ? 'bg-primary text-white cursor-pointer'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed',
+            ]"
+            @click="handleComplete"
           >
-            종료됨
+            평가 완료
           </button>
         </template>
         <template v-else>
           <button
             class="bg-primary px-5 py-2 text-white rounded-md hover:brightness-110"
-            @click="handleComplete"
+            @click="handleEvaluate"
           >
             종료
           </button>
@@ -183,29 +267,59 @@ async function handleEditSubmit(data) {
         />
       </div>
 
-      <!-- 구성 인원 -->
       <div class="mb-2 flex justify-between items-center">
         <h2 class="font-semibold">구성 인원</h2>
-        <button
-          class="text-sm text-blue-500"
-          @click="router.push({ name: 'squad-list' })"
-        >
-          스쿼드 수정
-        </button>
+        <template v-if="project.status === 'EVALUATION'">
+          <p class="text-sm font-bold text-red-500 mb-2">
+            승인 인원: {{ approvedCount }}/{{ project.members.length }}
+          </p>
+        </template>
+        <template v-if="['WAITING', 'IN_PROGRESS'].includes(project.status)">
+          <button
+            class="text-sm text-blue-500"
+            @click="
+              project.status === 'WAITING'
+                ? router.push(
+                    `/squads/create/${projectCode}?squadCode=${project.squadCode}`,
+                  )
+                : enterReplacementMode()
+            "
+          >
+            {{ project.status === "WAITING" ? "스쿼드 수정" : "인재 대체" }}
+          </button>
+        </template>
       </div>
+
+      <p
+        v-if="isReplacementMode"
+        class="text-sm text-red-500 mb-2 font-medium animate-fade"
+      >
+        대체할 개발자를 선택하세요.
+      </p>
 
       <div class="rounded-md overflow-hidden border-y border-gray-200">
         <div
           v-if="project.members.length > 0"
-          class="rounded-md bg-[#F7FAFC] divide-y max-h-80 overflow-y-auto"
+          class="rounded-md bg-[#F7FAFC] divide-y-2 max-h-80"
         >
           <SquadCard
             v-for="(member, idx) in project.members"
-            :key="idx"
+            :key="member.employeeId"
             :name="member.name"
             :role="member.job"
             :isLeader="member.isLeader"
-            :imageUrl="member.imageUrl"
+            :imageUrl="
+              // member.imageUrl ||
+              `https://api.dicebear.com/9.x/notionists/svg?seed=` + idx
+            "
+            :selected="
+              isReplacementMode &&
+              replacingMember?.employeeId === member.employeeId
+            "
+            @click="handleMemberClick(member)"
+            :approvalStatus="
+              approvalStatusMap[member.employeeId] || 'NOT_REQUESTED'
+            "
           />
         </div>
         <div v-else class="p-6 text-center text-gray-400 text-sm bg-[#F7FAFC]">
@@ -216,7 +330,7 @@ async function handleEditSubmit(data) {
       <!-- 하단 버튼 -->
       <div class="flex justify-end mt-6 gap-3">
         <button
-          v-if="project.status !== 'COMPLETE'"
+          v-if="['WAITING', 'IN_PROGRESS'].includes(project.status)"
           class="px-4 py-2 bg-gray-100 rounded text-sm"
           @click="isEditVisible = true"
         >
@@ -272,6 +386,14 @@ async function handleEditSubmit(data) {
         </div>
       </div>
     </transition>
+    <ReplacementPanel
+      :key="replacingMember?.employeeId"
+      :project="project"
+      v-show="isReplacementVisible"
+      :leaving-member="replacingMember"
+      @close="isReplacementVisible = false"
+      @replace="handleReplace"
+    />
   </div>
 </template>
 
