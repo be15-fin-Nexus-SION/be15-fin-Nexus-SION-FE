@@ -1,3 +1,5 @@
+import plugin from "tailwindcss/plugin";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{vue,js,ts}"],
@@ -152,5 +154,20 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        ".hide-scrollbar": {
+          /* Chrome, Safari */
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+          /* Firefox */
+          "scrollbar-width": "none",
+          /* IE, Edge */
+          "-ms-overflow-style": "none",
+        },
+      });
+    }),
+  ],
 };

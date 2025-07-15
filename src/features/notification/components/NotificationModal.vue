@@ -107,7 +107,7 @@ async function handleAllRead() {
 }
 
 .body-scroll {
-  @apply overflow-y-auto space-y-1 p-4 max-h-[70vh];
+  @apply overflow-y-auto overscroll-contain space-y-1 p-4 max-h-[70vh];
 }
 
 .empty-message-wrapper {

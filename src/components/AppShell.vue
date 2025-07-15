@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import HeaderMain from "@/components/header/HeaderMain.vue";
 import NotificationModal from "@/features/notification/components/NotificationModal.vue";
-import { ref } from "vue";
+import { useModalStore } from "@/stores/modal.js";
 
-const showNotificationModal = ref(false);
+const modalStore = useModalStore();
 </script>
 
 <template>
   <div class="app-shell">
     <!-- 공통 헤더 -->
-    <HeaderMain @open-notification-modal="showNotificationModal = true" />
+    <HeaderMain @open-notification-modal="modalStore.openModal()" />
 
     <!-- 페이지별 컨텐츠 영역 -->
     <main class="content-area">
@@ -18,8 +18,8 @@ const showNotificationModal = ref(false);
       </div>
 
       <NotificationModal
-        v-show="showNotificationModal"
-        @close="showNotificationModal = false"
+        v-show="modalStore.isOpen"
+        @close="modalStore.closeModal()"
       />
     </main>
   </div>
