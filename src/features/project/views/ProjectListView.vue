@@ -11,7 +11,6 @@ import { useAuthStore } from "@/stores/auth";
 import FilterSidebar from "@/features/project/components/FilterSidebar.vue";
 import ProjectCard from "@/features/project/components/ProjectCard.vue";
 import Pagination from "@/components/Pagination.vue";
-import StatusFilter from "@/features/project/components/StatusFilter.vue";
 import ProjectHistoryList from "@/features/project/components/ProjectHistoryList.vue";
 import { showErrorToast } from "@/utills/toast.js";
 
@@ -140,7 +139,6 @@ const statusOptions = [
 const pagedProjects = computed(() => allProjects.value ?? []);
 const hasNoProjects = computed(() => pagedProjects.value.length === 0);
 
-// ✅ 새로고침 파라미터 있을 경우 목록 다시 불러오기
 watch(
   () => activeTab.value,
   (tab) => {
@@ -154,7 +152,6 @@ watch(
   { immediate: true },
 );
 
-// 초기 로딩
 onMounted(() => {
   if (!memberRole.value) return;
   if (memberRole.value === "ADMIN") {
@@ -169,17 +166,6 @@ onMounted(() => {
     fetchProjects();
   }
 });
-
-// 탭 전환 감시
-watch(
-  () => activeTab.value,
-  (tab) => {
-    if (tab === "history") {
-      fetchProjectHistories();
-    }
-  },
-  { immediate: true },
-);
 </script>
 
 <template>
@@ -219,48 +205,41 @@ watch(
         </button>
       </div>
 
-      <template v-if="activeTab === 'list'">
-        <StatusFilter
-          v-if="memberRole !== 'ADMIN'"
-          :selected-status="selectedStatusForUser"
-          :options="statusOptions"
-          @change="handleStatusRadioChange"
-        />
+      <div class="content-flex-layout">
+        <div class="project-main-area">
+          <template v-if="activeTab === 'list'">
+            <div v-if="hasNoProjects" class="empty-message">
+              조건에 맞는 프로젝트가 없습니다.
+            </div>
 
-        <div v-if="hasNoProjects" class="empty-message">
-          조건에 맞는 프로젝트가 없습니다.
-        </div>
+            <div v-else class="project-list">
+              <ProjectCard
+                v-for="project in pagedProjects"
+                :key="project.projectCode"
+                :project="project"
+                @click="goToDetail(project.projectCode)"
+              />
+            </div>
 
-        <div v-else class="project-list">
-          <ProjectCard
-            v-for="project in pagedProjects"
-            :key="project.projectCode"
-            :project="project"
-            @click="goToDetail(project.projectCode)"
-          />
-        </div>
+            <div v-if="!hasNoProjects" class="pagination-wrapper">
+              <Pagination
+                :current-page="currentPage"
+                :total-pages="totalPages"
+                @change="goToPage"
+              />
+            </div>
+          </template>
 
-        <div v-if="!hasNoProjects" class="pagination-wrapper">
-          <Pagination
-            :current-page="currentPage"
-            :total-pages="totalPages"
-            @change="goToPage"
-          />
-        </div>
-      </template>
-
-      <template v-if="activeTab === 'history'">
-        <div class="page-full">
-          <div class="page-container">
+          <template v-else-if="activeTab === 'history'">
             <ProjectHistoryList
               :histories="projectHistories"
               :current-page="currentPage"
               :total-pages="totalPages"
               @change-page="goToPage"
             />
-          </div>
+          </template>
         </div>
-      </template>
+      </div>
     </div>
   </div>
 </template>
@@ -299,6 +278,14 @@ watch(
 
 .register-button {
   @apply bg-primary px-5 py-2 text-white rounded-md;
+}
+
+.content-flex-layout {
+  @apply flex gap-6;
+}
+
+.project-main-area {
+  @apply flex-1;
 }
 
 .empty-message {
