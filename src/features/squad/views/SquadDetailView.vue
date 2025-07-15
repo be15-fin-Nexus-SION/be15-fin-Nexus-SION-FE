@@ -240,7 +240,8 @@ onBeforeUnmount(() => {
             </span>
           </div>
 
-          <div class="relative" ref="dropdownRef">
+          <!-- isActive가 false일 때만 ⋯ 버튼 영역 보임 -->
+          <div class="relative" ref="dropdownRef" v-if="!squad.isActive">
             <button
               @click="toggleDropdown"
               class="text-xl leading-none w-6 h-6 flex items-center justify-center hover:bg-gray-100 rounded"
@@ -254,7 +255,6 @@ onBeforeUnmount(() => {
               <button
                 class="w-full px-4 py-2 text-sm text-[#6574F6] hover:bg-gray-100 text-center"
                 @click="editSquad"
-                v-if="!squad.isActive || squad.origin !== 'AI'"
               >
                 스쿼드 수정
               </button>
