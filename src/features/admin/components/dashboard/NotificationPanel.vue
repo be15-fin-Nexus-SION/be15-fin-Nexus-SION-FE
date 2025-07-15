@@ -36,7 +36,7 @@ const allNotifications = ref([
   <div class="flex gap-8 w-full">
     <!-- 내 알림 -->
     <div
-      class="flex-1 p-6 rounded-xl shadow-lg transition-all bg-gradient-to-br from-[#e3f2fd] to-[#f0f8ff] border border-[#bbdefb]"
+      class="flex-1 p-6 rounded-xl shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"
     >
       <h3 class="text-[18px] font-bold mb-5 text-[#333]">📥 내 알림</h3>
       <ul class="space-y-4">

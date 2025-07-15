@@ -1,5 +1,4 @@
 import api from "./axios.js";
-import axios from "axios";
 
 export function getAllJobs() {
   return api.get("/jobs");

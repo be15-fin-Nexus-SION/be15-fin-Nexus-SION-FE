@@ -29,7 +29,7 @@ const props = defineProps({
             <p class="font-semibold text-gray-800">
               {{ freelancer.name }}
               <span class="text-sm text-gray-500">
-                ({{ freelancer.career_years }}년차)
+                ({{ freelancer.careerYears }}년차)
               </span>
             </p>
           </div>

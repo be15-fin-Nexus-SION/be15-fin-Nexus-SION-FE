@@ -160,7 +160,6 @@ const openMoreModal = (type) => {
 };
 
 onMounted(() => {
-  const route = useRoute();
   selectedProjectCode.value = route.query.projectId;
   fetchProjects();
 });

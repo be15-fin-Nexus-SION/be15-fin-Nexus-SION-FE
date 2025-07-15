@@ -26,23 +26,6 @@ const projectCode = route.params.projectCode;
 const authStore = useAuthStore();
 const memberRole = computed(() => authStore.memberRole);
 
-onMounted(async () => {
-  const projectCode = route.params.projectCode;
-  try {
-    const response = await fetchProjectDetail(projectCode);
-    project.value = response.data.data;
-
-    if (project.value?.members?.length > 0) {
-      replacingMember.value = project.value.members[1];
-      console.log(replacingMember.value);
-    }
-  } catch (error) {
-    console.error("프로젝트 상세 정보 로드 실패:", error);
-  } finally {
-    isLoading.value = false;
-  }
-});
-
 function handleEvaluate() {
   const confirm = window.confirm("프로젝트를 종료하시겠습니까?");
   if (!confirm) return;
@@ -146,9 +129,38 @@ async function fetchApprovalStatuses() {
   const { data } = await fetchDeveloperApprovals(projectCode);
   approvalStatuses.value = data;
 }
+
 onMounted(async () => {
+  const projectCode = route.params.projectCode;
+  try {
+    const response = await fetchProjectDetail(projectCode);
+    project.value = response.data.data;
+
+    if (project.value?.members?.length > 0) {
+      replacingMember.value = project.value.members[1];
+    }
+  } catch (error) {
+    console.error("프로젝트 상세 정보 로드 실패:", error);
+  } finally {
+    isLoading.value = false;
+  }
+
   await fetchApprovalStatuses();
 });
+
+const approvalStatusMap = computed(() => {
+  return approvalStatuses.value.reduce((map, status) => {
+    map[status.employeeId] = status.approvalStatus;
+    return map;
+  }, {});
+});
+
+const approvedCount = computed(
+  () =>
+    Object.values(approvalStatusMap.value).filter(
+      (status) => status === "APPROVED",
+    ).length,
+);
 </script>
 
 <template>
@@ -207,9 +219,6 @@ onMounted(async () => {
                 ? 'bg-primary text-white cursor-pointer'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed',
             ]"
-            :disabled="
-              !approvalStatuses.every((a) => a.approvalStatus === 'APPROVED')
-            "
             @click="handleComplete"
           >
             평가 완료
@@ -262,11 +271,7 @@ onMounted(async () => {
         <h2 class="font-semibold">구성 인원</h2>
         <template v-if="project.status === 'EVALUATION'">
           <p class="text-sm font-bold text-red-500 mb-2">
-            승인 인원:
-            {{
-              approvalStatuses.filter((a) => a.approvalStatus === "APPROVED")
-                .length
-            }}/{{ project.members.length }}
+            승인 인원: {{ approvedCount }}/{{ project.members.length }}
           </p>
         </template>
         <template v-if="['WAITING', 'IN_PROGRESS'].includes(project.status)">
@@ -299,7 +304,7 @@ onMounted(async () => {
         >
           <SquadCard
             v-for="(member, idx) in project.members"
-            :key="idx"
+            :key="member.employeeId"
             :name="member.name"
             :role="member.job"
             :isLeader="member.isLeader"
@@ -313,8 +318,7 @@ onMounted(async () => {
             "
             @click="handleMemberClick(member)"
             :approvalStatus="
-              approvalStatuses.find((a) => a.employeeId === member.employeeId)
-                ?.approvalStatus || 'NOT_REQUESTED'
+              approvalStatusMap[member.employeeId] || 'NOT_REQUESTED'
             "
           />
         </div>

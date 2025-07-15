@@ -16,7 +16,6 @@ onMounted(async () => {
   try {
     const res = await getAdminMainDashboard();
     dashboardData.value = res.data.data;
-    console.log(dashboardData.value);
   } catch (error) {
     showErrorToast("대시보드 요약 정보 로딩에 실패했습니다");
   }

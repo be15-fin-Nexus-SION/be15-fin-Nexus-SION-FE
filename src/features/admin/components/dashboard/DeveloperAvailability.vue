@@ -60,7 +60,7 @@ const enrichedGradeDistribution = computed(() =>
             class="h-3 rounded-full transition-all duration-700"
             :class="g.color"
             :style="{
-              width: `${(g.count / props.availability.totalAvailable) * 100}%`,
+              width: `${props.availability.totalAvailable > 0 ? (g.count / props.availability.totalAvailable) * 100 : 0}%`,
             }"
           ></div>
         </div>

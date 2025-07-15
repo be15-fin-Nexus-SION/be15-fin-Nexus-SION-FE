@@ -2,7 +2,6 @@
 import { useRouter } from "vue-router";
 import { computed } from "vue";
 
-// ✅ props 정의
 const props = defineProps({
   pendingProjects: {
     type: Array,
@@ -15,20 +14,26 @@ const props = defineProps({
 });
 
 const router = useRouter();
-const now = new Date();
 
-const formattedRoles = (roles) =>
-  Object.entries(roles)
+const today = computed(() => new Date().toLocaleDateString("ko-KR"));
+
+const formattedRoles = (roles) => {
+  if (!roles || Object.keys(roles).length === 0) return "직무 정보 없음";
+  return Object.entries(roles)
     .map(([role, count]) => `${role} ${count}명`)
     .join(" / ");
+};
 
 const remainingDays = (startDate) => {
+  const now = new Date();
   const date = new Date(startDate);
   const diff = (date - now) / (1000 * 60 * 60 * 24);
-  return `${Math.ceil(diff)}일 남음`;
+  const daysLeft = Math.ceil(diff);
+  return daysLeft >= 0 ? `${daysLeft}일 남음` : "기간 초과";
 };
 
 const elapsedTime = (startTime) => {
+  const now = new Date();
   const start = new Date(startTime);
   const diffMs = now - start;
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -50,13 +55,13 @@ const goToSquad = (projectCode) => {
       <div class="flex justify-between items-center mb-5">
         <h2 class="text-lg font-bold text-gray-800">마감 임박 프로젝트</h2>
         <span class="text-sm text-primary font-medium">
-          기준: {{ new Date().toLocaleDateString("ko-KR") }}
+          기준: {{ today }}
         </span>
       </div>
 
       <ul class="space-y-4">
         <li
-          v-for="project in props.pendingProjects"
+          v-for="project in pendingProjects"
           :key="project.projectCode"
           class="relative group border-l-4 border-primary pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg"
         >
@@ -69,9 +74,7 @@ const goToSquad = (projectCode) => {
                 remainingDays(project.startDate)
               }}</span>
             </div>
-            <p class="text-sm text-gray-600 mb-1">
-              {{ project.description }}
-            </p>
+            <p class="text-sm text-gray-600 mb-1">{{ project.description }}</p>
             <p class="text-sm text-gray-500">
               직무: {{ formattedRoles(project.roles) }}
             </p>
@@ -103,8 +106,8 @@ const goToSquad = (projectCode) => {
       <h2 class="text-lg font-bold text-gray-800 mb-5">분석 중 프로젝트</h2>
       <ul class="space-y-4">
         <li
-          v-for="project in props.analyzingProjects"
-          :key="project.id"
+          v-for="project in analyzingProjects"
+          :key="project.projectCode"
           class="p-4 bg-gray-50 rounded-md border-l-4 border-blue-400"
         >
           <div class="flex justify-between items-center mb-1">
