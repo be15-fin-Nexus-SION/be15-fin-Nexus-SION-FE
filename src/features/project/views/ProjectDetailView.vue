@@ -41,7 +41,6 @@ function handleEvaluate() {
 }
 
 function handleComplete() {
-  console.log("clicked??");
   const confirm = window.confirm("프로젝트 평가를 종료하겠습니까?");
   if (!confirm) return;
 
@@ -210,7 +209,6 @@ const approvedCount = computed(
         <template v-if="project.status === 'EVALUATION'">
           <button
             v-if="memberRole === 'ADMIN'"
-            class="bg-gray-300 text-gray-600 px-5 py-2 rounded-md"
             :class="[
               'px-5 py-2 rounded-md font-semibold',
               Object.values(approvalStatusMap).every(

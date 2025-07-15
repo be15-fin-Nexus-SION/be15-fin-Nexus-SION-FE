@@ -54,13 +54,13 @@
     </div>
 
     <template v-if="isEvaluationMode && approvalStatus === 'PENDING'">
-      <a
-        :href="`/projects/history/${historyId}`"
+      <router-link
+        :to="`/projects/history/${historyId}`"
         class="absolute right-6 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-semibold text-white bg-blue-500 rounded-md transform translate-x-full group-hover:translate-x-0 transition-all duration-300"
         @click.stop
       >
         프로젝트 이력 내역 확인하기 →
-      </a>
+      </router-link>
     </template>
 
     <template v-if="isEvaluationMode">
