@@ -33,15 +33,6 @@ export const projectRoutes = [
     },
   },
   {
-    path: "/projects/history/list",
-    name: "project-history-list",
-    component: () => import("./views/ProjectHistoryListView.vue"),
-    meta: {
-      requiresAuth: true,
-      roles: ["ADMIN", "INSIDER", "OUTSIDER"],
-    },
-  },
-  {
     path: "/projects/history/:id",
     name: "project-history-detail",
     component: () => import("./views/ProjectHistoryDetailView.vue"),
