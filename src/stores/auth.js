@@ -15,6 +15,7 @@ export const useAuthStore = defineStore(
     const expirationTime = ref(null);
     const memberId = ref(null);
     const memberRole = ref(null);
+    const profileImage = ref(null);
 
     const isAuthenticated = computed(
       () => !!accessToken.value && Date.now() < (expirationTime.value || 0),
@@ -41,6 +42,10 @@ export const useAuthStore = defineStore(
       }
     }
 
+    function setProfileImage(url) {
+      profileImage.value = url;
+    }
+
     function clearAuth() {
       accessToken.value = null;
       expirationTime.value = null;
@@ -59,12 +64,20 @@ export const useAuthStore = defineStore(
       isAuthenticated,
       setAuth,
       clearAuth,
+      setProfileImage,
+      profileImage,
     };
   },
   {
     persist: {
       storage: sessionStorage,
-      paths: ["accessToken", "expirationTime", "memberId", "memberRole"],
+      paths: [
+        "accessToken",
+        "expirationTime",
+        "memberId",
+        "memberRole",
+        "profileImage",
+      ],
     },
   },
 );
