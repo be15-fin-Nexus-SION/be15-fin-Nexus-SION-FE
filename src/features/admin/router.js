@@ -2,7 +2,7 @@ export const adminRoutes = [
   {
     path: "/admin/dashboard",
     name: "AdminDashboardView",
-    component: () => import("./views/AdminDashboardView.vue"),
+    component: () => import("./views/AdminDashBoardView.vue"),
     meta: {
       requiresAuth: true,
       roles: ["ADMIN"],
