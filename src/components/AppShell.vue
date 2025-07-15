@@ -9,7 +9,7 @@ const modalStore = useModalStore();
 <template>
   <div class="app-shell">
     <!-- 공통 헤더 -->
-    <HeaderMain @open-notification-modal="modalStore.closeModal()" />
+    <HeaderMain @open-notification-modal="modalStore.openModal()" />
 
     <!-- 페이지별 컨텐츠 영역 -->
     <main class="content-area">
