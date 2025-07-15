@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-[178px] p-6 rounded-xl bg-white shadow-[0_0_2px_rgba(0,0,0,0.25)] overflow-y-auto w-full hide-scrollbar"
+    class="h-[178px] p-6 rounded-xl bg-white shadow-[0_0_2px_rgba(0,0,0,0.25)] overflow-y-auto overscroll-contain w-full hide-scrollbar"
   >
     <ul v-if="notifications.length > 0" class="space-y-4 text-sm text-gray-700">
       <li v-for="n in notifications" :key="n.notificationId">
