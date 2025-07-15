@@ -1,11 +1,9 @@
 <template>
-  <aside
-    class="w-64 min-w-[300px] h-screen bg-white p-4 border-r overflow-y-auto"
-  >
-    <!-- 진행 전 프로젝트 관리 -->
+  <aside class="w-64 min-w-[300px] h-screen bg-white p-4 border-r">
+    <!-- 배치 전 프로젝트 -->
     <div class="mb-4">
       <SquadSidebarSection
-        title="진행 전 프로젝트 관리"
+        title="배치 전 프로젝트"
         :items="projectGroups.waiting.slice(0, 3)"
         :active="selectedProjectCode"
         :projectMap="projectMap"
@@ -20,10 +18,10 @@
       </button>
     </div>
 
-    <!-- 진행중 프로젝트 관리 -->
+    <!--배치 완료 프로젝트 -->
     <div class="mb-4">
       <SquadSidebarSection
-        title="진행중 프로젝트 관리"
+        title="배치 완료 프로젝트"
         :items="projectGroups.inprogress.slice(0, 3)"
         :active="selectedProjectCode"
         :projectMap="projectMap"
@@ -75,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router"; //
 import SquadSidebarSection from "./SquadSidebarSection.vue";
 import ConfirmDeleteModal from "@/features/squad/components/ConfirmDeleteModal.vue";
