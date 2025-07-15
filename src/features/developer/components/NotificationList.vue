@@ -88,7 +88,6 @@ async function goToRelatedPage(notification) {
   let url = "";
 
   const type = notification.notificationType;
-  console.log(type);
 
   switch (type) {
     case "TASK_UPLOAD_REQUEST":
