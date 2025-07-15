@@ -1,12 +1,12 @@
 <template>
   <div v-if="authStore.memberId" class="p-8 space-y-8">
-    <!-- 프로젝트 + 알람 제목 줄 -->
+    <!-- 프로젝트 + 알림 제목 줄 -->
     <div class="flex gap-6 items-center">
       <div class="flex-1 text-xl font-bold">프로젝트</div>
-      <div class="flex-1 text-xl font-bold">알람</div>
+      <div class="flex-1 text-xl font-bold">알림</div>
     </div>
 
-    <!-- 프로젝트 + 알람 카드 줄 -->
+    <!-- 프로젝트 + 알림 카드 줄 -->
     <div class="flex gap-6 items-start">
       <!-- 프로젝트 카드 -->
       <div class="flex-1">
