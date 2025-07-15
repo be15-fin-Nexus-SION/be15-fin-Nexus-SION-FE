@@ -10,6 +10,7 @@ import { useNotificationStore } from "@/stores/notification.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
 
 const showModal = ref(false);
 const modalPosition = ref({});
@@ -60,15 +61,17 @@ function handleNotificationModal() {
   emit("open-notification-modal");
   closeModal();
 }
-
-const notificationStore = useNotificationStore();
 </script>
 
 <template>
   <div class="auth-container">
     <template v-if="authStore.isAuthenticated">
       <div class="profile" @click="openModal">
-        <img :src="BasicProfile" alt="기본프로필이미지" />
+        <!-- ✅ 프로필 이미지 로딩 -->
+        <img
+          :src="authStore.profileImage || BasicProfile"
+          alt="프로필 이미지"
+        />
         <span
           v-if="notificationStore.hasUnreadNotification"
           class="absolute top-[6px] right-[-1px] w-2 h-2 rounded-full bg-red-500 animate-bounce"
@@ -113,5 +116,9 @@ const notificationStore = useNotificationStore();
 .profile {
   @apply relative w-[60px] h-[60px] flex items-center justify-center;
   cursor: pointer;
+}
+
+.profile img {
+  @apply w-full h-full object-cover rounded-full border-2 border-gray-300;
 }
 </style>

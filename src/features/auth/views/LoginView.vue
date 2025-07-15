@@ -1,6 +1,6 @@
 <script setup>
 // 로그인 관련 로직
-import { login } from "@/api/member.js";
+import { login, fetchProfileImage } from "@/api/member.js";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import { useRouter } from "vue-router";
 import LoginForm from "@/features/auth/components/LoginForm.vue";
@@ -14,11 +14,21 @@ const handleLogin = async (payload) => {
     const resp = await login(payload);
     const at = resp.data.data.accessToken;
     authStore.setAuth(at);
+
+    // ✅ 이미지 fetch는 setAuth 후에 memberId로 요청
+    const profileResp = await fetchProfileImage(authStore.memberId);
+    authStore.setProfileImage(profileResp.data.data); // ✅ data가 URL임
+
     showSuccessToast("로그인 되었습니다.");
     await router.push("/");
   } catch (error) {
-    console.error("로그인 실패:", error.response.data.message);
-    showErrorToast(error.response.data.message);
+    console.error(
+      "로그인 실패:",
+      error?.response?.data?.message || error.message,
+    );
+    showErrorToast(
+      error?.response?.data?.message || "로그인 중 오류가 발생했습니다.",
+    );
   }
 };
 </script>
