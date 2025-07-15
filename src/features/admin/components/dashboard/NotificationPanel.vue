@@ -63,6 +63,7 @@ async function handleAllRead() {
       <div class="w-full flex justify-between items-center">
         <h3 class="text-[18px] font-bold text-[#333]">📥 내 알림</h3>
         <button
+          v-if="myNotifications.length > 0"
           class="text-caption text-gray-400 hover:text-primary-hover"
           @click="handleAllRead"
         >
@@ -71,6 +72,7 @@ async function handleAllRead() {
       </div>
       <div class="flex flex-col h-[200px]">
         <ul
+          v-if="myNotifications.length > 0"
           class="overflow-y-auto hide-scrollbar space-y-4"
           ref="myScrollContainer"
         >
@@ -92,6 +94,12 @@ async function handleAllRead() {
             sion
           </li>
         </ul>
+        <div
+          v-else
+          class="h-full flex items-center justify-center text-gray-400 text-sm text-center"
+        >
+          알림이 없습니다.
+        </div>
       </div>
     </div>
 
@@ -103,6 +111,7 @@ async function handleAllRead() {
 
       <div class="flex flex-col h-[200px]">
         <ul
+          v-if="allNotifications.length > 0"
           class="overflow-y-auto hide-scrollbar space-y-4"
           ref="allScrollContainer"
         >
@@ -122,6 +131,13 @@ async function handleAllRead() {
             sion
           </li>
         </ul>
+
+        <div
+          v-else
+          class="h-full flex items-center justify-center text-gray-400 text-sm text-center"
+        >
+          알림이 없습니다.
+        </div>
       </div>
     </div>
   </div>
