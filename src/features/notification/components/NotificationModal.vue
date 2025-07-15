@@ -83,7 +83,7 @@ async function handleAllRead() {
 }
 
 .noti-modal {
-  @apply w-[480px] min-h-[80vh] max-h-[90vh] bg-white text-center shadow-elevated flex flex-col;
+  @apply w-[480px] min-h-[80vh] max-h-[90vh] bg-white text-center shadow-elevated flex flex-col rounded-md;
 }
 
 .modal-header {
