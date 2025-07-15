@@ -114,11 +114,11 @@ function handleNotificationModal() {
 }
 
 .profile {
-  @apply relative w-[60px] h-[60px] flex items-center justify-center;
+  @apply relative w-[52px] h-[52px] flex items-center justify-center bg-white rounded-full;
   cursor: pointer;
 }
 
 .profile img {
-  @apply w-full h-full object-cover rounded-full border-2 border-gray-300;
+  @apply w-[52px] h-[52px] object-cover rounded-full border-2 border-gray-300;
 }
 </style>

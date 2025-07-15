@@ -16,8 +16,14 @@ const handleLogin = async (payload) => {
     authStore.setAuth(at);
 
     // ✅ 이미지 fetch는 setAuth 후에 memberId로 요청
-    const profileResp = await fetchProfileImage(authStore.memberId);
-    authStore.setProfileImage(profileResp.data.data); // ✅ data가 URL임
+    try {
+      const profileResp = await fetchProfileImage(authStore.memberId);
+      authStore.setProfileImage(profileResp.data.data); // ✅ data가 URL임
+    } catch (e) {
+      const errorMessage =
+        e.response?.data?.message || "헤더의 프로필 이미지 로딩 실패";
+      showErrorToast(errorMessage);
+    }
 
     showSuccessToast("로그인 되었습니다.");
     await router.push("/");

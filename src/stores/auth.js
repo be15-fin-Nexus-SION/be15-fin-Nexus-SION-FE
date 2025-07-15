@@ -44,8 +44,6 @@ export const useAuthStore = defineStore(
 
     function setProfileImage(url) {
       profileImage.value = url;
-      console.log(profileImage);
-      console.log(profileImage.value);
     }
 
     function clearAuth() {
