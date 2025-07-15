@@ -209,6 +209,7 @@ import { reactive, watch, ref, onMounted, computed } from "vue";
 import { fetchDepartmentList, fetchPositionList } from "@/api/member";
 import { uploadImage } from "@/api/image";
 import TechBadge from "@/components/badge/TechBadge.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
 const props = defineProps({
   modelValue: Object,
@@ -251,9 +252,9 @@ async function onFileChange(e) {
     uploading.value = true;
     const res = await uploadImage(file, "profile");
     form.profileImageUrl = res.data.url;
-  } catch (err) {
-    alert("이미지 업로드 실패");
-    console.error(err);
+  } catch (e) {
+    const errorMessage = e.response?.data?.message || "이미지 업로드 실패";
+    showErrorToast(errorMessage);
   } finally {
     uploading.value = false;
   }

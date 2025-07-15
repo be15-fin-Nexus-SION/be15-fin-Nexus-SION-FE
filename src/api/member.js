@@ -101,7 +101,6 @@ export function deleteCertificate(id) {
   return api.delete(`/certificates/${id}`);
 }
 
-
 // 전체 점수 성장 추이
 export function fetchScoreTrend(employeeId) {
   return api.get(`/members/${employeeId}/score-trend/total`);
@@ -153,4 +152,8 @@ export function fetchScoreSummary(id) {
 
 export function fetchRecommendedTrainings() {
   return api.get(`/trainings/recommend/me`);
+}
+
+export function fetchProfileImage(employeeId) {
+  return api.get(`/members/${employeeId}/profile-image`);
 }
