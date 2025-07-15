@@ -65,7 +65,6 @@ async function goToRelatedPage() {
       return;
   }
 
-  closeNotificationConnection();
   await notificationStore.markAsRead(props.notification.notificationId);
   emit("close");
 

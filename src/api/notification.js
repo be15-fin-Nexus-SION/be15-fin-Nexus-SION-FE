@@ -9,6 +9,15 @@ export function getNotifications(page = 1, size = 10) {
   });
 }
 
+export function getAllNotifications(page = 1, size = 10) {
+  return api.get("/notifications", {
+    params: {
+      page,
+      size,
+    },
+  });
+}
+
 export function readAllNotifications() {
   return api.patch("/notifications/reads");
 }

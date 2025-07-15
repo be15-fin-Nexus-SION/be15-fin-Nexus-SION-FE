@@ -1,61 +1,154 @@
 <script setup>
 import { ref } from "vue";
+import { startLoading } from "@/composable/useLoadingBar.js";
+import { getAllNotifications, getNotifications } from "@/api/notification.js";
+import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
+import { closeNotificationConnection } from "@/api/notificationSse.js";
+import { useNotificationStore } from "@/stores/notification.js";
 
-const myNotifications = ref([
-  {
-    id: 1,
-    title: "새 프로젝트가 배정되었습니다",
-    content: "‘AI 분석 시스템 고도화’에 배정됨",
-    time: "2시간 전",
-  },
-  {
-    id: 2,
-    title: "스쿼드 구성이 완료되었습니다",
-    content: "‘빅데이터 구축 사업’ 스쿼드 확정",
-    time: "어제",
-  },
-]);
+const myScrollContainer = ref(null);
+const allScrollContainer = ref(null);
 
-const allNotifications = ref([
-  {
-    id: 1,
-    title: "서버 점검 예정",
-    content: "이번 주 토요일 오전 2시~4시 정기 점검",
-    time: "1일 전",
-  },
-  {
-    id: 2,
-    title: "신규 프리랜서 등록",
-    content: "홍길동 프리랜서 등록됨",
-    time: "3일 전",
-  },
-]);
+const fetchMyNotification = async (page) => {
+  try {
+    startLoading();
+    const data = await getNotifications(page);
+    return data;
+  } catch (e) {
+    console.error("알림 목록 로드 실패", e);
+    return [];
+  }
+};
+
+const fetchAllNotification = async (page) => {
+  try {
+    startLoading();
+    const data = await getAllNotifications(page);
+    return data;
+  } catch (e) {
+    console.error("알림 목록 로드 실패", e);
+    return [];
+  }
+};
+
+const {
+  items: myNotifications,
+  isLastPage: isMyLastPage,
+  reset,
+} = useInfiniteScroll({
+  fetchFn: fetchMyNotification,
+  scrollTargetRef: myScrollContainer,
+});
+
+const { items: allNotifications, isLastPage: isAllLastPage } =
+  useInfiniteScroll({
+    fetchFn: fetchAllNotification,
+    scrollTargetRef: allScrollContainer,
+  });
+
+function timeAgo(notification) {
+  const now = new Date();
+  const created = new Date(notification.createdAt);
+  const diff = now - created;
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  const weeks = Math.floor(days / 7);
+
+  if (seconds < 60) return `${seconds}초`;
+  if (minutes < 60) return `${minutes}분`;
+  if (hours < 24) return `${hours}시간`;
+  if (days < 7) return `${days}일`;
+  return `${weeks}주`;
+}
+
+const notificationStore = useNotificationStore();
+
+async function goToRelatedPage(notification) {
+  let url = "";
+
+  const type = notification.notificationType;
+  console.log(type);
+
+  switch (type) {
+    case "TASK_UPLOAD_REQUEST":
+      url = `/projects/history/register/${notification.linkedContentId}`;
+      break;
+    case "FP_ANALYSIS_COMPLETE":
+    case "FP_ANALYSIS_FAILURE":
+      url = `/projects/${notification.linkedContentId}`;
+      break;
+    case "SQUAD_SHARE":
+      url = `/squads/${notification.linkedContentId}`;
+      break;
+    case "GRADE_CHANGE":
+      return;
+    case "TASK_APPROVAL_REQUEST":
+    case "TASK_APPROVAL_RESULT":
+    case "TASK_APPROVAL_REQUEST_AGAIN":
+      url = `/projects/history/${notification.linkedContentId}`;
+      break;
+    case "CERTIFICATION_APPROVAL_REQUEST":
+      url = `/admin/certificates/approval`;
+      break;
+    default:
+      return;
+  }
+
+  closeNotificationConnection();
+  await notificationStore.markAsRead(notification.notificationId);
+
+  // 🔄 새로고침하면서 페이지 이동
+  window.location.href = url;
+}
+
+async function handleAllRead() {
+  await notificationStore.markAllAsRead();
+  await reset();
+}
 </script>
 
 <template>
   <div class="flex gap-8 w-full">
     <!-- 내 알림 -->
     <div
-      class="flex-1 p-6 rounded-xl shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"
+      class="flex-1 p-6 space-y-5 rounded-xl shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"
     >
-      <h3 class="text-[18px] font-bold mb-5 text-[#333]">📥 내 알림</h3>
-      <ul class="space-y-4">
-        <li
-          v-for="item in myNotifications"
-          :key="item.id"
-          class="bg-white/90 rounded-lg px-5 py-4 border-l-4 border-[#90caf9] shadow-sm hover:-translate-y-0.5 hover:bg-[#f4f6f8] transition-all"
+      <div class="w-full flex justify-between items-center">
+        <h3 class="text-[18px] font-bold text-[#333]">📥 내 알림</h3>
+        <button
+          class="text-caption text-gray-400 hover:text-primary-hover"
+          @click="handleAllRead"
         >
-          <div class="font-semibold text-[15px] mb-1 text-[#222]">
-            {{ item.title }}
-          </div>
-          <div class="text-[14px] text-[#555] mb-1">
-            {{ item.content }}
-          </div>
-          <div class="text-[12px] text-[#999] text-right">
-            {{ item.time }}
-          </div>
-        </li>
-      </ul>
+          모두 읽음 처리
+        </button>
+      </div>
+      <div class="flex flex-col h-[200px]">
+        <ul
+          class="overflow-y-auto hide-scrollbar space-y-4"
+          ref="myScrollContainer"
+        >
+          <li
+            v-for="item in myNotifications"
+            :key="item.id"
+            class="bg-white/90 rounded-lg px-5 py-4 border-l-4 border-[#90caf9] shadow-sm hover:-translate-y-0.5 hover:bg-[#f4f6f8] transition-all"
+            @click="goToRelatedPage(item)"
+          >
+            <div class="text-[14px] text-[#555] mb-1">
+              <span v-if="!item.isRead" class="text-red-500">* </span>
+              {{ item.message }}
+            </div>
+            <div class="text-[12px] text-[#999] text-right">
+              {{ timeAgo(item) }}
+            </div>
+          </li>
+          <li v-if="isMyLastPage" class="text-gray-400 text-sm text-center">
+            sion
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- 전체 알림 -->
@@ -63,23 +156,29 @@ const allNotifications = ref([
       class="flex-1 p-6 rounded-xl shadow-lg transition-all bg-gradient-to-br from-[#f3e5f5] to-[#f8f4fc] border border-[#ce93d8]"
     >
       <h3 class="text-[18px] font-bold mb-5 text-[#333]">📢 전체 알림</h3>
-      <ul class="space-y-4">
-        <li
-          v-for="item in allNotifications"
-          :key="item.id"
-          class="bg-white/90 rounded-lg px-5 py-4 border-l-4 border-[#ba68c8] shadow-sm hover:-translate-y-0.5 hover:bg-[#f4f6f8] transition-all"
+
+      <div class="flex flex-col h-[200px]">
+        <ul
+          class="overflow-y-auto hide-scrollbar space-y-4"
+          ref="allScrollContainer"
         >
-          <div class="font-semibold text-[15px] mb-1 text-[#222]">
-            {{ item.title }}
-          </div>
-          <div class="text-[14px] text-[#555] mb-1">
-            {{ item.content }}
-          </div>
-          <div class="text-[12px] text-[#999] text-right">
-            {{ item.time }}
-          </div>
-        </li>
-      </ul>
+          <li
+            v-for="item in allNotifications"
+            :key="item.id"
+            class="bg-white/90 rounded-lg px-5 py-4 border-l-4 border-[#ba68c8] shadow-sm transition-all"
+          >
+            <div class="text-[14px] text-[#555] mb-1">
+              {{ item.message }}
+            </div>
+            <div class="text-[12px] text-[#999] text-right">
+              {{ timeAgo(item) }}
+            </div>
+          </li>
+          <li v-if="isAllLastPage" class="text-gray-400 text-sm text-center">
+            sion
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
