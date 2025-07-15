@@ -37,7 +37,7 @@ const elapsedTime = (startTime) => {
 };
 
 const goToSquad = (projectCode) => {
-  router.push(`/squads/${projectCode}`);
+  router.push(`/squads?projectId=${projectCode}`);
 };
 </script>
 

@@ -11,6 +11,7 @@ import {
   updateProject,
   analyzeProject,
   replaceProjectSquad,
+  fetchDeveloperApprovals,
 } from "@/api/project";
 import { showSuccessToast, showErrorToast } from "@/utills/toast";
 import { useAuthStore } from "@/stores/auth.js";
@@ -42,18 +43,33 @@ onMounted(async () => {
   }
 });
 
+function handleEvaluate() {
+  const confirm = window.confirm("프로젝트를 종료하시겠습니까?");
+  if (!confirm) return;
+
+  updateProjectStatus(projectCode, "EVALUATION")
+    .then(() => {
+      project.value.status = "EVALUATION";
+      showSuccessToast("프로젝트 평가 상태로 변경되었습니다.");
+    })
+    .catch((e) => {
+      console.error("프로젝트 종료 실패", e);
+      showErrorToast("상태 변경 중 오류가 발생했습니다.");
+    });
+}
+
 function handleComplete() {
-  const confirm = window.confirm("정말 프로젝트를 종료하시겠습니까?");
+  const confirm = window.confirm("프로젝트 평가를 종료하겠습니까?");
   if (!confirm) return;
 
   updateProjectStatus(projectCode, "COMPLETE")
     .then(() => {
-      project.value.status = "COMPLETE";
+      project.value.status = "EVALUATION";
       showSuccessToast("프로젝트가 종료되었습니다.");
     })
     .catch((e) => {
       console.error("프로젝트 종료 실패", e);
-      showErrorToast("종료 중 오류가 발생했습니다.");
+      showErrorToast("상태 변경 중 오류가 발생했습니다.");
     });
 }
 
@@ -123,6 +139,16 @@ const handleReplace = async ({ oldMemberId, newMemberId }) => {
     showErrorToast("프로젝트 인원 대체에 실패했습니다.");
   }
 };
+
+const approvalStatuses = ref([]);
+
+async function fetchApprovalStatuses() {
+  const { data } = await fetchDeveloperApprovals(projectCode);
+  approvalStatuses.value = data;
+}
+onMounted(async () => {
+  await fetchApprovalStatuses();
+});
 </script>
 
 <template>
@@ -170,19 +196,29 @@ const handleReplace = async ({ oldMemberId, newMemberId }) => {
           </span>
         </div>
 
-        <template v-if="project.status === 'COMPLETE'">
+        <template v-if="project.status === 'EVALUATION'">
           <button
             v-if="memberRole === 'ADMIN'"
             class="bg-gray-300 text-gray-600 px-5 py-2 rounded-md cursor-not-allowed"
             disabled
+            :class="[
+              'px-5 py-2 rounded-md font-semibold',
+              approvalStatuses.every((a) => a.approvalStatus === 'APPROVED')
+                ? 'bg-primary text-white cursor-pointer'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed',
+            ]"
+            :disabled="
+              !approvalStatuses.every((a) => a.approvalStatus === 'APPROVED')
+            "
+            @click="handleComplete"
           >
-            종료됨
+            평가 완료
           </button>
         </template>
         <template v-else>
           <button
             class="bg-primary px-5 py-2 text-white rounded-md hover:brightness-110"
-            @click="handleComplete"
+            @click="handleEvaluate"
           >
             종료
           </button>
@@ -222,9 +258,17 @@ const handleReplace = async ({ oldMemberId, newMemberId }) => {
         />
       </div>
 
-      <!-- 구성 인원 -->
       <div class="mb-2 flex justify-between items-center">
         <h2 class="font-semibold">구성 인원</h2>
+        <template v-if="project.status === 'EVALUATION'">
+          <p class="text-sm font-bold text-red-500 mb-2">
+            승인 인원:
+            {{
+              approvalStatuses.filter((a) => a.approvalStatus === "APPROVED")
+                .length
+            }}/{{ project.members.length }}
+          </p>
+        </template>
         <template v-if="['WAITING', 'IN_PROGRESS'].includes(project.status)">
           <button
             class="text-sm text-blue-500"
@@ -259,12 +303,19 @@ const handleReplace = async ({ oldMemberId, newMemberId }) => {
             :name="member.name"
             :role="member.job"
             :isLeader="member.isLeader"
-            :imageUrl="member.imageUrl"
+            :imageUrl="
+              // member.imageUrl ||
+              `https://api.dicebear.com/9.x/notionists/svg?seed=` + idx
+            "
             :selected="
               isReplacementMode &&
               replacingMember?.employeeId === member.employeeId
             "
             @click="handleMemberClick(member)"
+            :approvalStatus="
+              approvalStatuses.find((a) => a.employeeId === member.employeeId)
+                ?.approvalStatus || 'NOT_REQUESTED'
+            "
           />
         </div>
         <div v-else class="p-6 text-center text-gray-400 text-sm bg-[#F7FAFC]">
@@ -275,7 +326,7 @@ const handleReplace = async ({ oldMemberId, newMemberId }) => {
       <!-- 하단 버튼 -->
       <div class="flex justify-end mt-6 gap-3">
         <button
-          v-if="project.status !== 'COMPLETE'"
+          v-if="['WAITING', 'IN_PROGRESS'].includes(project.status)"
           class="px-4 py-2 bg-gray-100 rounded text-sm"
           @click="isEditVisible = true"
         >

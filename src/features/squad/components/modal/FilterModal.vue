@@ -112,7 +112,6 @@ function handleKeydown(e) {
       </span>
     </div>
 
-    <!-- 이하 그대로 -->
     <label class="block font-medium mb-1 ml-0">등급</label>
     <div class="flex gap-2 mb-3">
       <label v-for="g in ['S', 'A', 'B', 'C', 'D']" :key="g">
@@ -126,7 +125,7 @@ function handleKeydown(e) {
       <label
         ><input
           type="checkbox"
-          value="대기중"
+          value="AVAILABLE"
           v-model="selectedFilters.statuses"
         />
         대기중</label
@@ -134,7 +133,7 @@ function handleKeydown(e) {
       <label
         ><input
           type="checkbox"
-          value="투입중"
+          value="IN_PROJECT"
           v-model="selectedFilters.statuses"
         />
         투입중</label
@@ -146,26 +145,18 @@ function handleKeydown(e) {
       <label
         ><input
           type="radio"
-          value="포함"
+          value="INSIDER"
           v-model="selectedFilters.freelancer"
         />
-        프리랜서 포함</label
+        내부인</label
       >
       <label
         ><input
           type="radio"
-          value="내부인"
+          value="OUTSIDER"
           v-model="selectedFilters.freelancer"
         />
-        내부인만</label
-      >
-      <label
-        ><input
-          type="radio"
-          value="프리랜서"
-          v-model="selectedFilters.freelancer"
-        />
-        프리랜서만</label
+        프리랜서</label
       >
     </div>
   </div>

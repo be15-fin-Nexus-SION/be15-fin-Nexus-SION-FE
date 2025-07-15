@@ -114,25 +114,56 @@ function toggleSort() {
   showSort.value = !showSort.value;
 }
 
+const statusMap = {
+  AVAILABLE: "대기중",
+  IN_PROJECT: "투입중",
+};
+
+const freelancerMap = {
+  INSIDER: "내부인",
+  OUTSIDER: "프리랜서",
+};
+
+const sortByMap = {
+  이름: "employeeName",
+  등급: "grade",
+};
+
+const sortOrderMap = {
+  오름차순: "asc",
+  내림차순: "desc",
+};
+
 function renderSummary() {
   const parts = [];
 
   if (selectedFilters.value.techStacks.length) {
     parts.push(selectedFilters.value.techStacks.join(", "));
   }
-  if (selectedFilters.value.grades.length) {
-    parts.push(selectedFilters.value.grades.join(", "));
-  }
-  if (selectedFilters.value.statuses.length) {
-    parts.push(selectedFilters.value.statuses.join(", "));
+  if (selectedFilters.value.sortBy || selectedFilters.value.sortOrder) {
+    const sortByLabel =
+      Object.entries(sortByMap).find(
+        ([, value]) => value === selectedFilters.value.sortBy,
+      )?.[0] || selectedFilters.value.sortBy;
+
+    const sortOrderLabel =
+      Object.entries(sortOrderMap).find(
+        ([, value]) => value === selectedFilters.value.sortOrder,
+      )?.[0] || selectedFilters.value.sortOrder;
+
+    parts.push(`${sortByLabel}-${sortOrderLabel}`);
   }
   if (selectedFilters.value.freelancer) {
-    parts.push(selectedFilters.value.freelancer);
+    const freelancerLabel =
+      freelancerMap[selectedFilters.value.freelancer] ||
+      selectedFilters.value.freelancer;
+    parts.push(freelancerLabel);
   }
-  if (selectedFilters.value.sortBy || selectedFilters.value.sortOrder) {
-    parts.push(
-      `${selectedFilters.value.sortBy}-${selectedFilters.value.sortOrder}`,
-    );
+  if (selectedFilters.value.statuses.length) {
+    const statusLabels = selectedFilters.value.statuses
+      .map((status) => statusMap[status] || status)
+      .join(", ");
+    parts.push(statusLabels);
   }
 
   return parts.join(" / ");

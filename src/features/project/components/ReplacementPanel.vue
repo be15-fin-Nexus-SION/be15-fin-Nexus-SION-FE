@@ -18,13 +18,13 @@ const showAISection = ref(false);
 
 function switchToAI() {
   activeTab.value = "ai";
-  isLoading.value = false;
-  showAISection.value = true;
+  isLoading.value = true;
+  showAISection.value = false;
 
   setTimeout(() => {
     isLoading.value = false;
     showAISection.value = true;
-  }, 1000);
+  }, 2000);
 }
 </script>
 

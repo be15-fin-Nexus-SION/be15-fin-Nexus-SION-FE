@@ -123,3 +123,7 @@ export function replaceProjectSquad(payload) {
 export function replaceRecommendation(payload) {
   return api.post("/projects/replacement", payload);
 }
+
+export function fetchDeveloperApprovals(projectCode) {
+  return api.get(`/projects/${projectCode}/developer-approvals`);
+}

@@ -18,10 +18,8 @@ onMounted(async () => {
 <template>
   <section class="squad-create-container">
     <div class="layout">
-      <!-- 좌측: 스쿼드 구성 패널 -->
       <SquadCreateSection />
 
-      <!-- 우측: 개발자 조회 패널 -->
       <div class="flex-1">
         <SquadFilterSection />
       </div>
