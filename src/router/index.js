@@ -13,6 +13,12 @@ import { useAuthStore } from "@/stores/auth.js";
 import { showErrorToast } from "@/utills/toast.js";
 import { freelancerRoutes } from "@/features/freelancer/router.js";
 
+const getDashboardRouteByRole = (role) => {
+  return role === "ADMIN"
+    ? { name: "AdminDashboardView" }
+    : { name: "developer-dashboard" };
+};
+
 const routes = [
   {
     path: "/",
@@ -20,13 +26,8 @@ const routes = [
     component: AppShell,
     redirect: () => {
       const authStore = useAuthStore();
-      if (!authStore.isAuthenticated) {
-        return { name: "login" }; // 미로그인 시 로그인 페이지로
-      }
-      if (authStore.memberRole === "ADMIN") {
-        return { name: "AdminDashboardView" }; // 관리자면 대시보드로 이동
-      }
-      return { path: `/developers/dashboard` }; // 그 외는 자신의 프로필로
+      if (!authStore.isAuthenticated) return { name: "login" };
+      return getDashboardRouteByRole(authStore.memberRole);
     },
     children: [
       ...developerRoutes,
@@ -46,53 +47,49 @@ const router = createRouter({
   routes,
 });
 
-// 전역 가드: 인증 · 권한 · guestOnly · 로그인/회원가입 접근 제어
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   const authStore = useAuthStore();
-  // 1) 인증 필요 페이지인데 비로그인
+
+  // 로그인 필요
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     showErrorToast("로그인이 필요한 페이지입니다.");
-    return { path: `/login` };
+    return { name: "login" };
   }
 
-  // 2) 로그인한 상태로 login/signup 접근 금지
+  // 로그인, 회원가입 접근 시
   if (
     (to.name === "login" || to.name === "signup") &&
     authStore.isAuthenticated
   ) {
-    showErrorToast("이미 로그인된 상태입니다.");
-    return { path: `/developers/${authStore.memberId}` };
+    return getDashboardRouteByRole(authStore.memberRole);
   }
 
-  // 3) guestOnly 페이지 접근 금지
+  // guestOnly 접근 시
   if (to.meta.guestOnly && authStore.isAuthenticated) {
-    return { path: `/developers/${authStore.memberId}` };
+    return getDashboardRouteByRole(authStore.memberRole);
   }
 
-  // 4) roles 메타로 권한 체크
+  // 권한 체크
   const { roles } = to.meta;
-  console.log(roles);
-  console.log(authStore.memberRole);
   if (
     Array.isArray(roles) &&
     roles.length > 0 &&
     !roles.includes(authStore.memberRole)
   ) {
     showErrorToast("접근 권한이 없습니다.");
-    return { path: `/developers/${authStore.memberId}` };
+    return false;
   }
 
+  // allowSelfOrAdmin 체크
   if (to.meta.allowSelfOrAdmin) {
     const targetId = to.params.employeeId;
-    const isAdmin = authStore.memberRole === "ADMIN";
-    const isSelf = authStore.memberId === targetId;
-
-    if (!isAdmin && !isSelf) {
+    if (
+      !(authStore.memberRole === "ADMIN" || authStore.memberId === targetId)
+    ) {
       showErrorToast("접근 권한이 없습니다.");
-      return { path: `/developers/${authStore.memberId}` };
+      return false;
     }
   }
-  // 정상 진행
 });
 
 export default router;

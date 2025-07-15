@@ -26,7 +26,11 @@ const handleLogin = async (payload) => {
     }
 
     showSuccessToast("로그인 되었습니다.");
-    await router.push("/");
+    await router.replace(
+      authStore.memberRole === "ADMIN"
+        ? { name: "AdminDashboardView" }
+        : { name: "developer-dashboard" },
+    );
   } catch (error) {
     console.error(
       "로그인 실패:",
