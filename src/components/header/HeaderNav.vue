@@ -18,15 +18,15 @@
 
     <!-- 개발자 메뉴 (INSIDER or OUTSIDER) -->
     <template v-else-if="isDeveloper">
-      <router-link to="/projects" class="menu-text menu-box"
-        >프로젝트</router-link
-      >
-      <router-link to="/self-development/recommend" class="menu-text menu-box"
-        >자기계발</router-link
-      >
-      <router-link to="/notifications" class="menu-text menu-box"
-        >알림</router-link
-      >
+      <router-link to="/projects" class="menu-text menu-box">
+        프로젝트
+      </router-link>
+      <router-link to="/self-development/recommend" class="menu-text menu-box">
+        자기계발
+      </router-link>
+      <router-link :to="`/developers/${memberId}`" class="menu-text menu-box">
+        마이페이지
+      </router-link>
     </template>
   </div>
 </template>
@@ -37,6 +37,7 @@ import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 
+const memberId = authStore.memberId;
 const isAdmin = computed(() => authStore.memberRole === "ADMIN");
 const isDeveloper = computed(() =>
   ["INSIDER", "OUTSIDER"].includes(authStore.memberRole),
