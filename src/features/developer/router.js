@@ -66,8 +66,11 @@ export const developerRoutes = [
     },
   },
   {
-    path: "/developers/dashboard",
+    path: "/self-development/dashboard",
     name: "developer-dashboard",
     component: () => import("./views/DashboardView.vue"),
+    meta: {
+      roles: ["INSIDER", "OUTSIDER"],
+    },
   },
 ];

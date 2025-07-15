@@ -15,7 +15,11 @@ const handleLogin = async (payload) => {
     const at = resp.data.data.accessToken;
     authStore.setAuth(at);
     showSuccessToast("로그인 되었습니다.");
-    await router.push("/");
+    await router.replace(
+      authStore.memberRole === "ADMIN"
+        ? "/admin/dashboard"
+        : "/self-development/dashboard",
+    );
   } catch (error) {
     console.error("로그인 실패:", error.response.data.message);
     showErrorToast(error.response.data.message);
