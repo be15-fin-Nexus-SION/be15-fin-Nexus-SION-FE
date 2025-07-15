@@ -3,7 +3,7 @@
     <SidebarWrapper viewType="developerSelf" />
 
     <div class="content-wrapper">
-      <h1 class="text-2xl font-bold mb-6">추천 교육 목록</h1>
+      <h1 class="text-2xl font-bold mb-6">추천 교육 조회</h1>
 
       <div v-if="isLoading" class="text-gray-500">
         추천 교육을 불러오는 중입니다...
