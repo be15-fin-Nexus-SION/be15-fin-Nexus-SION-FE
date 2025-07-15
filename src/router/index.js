@@ -13,6 +13,12 @@ import { useAuthStore } from "@/stores/auth.js";
 import { showErrorToast } from "@/utills/toast.js";
 import { freelancerRoutes } from "@/features/freelancer/router.js";
 
+const getDashboardRouteByRole = (role) => {
+  return role === "ADMIN"
+    ? { name: "AdminDashboardView" }
+    : { name: "developer-dashboard" };
+};
+
 const routes = [
   {
     path: "/",
@@ -21,9 +27,7 @@ const routes = [
     redirect: () => {
       const authStore = useAuthStore();
       if (!authStore.isAuthenticated) return { name: "login" };
-      return authStore.memberRole === "ADMIN"
-        ? { path: "/admin/dashboard" }
-        : { path: "/self-development/dashboard" };
+      return getDashboardRouteByRole(authStore.memberRole);
     },
     children: [
       ...developerRoutes,
@@ -57,16 +61,12 @@ router.beforeEach((to) => {
     (to.name === "login" || to.name === "signup") &&
     authStore.isAuthenticated
   ) {
-    return authStore.memberRole === "ADMIN"
-      ? { path: "/admin/dashboard" }
-      : { path: "/self-development/dashboard" };
+    return getDashboardRouteByRole(authStore.memberRole);
   }
 
   // guestOnly 접근 시
   if (to.meta.guestOnly && authStore.isAuthenticated) {
-    return authStore.memberRole === "ADMIN"
-      ? { path: "/admin/dashboard" }
-      : { path: "/self-development/dashboard" };
+    return getDashboardRouteByRole(authStore.memberRole);
   }
 
   // 권한 체크

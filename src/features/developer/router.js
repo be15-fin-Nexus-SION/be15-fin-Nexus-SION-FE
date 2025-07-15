@@ -70,6 +70,7 @@ export const developerRoutes = [
     name: "developer-dashboard",
     component: () => import("./views/DashboardView.vue"),
     meta: {
+      requiresAuth: true,
       roles: ["INSIDER", "OUTSIDER"],
     },
   },
