@@ -24,7 +24,7 @@ const label = computed(() => {
     case "APPROVED":
       return "승인됨";
     case "REJECTED":
-      return "거절됨";
+      return "거부됨";
     case "NOT_REQUESTED":
       return "미요청";
     default:
