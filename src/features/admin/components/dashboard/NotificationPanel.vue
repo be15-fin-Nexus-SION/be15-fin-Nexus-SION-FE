@@ -133,7 +133,7 @@ async function handleAllRead() {
           <li
             v-for="item in myNotifications"
             :key="item.id"
-            class="bg-white/90 rounded-lg px-5 py-4 border-l-4 border-[#90caf9] shadow-sm hover:-translate-y-0.5 hover:bg-[#f4f6f8] transition-all"
+            class="bg-white/90 rounded-lg px-5 py-4 border-l-4 border-[#90caf9] shadow-sm hover-setting transition-all"
             @click="goToRelatedPage(item)"
           >
             <div class="text-[14px] text-[#555] mb-1">
@@ -182,3 +182,14 @@ async function handleAllRead() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.hover-setting {
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.25);
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-setting:hover {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.28);
+}
+</style>

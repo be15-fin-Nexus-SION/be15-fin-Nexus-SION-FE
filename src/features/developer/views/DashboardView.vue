@@ -1,26 +1,28 @@
 <template>
   <div v-if="authStore.memberId" class="p-8 space-y-8">
-    <!-- 프로젝트 + 알림 제목 줄 -->
-    <div class="flex gap-6 items-center">
-      <div class="flex-1 text-xl font-bold">프로젝트</div>
-      <div class="flex-1 text-xl font-bold">알림</div>
-    </div>
-
     <!-- 프로젝트 + 알림 카드 줄 -->
     <div class="flex gap-6 items-start">
       <!-- 프로젝트 카드 -->
-      <div class="flex-1">
-        <ProjectCard v-if="project" :project="project" />
-        <div
-          v-else
-          class="h-[178px] flex items-center justify-center text-gray-400 text-sm border rounded-xl"
-        >
-          현재 진행 중인 프로젝트가 없습니다.
+      <div
+        class="flex-1 p-6 rounded-xl shadow-lg transition-all bg-gradient-to-br from-[#f3e5f5] to-[#f8f4fc] border border-[#ce93d8]"
+      >
+        <h3 class="text-[18px] font-bold mb-5 text-[#333]">📢 내 프로젝트</h3>
+        <div class="flex flex-col h-[200px]">
+          <ProjectCard v-if="project" :project="project" />
+          <div
+            v-else
+            class="h-[178px] flex items-center justify-center text-gray-400 text-sm border rounded-xl"
+          >
+            현재 진행 중인 프로젝트가 없습니다.
+          </div>
         </div>
       </div>
 
       <!-- 알림 카드 -->
-      <div class="flex-1">
+      <div
+        class="flex-1 p-6 space-y-5 rounded-xl shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"
+      >
+        <h3 class="text-[18px] font-bold mb-5 text-[#333]">📥 내 알림</h3>
         <NotificationList />
       </div>
     </div>
