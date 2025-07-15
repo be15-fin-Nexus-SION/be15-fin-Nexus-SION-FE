@@ -7,6 +7,7 @@ import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import BasicProfile from "@/assets/icons/Basic_Profile.svg";
 import AuthModal from "@/components/modal/AuthModal.vue";
 import { useNotificationStore } from "@/stores/notification.js";
+import BasicModal from "@/components/modal/BasicModal.vue";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -32,12 +33,6 @@ const openModal = () => {
 
 const closeModal = () => {
   showModal.value = false;
-};
-
-const goToMyPage = () => {
-  const id = authStore.memberId;
-  router.push(`/developers/${id}`);
-  closeModal();
 };
 
 const goToAdminPage = () => {
@@ -78,16 +73,26 @@ function handleNotificationModal() {
         ></span>
       </div>
 
+      <!-- ✅ 관리자일 때 AuthModal -->
       <AuthModal
-        v-if="showModal"
-        :top-label="
-          authStore.memberRole === 'ADMIN' ? '관리자 설정' : '내 정보'
-        "
+        v-if="showModal && authStore.memberRole === 'ADMIN'"
+        :top-label="'관리자 설정'"
         middle-label="알림"
         bottom-label="로그아웃"
         :style="modalPosition"
-        @top="authStore.memberRole === 'ADMIN' ? goToAdminPage() : goToMyPage()"
+        @top="goToAdminPage"
         @middle="handleNotificationModal"
+        @bottom="handleLogout"
+        @close="closeModal"
+      />
+
+      <!-- ✅ 일반 사용자일 때 BasicModal -->
+      <BasicModal
+        v-else-if="showModal"
+        :top-label="'알림'"
+        :bottom-label="'로그아웃'"
+        :style="modalPosition"
+        @top="handleNotificationModal"
         @bottom="handleLogout"
         @close="closeModal"
       />
