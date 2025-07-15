@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 import {
   fetchProjectList,
   fetchMyProjectList,
@@ -16,7 +16,6 @@ import ProjectHistoryList from "@/features/project/components/ProjectHistoryList
 import { showErrorToast } from "@/utills/toast.js";
 
 const router = useRouter();
-const route = useRoute();
 const authStore = useAuthStore();
 
 const allProjects = ref([]);
@@ -143,11 +142,13 @@ const hasNoProjects = computed(() => pagedProjects.value.length === 0);
 
 // ✅ 새로고침 파라미터 있을 경우 목록 다시 불러오기
 watch(
-  () => route.query.refresh,
-  (refresh) => {
-    if (refresh === "true") {
+  () => activeTab.value,
+  (tab) => {
+    currentPage.value = 1;
+    if (tab === "history") {
+      fetchProjectHistories();
+    } else if (tab === "list") {
       fetchProjects(selectedFilter.value);
-      router.replace({ path: "/projects" }); // 쿼리 제거
     }
   },
   { immediate: true },
