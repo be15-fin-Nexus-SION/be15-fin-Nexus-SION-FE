@@ -19,8 +19,6 @@ export function timeAgo(notification) {
   return `${weeks}주`;
 }
 
-const notificationStore = useNotificationStore();
-
 export async function goToRelatedPage(notification) {
   let url = "";
 
@@ -52,6 +50,8 @@ export async function goToRelatedPage(notification) {
   }
 
   closeNotificationConnection();
+
+  const notificationStore = useNotificationStore();
   await notificationStore.markAsRead(notification.notificationId);
 
   // 🔄 새로고침하면서 페이지 이동
