@@ -19,7 +19,7 @@ const emit = defineEmits(["close"]);
     <div class="text-start text-bodySm leading-snug flex-1">
       <span v-if="!props.notification.isRead" class="text-red-500">* </span>
       <span>{{ props.notification.message }}</span>
-      <span class="text-gray-300 pl-1">{{ timeAgo }}</span>
+      <span class="text-gray-300 pl-1">{{ timeAgo(props.notification) }}</span>
     </div>
   </div>
 </template>
