@@ -69,6 +69,11 @@ router.beforeEach((to) => {
     return getDashboardRouteByRole(authStore.memberRole);
   }
 
+  // / 접근 시 → 권한별 대시보드 이동
+  if (to.path === "/" && authStore.isAuthenticated) {
+    return getDashboardRouteByRole(authStore.memberRole);
+  }
+
   // 권한 체크
   const { roles } = to.meta;
   if (
