@@ -1,13 +1,24 @@
 <script setup>
 import { useRouter } from "vue-router";
 import ProjectHistoryItem from "@/features/project/components/ProjectHistoryItem.vue";
+import Pagination from "@/components/Pagination.vue";
 
 const props = defineProps({
   histories: {
     type: Array,
     required: true,
   },
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  totalPages: {
+    type: Number,
+    required: true,
+  },
 });
+
+const emit = defineEmits(["changePage"]);
 
 const router = useRouter();
 
@@ -50,6 +61,14 @@ function goToDetail(workId) {
         </div>
       </template>
     </div>
+
+    <div v-if="histories.length > 0" class="pagination-wrapper">
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @change="emit('changePage', $event)"
+      />
+    </div>
   </div>
 </template>
 
@@ -88,5 +107,9 @@ function goToDetail(workId) {
 
 .body {
   @apply flex flex-col gap-[10px];
+}
+
+.pagination-wrapper {
+  @apply mt-10 flex justify-center;
 }
 </style>

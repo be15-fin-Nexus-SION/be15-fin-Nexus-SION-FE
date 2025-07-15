@@ -251,7 +251,12 @@ watch(
       <template v-if="activeTab === 'history'">
         <div class="page-full">
           <div class="page-container">
-            <ProjectHistoryList :histories="projectHistories" />
+            <ProjectHistoryList
+              :histories="projectHistories"
+              :current-page="currentPage"
+              :total-pages="totalPages"
+              @change-page="goToPage"
+            />
           </div>
         </div>
       </template>
@@ -308,7 +313,7 @@ watch(
 }
 
 .page-full {
-  @apply w-full h-fit flex justify-center;
+  @apply w-full h-screen flex justify-center;
 }
 
 .page-container {
