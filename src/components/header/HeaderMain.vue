@@ -32,7 +32,7 @@ function handleNotificationModal() {
 
 <style scoped>
 .header-wrapper {
-  @apply w-full bg-white border-b border-[#EEEEEE];
+  @apply sticky top-0 z-50 w-full bg-white border-b border-[#EEEEEE];
 }
 
 .header-inner {
