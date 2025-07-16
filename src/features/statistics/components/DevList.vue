@@ -60,7 +60,7 @@
         :grade="dev.grade"
         :status="dev.status"
         :techStacks="dev.techStacks"
-        @click="() => goToDeveloperDetail(dev.code)"
+        @click="goToDeveloperDetail(dev.code)"
       />
 
       <div v-if="isLoading" class="loading">로딩 중...</div>
@@ -80,7 +80,6 @@ import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import FilterDropdown from "@/components/dropdown/FilterDropdown.vue";
-import { useAuthStore } from "@/stores/auth.js";
 import { useRouter } from "vue-router";
 
 const props = defineProps({
@@ -89,7 +88,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["remove", "add", "reset"]);
-const authStore = useAuthStore();
 const router = useRouter();
 const selectedStack = ref("");
 const sortOption = ref("name"); // 정렬 기본값
@@ -146,9 +144,9 @@ const { items, isLoading, isLastPage } = useInfiniteScroll({
   threshold: 150,
 });
 
-function goToDeveloperDetail(memberId) {
-  if (memberId) {
-    router.push(`/developers/${memberId}`);
+function goToDeveloperDetail(employeeId) {
+  if (employeeId) {
+    router.push(`/developers/${employeeId}`);
   }
 }
 
