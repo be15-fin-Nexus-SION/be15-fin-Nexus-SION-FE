@@ -42,25 +42,38 @@
             <td class="py-2">{{ certificate.issuingOrganization }}</td>
             <td class="py-2">{{ certificate.score }}</td>
             <td class="py-2 flex justify-center gap-2">
-              <button
-                @click="edit(certificate)"
-                class="px-2 py-0.5 bg-natural-gray text-gray-800 rounded-md font-medium transition-colors duration-200 hover:bg-natural-gray-hover"
-              >
-                수정
-              </button>
-              <button
-                @click="requestDelete(certificate.certificateName)"
-                class="px-2 py-0.5 bg-red-200 text-red-700 rounded-md font-medium transition-colors duration-200 hover:bg-red-300"
-              >
-                삭제
-              </button>
+              <div class="flex gap-[5px] justify-center">
+                <button
+                  @click="edit(certificate)"
+                  class="px-2 py-0.5 bg-natural-gray text-gray-800 rounded-md font-medium transition-colors duration-200 hover:bg-natural-gray-hover"
+                >
+                  수정
+                </button>
+                <button
+                  @click="requestDelete(certificate.certificateName)"
+                  class="px-2 py-0.5 bg-red-200 text-red-700 rounded-md font-medium transition-colors duration-200 hover:bg-red-300"
+                >
+                  삭제
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
 
+      <!-- 항목이 없을 때 메시지 -->
+      <div
+        v-if="pagedCertificates.length === 0"
+        class="w-[730px] text-center py-6 text-gray-500"
+      >
+        등록된 자격증이 없습니다
+      </div>
+
       <!-- 페이지네이션 -->
-      <div class="mt-4 flex justify-center">
+      <div
+        v-if="pagedCertificates.length > 0"
+        class="mt-4 flex w-[730px] justify-center"
+      >
         <Pagination
           :current-page="currentPage"
           :total-pages="totalPages"
@@ -105,7 +118,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useToast } from "vue-toastification";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import Pagination from "@/components/Pagination.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
@@ -117,8 +129,8 @@ import {
   registerCertificate,
   updateCertificate,
 } from "@/api/member.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
-const toast = useToast();
 const originalCertificates = ref([]);
 const certificates = ref([]);
 const currentPage = ref(1);
@@ -153,9 +165,12 @@ const confirmDelete = async () => {
   try {
     await deleteCertificate(targetToDelete.value);
     await loadCertificates();
-    toast.success("자격증이 삭제되었습니다.");
-  } catch (error) {
-    toast.error("삭제에 실패했습니다.");
+    showSuccessToast("자격증이 삭제되었습니다.");
+  } catch (e) {
+    const errorMessage =
+      e.response?.data?.message ||
+      "자격증 삭제를 실패했습니다. 다시 시도하세요.";
+    showErrorToast(errorMessage);
   } finally {
     cancelDelete();
   }
@@ -165,10 +180,13 @@ const handleRegisterSubmit = async (newCertificate) => {
   try {
     await registerCertificate(newCertificate);
     await loadCertificates();
-    toast.success("자격증이 등록되었습니다.");
+    showSuccessToast("자격증이 등록되었습니다.");
     closeRegisterModal();
   } catch (e) {
-    toast.error("자격증 등록에 실패했습니다.");
+    const errorMessage =
+      e.response?.data?.message ||
+      "자격증 등록을 실패했습니다. 다시 시도하세요.";
+    showErrorToast(errorMessage);
   }
 };
 
@@ -179,17 +197,26 @@ const handleEditSubmit = async (updatedCertificate) => {
       score: updatedCertificate.score,
     });
     await loadCertificates();
-    toast.success("자격증 정보가 수정되었습니다.");
+    showSuccessToast("자격증 정보가 수정되었습니다.");
     closeEditModal();
   } catch (e) {
-    toast.error("자격증 수정에 실패했습니다.");
+    const errorMessage =
+      e.response?.data?.message ||
+      "자격증 수정을 실패했습니다. 다시 시도하세요.";
+    showErrorToast(errorMessage);
   }
 };
 
 const loadCertificates = async () => {
-  const res = await fetchCertificates();
-  originalCertificates.value = res.data.data;
-  certificates.value = [...originalCertificates.value];
+  try {
+    const res = await fetchCertificates();
+    originalCertificates.value = res.data.data;
+    certificates.value = [...originalCertificates.value];
+  } catch (e) {
+    const errorMessage =
+      e.response?.data?.message || "자격증 목록을 불러오지 못했습니다.";
+    showErrorToast(errorMessage);
+  }
 };
 
 const handleSearch = (keyword) => {

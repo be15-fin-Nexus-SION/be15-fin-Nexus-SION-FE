@@ -58,37 +58,27 @@
                 보기
               </a>
             </td>
-            <td class="py-2">
-              <span
-                :class="{
-                  'bg-yellow-100 text-yellow-700':
-                    cert.certificateStatus === 'PENDING',
-                  'bg-green-100 text-green-700':
-                    cert.certificateStatus === 'APPROVED',
-                  'bg-red-100 text-red-700':
-                    cert.certificateStatus === 'REJECTED',
-                  'px-2 py-1 rounded-full text-sm font-semibold': true,
-                }"
-              >
-                {{
-                  statusLabels[cert.certificateStatus] || cert.certificateStatus
-                }}
-              </span>
+            <td class="py-2 flex justify-center">
+              <div class="flex w-fit">
+                <ProjectHistoryStatusBadge :status="cert.certificateStatus" />
+              </div>
             </td>
             <td class="py-2">
               <template v-if="cert.certificateStatus === 'PENDING'">
-                <button
-                  class="px-2 py-0.5 bg-primary text-white rounded-md font-medium hover:bg-primary-hover mr-2"
-                  @click="openApproveModal(cert.userCertificateHistoryId)"
-                >
-                  승인
-                </button>
-                <button
-                  class="px-2 py-0.5 bg-red-200 text-red-700 rounded-md font-medium hover:bg-red-300"
-                  @click="openRejectModal(cert.userCertificateHistoryId)"
-                >
-                  반려
-                </button>
+                <div class="flex gap-[5px] justify-center">
+                  <button
+                    class="px-2 py-0.5 bg-primary text-white rounded-md font-medium hover:bg-primary-hover"
+                    @click="openApproveModal(cert.userCertificateHistoryId)"
+                  >
+                    승인
+                  </button>
+                  <button
+                    class="px-2 py-0.5 bg-red-200 text-red-700 rounded-md font-medium hover:bg-red-300"
+                    @click="openRejectModal(cert.userCertificateHistoryId)"
+                  >
+                    거부
+                  </button>
+                </div>
               </template>
 
               <template v-else-if="cert.certificateStatus === 'APPROVED'">
@@ -96,13 +86,26 @@
               </template>
 
               <template v-else-if="cert.certificateStatus === 'REJECTED'">
-                <span class="text-gray-800 font-semibold">반려 완료</span>
+                <span class="text-gray-800 font-semibold">거부 완료</span>
               </template>
             </td>
           </tr>
         </tbody>
       </table>
-      <div class="mt-4 flex justify-center">
+
+      <!-- 항목이 없을 때 메시지 -->
+      <div
+        v-if="pagedCertificates.length === 0"
+        class="w-[730px] text-center py-6 text-gray-500"
+      >
+        자격증 승인 요청 내역이 없습니다
+      </div>
+
+      <!-- 페이지네이션 -->
+      <div
+        v-if="pagedCertificates.length > 0"
+        class="mt-4 flex w-[730px] justify-center"
+      >
         <Pagination
           :current-page="currentPage"
           :total-pages="totalPages"
@@ -120,7 +123,7 @@
       @close="isApproveModalOpen = false"
     />
 
-    <!-- 반려 모달 -->
+    <!-- 거부 모달 -->
     <div
       v-if="isRejectModalOpen"
       class="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
@@ -134,14 +137,16 @@
         >
           &times;
         </button>
-        <p class="text-base text-gray-800 mb-4">자격증을 반려하시겠습니까?</p>
+        <p class="text-base text-gray-800 mb-4">
+          자격증 등록을 거부하시겠습니까?
+        </p>
         <textarea
           v-model="rejectReason"
-          placeholder="반려 사유를 입력해주세요"
+          placeholder="거부 사유를 입력해주세요"
           class="w-full border rounded p-2 text-sm h-20 resize-none"
         />
         <div class="flex justify-center mt-4 gap-2">
-          <PrimaryButton @click="confirmReject" label="반려" />
+          <PrimaryButton @click="confirmReject" label="거부" />
         </div>
       </div>
     </div>
@@ -154,14 +159,14 @@ import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import ModalConfirm from "@/components/ConfirmModal.vue";
 import Pagination from "@/components/Pagination.vue";
-import { useToast } from "vue-toastification";
+import ProjectHistoryStatusBadge from "@/components/badge/ProjectHistoryStatusBadge.vue";
 import {
   fetchCertificateApprovals,
   approveCertificate,
   rejectCertificate,
 } from "@/api/member.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
-const toast = useToast();
 const certificates = ref([]);
 const selectedStatus = ref("ALL");
 const isApproveModalOpen = ref(false);
@@ -172,22 +177,22 @@ const rejectReason = ref("");
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
-// UI 탭에서 사용하는 한글 상태
 const statuses = ["ALL", "PENDING", "APPROVED", "REJECTED"];
 const statusLabels = {
   ALL: "전체",
   PENDING: "대기중",
   APPROVED: "승인됨",
-  REJECTED: "반려됨",
+  REJECTED: "거부됨",
 };
 
 const loadCertificates = async () => {
   try {
     const res = await fetchCertificateApprovals();
-    console.log("응답:", res);
     certificates.value = res.data.data;
-  } catch (err) {
-    toast.error("자격증 목록을 불러오지 못했습니다.");
+  } catch (e) {
+    const errorMessage =
+      e.response?.data?.message || "자격증 목록을 불러오지 못했습니다.";
+    showErrorToast(errorMessage);
   }
 };
 
@@ -205,28 +210,32 @@ const openRejectModal = (id) => {
 const confirmApprove = async () => {
   try {
     await approveCertificate(selectedCertificateId.value);
-    toast.success("자격증 승인 완료");
+    showSuccessToast("자격증 승인이 완료되었습니다.");
     isApproveModalOpen.value = false;
     await loadCertificates();
   } catch (e) {
-    toast.error("승인 실패");
+    const errorMessage =
+      e.response?.data?.message || "승인을 실패했습니다. 다시 시도하세요.";
+    showErrorToast(errorMessage);
   }
 };
 
 const confirmReject = async () => {
   const reason = rejectReason.value.trim();
   if (!reason) {
-    toast.warning("반려 사유를 입력해주세요");
+    showErrorToast("거부 사유를 입력해주세요.");
     return;
   }
 
   try {
     await rejectCertificate(selectedCertificateId.value, reason);
-    toast.success("자격증 반려 완료");
+    showSuccessToast("자격증 등록 거부가 완료되었습니다.");
     isRejectModalOpen.value = false;
     await loadCertificates();
   } catch (e) {
-    toast.error("반려 실패");
+    const errorMessage =
+      e.response?.data?.message || "거부를 실패했습니다. 다시 시도하세요.";
+    showErrorToast(errorMessage);
   }
 };
 

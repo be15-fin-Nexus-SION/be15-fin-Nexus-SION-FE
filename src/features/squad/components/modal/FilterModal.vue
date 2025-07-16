@@ -136,7 +136,7 @@ function handleKeydown(e) {
           value="IN_PROJECT"
           v-model="selectedFilters.statuses"
         />
-        투입중</label
+        작업중</label
       >
     </div>
 
