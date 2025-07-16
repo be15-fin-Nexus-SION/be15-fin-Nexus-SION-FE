@@ -192,15 +192,15 @@
       <div class="font-semibold mb-4">성장 추이</div>
       <GrowthChart v-if="developer" :employeeId="developer.employeeId" />
     </section>
-
-    <ConfirmModal
-      v-if="showDeleteConfirm"
-      message="정말 삭제하시겠습니까?"
-      confirmText="확인"
-      @confirm="deleteDeveloperHandler"
-      @close="showDeleteConfirm = false"
-    />
   </div>
+
+  <ConfirmModal
+    v-if="showDeleteConfirm"
+    message="정말 삭제하시겠습니까?"
+    confirmText="확인"
+    @confirm="deleteDeveloperHandler"
+    @close="showDeleteConfirm = false"
+  />
 </template>
 
 <script setup>
