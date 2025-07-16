@@ -149,15 +149,32 @@
 
     <section class="grid grid-cols-2 gap-6">
       <div class="bg-white p-4 rounded-xl shadow">
-        <div class="font-semibold mb-4">이력 관리</div>
-        <div class="flex gap-4 text-sm mb-2">
-          <span class="font-semibold text-primary">프로젝트 이력</span>
-          <span class="text-gray-400">자격증</span>
-          <span class="text-gray-400">교육 이력</span>
+        <div class="font-semibold mb-4">보유 자격증</div>
+        <div
+          v-if="certificateList.length === 0"
+          class="h-40 flex items-center justify-center"
+        >
+          <p class="text-gray-400 text-sm">보유한 자격증이 없습니다.</p>
         </div>
-        <div class="h-40 flex items-center justify-center">
-          <p class="text-gray-400 text-sm">프로젝트 이력이 없습니다.</p>
-        </div>
+        <ul v-else class="space-y-2 text-sm text-gray-700">
+          <li
+            v-for="cert in certificateList"
+            :key="cert.userCertificateHistoryId"
+            class="border-b pb-2"
+          >
+            <div>
+              <span class="font-semibold">자격증명:</span>
+              {{ cert.certificateName }}
+            </div>
+            <div>
+              <span class="font-semibold">발급기관:</span>
+              {{ cert.issuingOrganization || "미입력" }}
+            </div>
+            <div>
+              <span class="font-semibold">발급일자:</span> {{ cert.issueDate }}
+            </div>
+          </li>
+        </ul>
       </div>
 
       <div class="bg-white p-4 rounded-xl shadow">
@@ -203,6 +220,7 @@ import {
   deleteDeveloper,
 } from "@/api/member";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
+import { fetchUserCertificates } from "@/api/certificate.js";
 
 const isLoading = ref(true);
 const route = useRoute();
@@ -218,6 +236,7 @@ const techList = ref([]);
 const barData = ref(null);
 const radarData = ref(null);
 const scoreSummary = ref(null);
+const certificateList = ref([]);
 
 const formatDateTime = (iso) => {
   if (!iso) return "";
@@ -300,6 +319,10 @@ onMounted(async () => {
     const stackData = stackRes.data;
     techList.value = stackData.map((s) => s.techStackName);
     barData.value = stackData;
+
+    const { data: certRes } = await fetchUserCertificates(employeeId);
+    certificateList.value = certRes.data;
+    console.log("cert: ", certificateList.value);
 
     const top7 = [...stackData].sort((a, b) => b.score - a.score).slice(0, 7);
     radarData.value = {
