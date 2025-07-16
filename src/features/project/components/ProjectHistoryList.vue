@@ -31,43 +31,51 @@ function goToDetail(workId) {
 </script>
 
 <template>
-  <div class="header-row">
-    <span class="col project-name">프로젝트명</span>
-    <span class="col date">요청일</span>
-    <span class="col date">승인/거부일</span>
-    <span class="col work-period">기능 구현수</span>
-    <span class="col status-badge">현재 상태</span>
-  </div>
+  <div class="container">
+    <div class="header-row">
+      <span class="col project-name">프로젝트명</span>
+      <span class="col date">요청일</span>
+      <span class="col date">승인/거부일</span>
+      <span class="col work-period">기능 구현수</span>
+      <span class="col status-badge">현재 상태</span>
+    </div>
 
-  <div class="body">
-    <template v-if="histories.length > 0">
-      <ProjectHistoryItem
-        v-for="item in histories"
-        :key="item.workId"
-        :projectName="item.projectTitle"
-        :startDate="formatDate(item.createdAt)"
-        :endDate="item.approvedAt ? formatDate(item.approvedAt) : '-'"
-        :workPeriod="item.histories.length"
-        :status="item.approvalStatus || 'UNKNOWN'"
-        :rejectedReason="item.rejectedReason"
-        @click="goToDetail(item.workId)"
+    <div class="body">
+      <template v-if="histories.length > 0">
+        <ProjectHistoryItem
+          v-for="item in histories"
+          :key="item.workId"
+          :projectName="item.projectTitle"
+          :startDate="formatDate(item.createdAt)"
+          :endDate="item.approvedAt ? formatDate(item.approvedAt) : '-'"
+          :workPeriod="item.histories.length"
+          :status="item.approvalStatus || 'UNKNOWN'"
+          :rejectedReason="item.rejectedReason"
+          @click="goToDetail(item.workId)"
+        />
+      </template>
+      <template v-else>
+        <div class="no-history-message">
+          프로젝트 이력 등록 기록이 없습니다.
+        </div>
+      </template>
+    </div>
+
+    <div v-if="histories.length > 0" class="pagination-wrapper">
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @change="emit('changePage', $event)"
       />
-    </template>
-    <template v-else>
-      <div class="no-history-message">프로젝트 이력 등록 기록이 없습니다.</div>
-    </template>
-  </div>
-
-  <div v-if="histories.length > 0" class="pagination-wrapper">
-    <Pagination
-      :current-page="currentPage"
-      :total-pages="totalPages"
-      @change="emit('changePage', $event)"
-    />
+    </div>
   </div>
 </template>
 
 <style scoped>
+.container {
+  @apply flex flex-col gap-[10px];
+}
+
 .header-row {
   @apply flex items-center w-full text-bodySm gap-4 px-4 py-3 border-b border-gray-200;
 }

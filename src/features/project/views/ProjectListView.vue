@@ -109,19 +109,16 @@ function handleFilterChange(filter) {
   }
 }
 
-function handleStatusRadioChange(statusValue) {
-  selectedStatusForUser.value =
-    selectedStatusForUser.value === statusValue ? null : statusValue;
-  currentPage.value = 1;
-  fetchProjects();
-}
-
 function goToPage(page) {
   currentPage.value = page;
-  if (memberRole.value === "ADMIN") {
-    fetchProjects(selectedFilter.value);
-  } else {
-    fetchProjects();
+  if (activeTab.value === "list") {
+    if (memberRole.value === "ADMIN") {
+      fetchProjects(selectedFilter.value);
+    } else {
+      fetchProjects();
+    }
+  } else if (activeTab.value === "history") {
+    fetchProjectHistories();
   }
 }
 
