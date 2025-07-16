@@ -31,10 +31,10 @@
       <div>
         <!-- 카테고리 -->
         <p
-          v-if="category"
+          v-if="trainingCategory"
           class="text-xs inline-block bg-gray-100 text-blue-600 font-semibold px-2 py-0.5 rounded-full mb-1"
         >
-          {{ category }}
+          {{ trainingCategory }}
         </p>
 
         <!-- 교육명 -->
@@ -64,7 +64,7 @@ const {
   description,
   reason,
   thumbnailUrl,
-  category,
+  trainingCategory,
   organization,
   videoUrl,
 } = defineProps({
@@ -72,7 +72,7 @@ const {
   description: String,
   reason: String,
   thumbnailUrl: String,
-  category: String,
+  trainingCategory: String,
   organization: String,
   videoUrl: String,
 });

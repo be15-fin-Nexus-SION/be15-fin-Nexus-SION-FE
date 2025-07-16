@@ -21,7 +21,7 @@
           :description="training.trainingDescription"
           :reason="training.recommendationReason"
           :thumbnailUrl="training.imageUrl"
-          :category="training.category"
+          :trainingCategory="training.trainingCategory"
           :organization="training.organization"
           :videoUrl="training.videoUrl"
         />
