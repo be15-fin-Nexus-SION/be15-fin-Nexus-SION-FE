@@ -150,31 +150,37 @@
     <section class="grid grid-cols-2 gap-6">
       <div class="bg-white p-4 rounded-xl shadow">
         <div class="font-semibold mb-4">보유 자격증</div>
+
         <div
           v-if="certificateList.length === 0"
           class="h-40 flex items-center justify-center"
         >
           <p class="text-gray-400 text-sm">보유한 자격증이 없습니다.</p>
         </div>
-        <ul v-else class="space-y-2 text-sm text-gray-700">
-          <li
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
             v-for="cert in certificateList"
             :key="cert.userCertificateHistoryId"
-            class="border-b pb-2"
+            class="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow transition"
           >
-            <div>
-              <span class="font-semibold">자격증명:</span>
+            <div class="text-sm font-bold text-gray-800 mb-2">
               {{ cert.certificateName }}
             </div>
-            <div>
-              <span class="font-semibold">발급기관:</span>
-              {{ cert.issuingOrganization || "미입력" }}
-            </div>
-            <div>
-              <span class="font-semibold">발급일자:</span> {{ cert.issueDate }}
-            </div>
-          </li>
-        </ul>
+            <dl class="text-xs text-gray-600 space-y-1">
+              <div>
+                <dt class="inline font-medium text-gray-500">발급기관:</dt>
+                <dd class="inline ml-1">
+                  {{ cert.issuingOrganization || "미입력" }}
+                </dd>
+              </div>
+              <div>
+                <dt class="inline font-medium text-gray-500">발급일자:</dt>
+                <dd class="inline ml-1">{{ cert.issueDate }}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
       </div>
 
       <div class="bg-white p-4 rounded-xl shadow">
