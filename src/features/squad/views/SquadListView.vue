@@ -33,6 +33,12 @@ const selectedProjectStatus = computed(() => {
   );
 });
 
+const isEvaluating = computed(() => {
+  return (
+    projectMap.value[selectedProjectCode.value]?.analysisStatus !== "COMPLETE"
+  );
+});
+
 const projectGroups = ref({ waiting: [], inprogress: [], complete: [] });
 const projectMap = ref({}); // title → { projectCode, title, status }
 
@@ -77,6 +83,7 @@ const fetchProjects = async () => {
 
     switch (project.status?.toUpperCase()) {
       case "WAITING":
+      case "EVALUATION":
         waiting.push(project.projectCode);
         break;
       case "IN_PROGRESS":
@@ -194,10 +201,15 @@ onMounted(() => {
           <h2 class="text-2xl font-bold mb-1">{{ selectedProjectTitle }}</h2>
           <p class="text-sm text-gray-500">스쿼드 구성 현황을 확인해보세요</p>
         </div>
-        <SquadDropdown :projectId="selectedProjectCode" />
+        <SquadDropdown v-if="!isEvaluating" :projectId="selectedProjectCode" />
       </div>
 
       <main class="overflow-y-auto h-[550px] p-2">
+        <div v-if="isEvaluating">
+          <div class="text-center h-full text-gray-500 py-20 text-lg">
+            평가중인 프로젝트입니다.
+          </div>
+        </div>
         <div class="grid grid-cols-3 gap-4">
           <SquadCard
             v-for="squad in squads"
