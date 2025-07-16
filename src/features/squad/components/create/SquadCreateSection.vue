@@ -7,7 +7,7 @@ import ConfirmModal from "@/components/ConfirmModal.vue";
 import { useRoute, useRouter } from "vue-router";
 import { registerManualSquad, updateManualSquad } from "@/api/squad.js";
 import SquadRegisterModal from "@/features/squad/components/modal/SquadRegisterModal.vue";
-import { showSuccessToast } from "@/utills/toast.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import { useSquadProjectStore } from "@/stores/squadProject.js";
 
 const squadStore = useSquadStore();
@@ -68,6 +68,11 @@ function handleRegisterConfirm({ title, description }) {
     .catch((err) => {
       console.error(isEditMode.value ? "수정 실패:" : "등록 실패:", err);
       registerSuccess.value = false;
+      showErrorToast(
+        "스쿼드",
+        isEditMode.value ? "수정" : "등록",
+        "에 실패했습니다. 다시 시도해주세요.",
+      );
     })
     .finally(() => {
       showRegisterModal.value = false;
