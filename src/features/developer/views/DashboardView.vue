@@ -35,7 +35,9 @@
       >
         <!-- ✅ 자격증: 너비를 절반으로 제한 -->
         <div class="w-1/2">
-          <CertificateList />
+          <router-link to="/self-development/certificates">
+            <CertificateList />
+          </router-link>
         </div>
 
         <!-- 추천 교육 -->

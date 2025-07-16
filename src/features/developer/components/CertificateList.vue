@@ -3,11 +3,11 @@
     <div v-if="certificates.length === 0" class="text-sm text-gray-400">
       등록된 자격증이 없습니다.
     </div>
-    <ul v-else class="space-y-3 text-sm">
+    <ul v-else class="space-y-5 pt-3 text-sm">
       <li
         v-for="cert in certificates"
         :key="cert.certificateName"
-        class="flex justify-between items-center border-b pb-1"
+        class="flex justify-between items-center border-b pb-3 px-3 text-bodyMd"
       >
         <span>{{ cert.certificateName }}</span>
         <span

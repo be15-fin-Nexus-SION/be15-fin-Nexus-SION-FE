@@ -7,35 +7,37 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="card-wrapper group">
-    <div class="flex justify-between items-start">
-      <div>
-        <h2 class="text-bodyLg font-semibold">{{ project.title }}</h2>
-        <p class="text-gray-500 text-sm">
-          {{ project.startDate }} ~ {{ project.endDate }}
-        </p>
+  <router-link :to="`/projects/${project.projectCode}`">
+    <div class="card-wrapper group">
+      <div class="flex justify-between items-start">
+        <div>
+          <h2 class="text-bodyLg font-semibold">{{ project.title }}</h2>
+          <p class="text-gray-500 text-sm">
+            {{ project.startDate }} ~ {{ project.endDate }}
+          </p>
+        </div>
+        <!-- ✅ 상태 원형 점 -->
+        <StatusIndicator :status="project.status" mode="project" size="sm" />
       </div>
-      <!-- ✅ 상태 원형 점 -->
-      <StatusIndicator :status="project.status" mode="project" size="sm" />
+
+      <p class="text-gray-700 text-sm mt-2 line-clamp-2">
+        {{ project.description }}
+      </p>
+
+      <div class="mt-4">
+        <span class="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full">
+          {{ project.domainName }} {{ project.hrCount ?? 0 }}명
+        </span>
+      </div>
+
+      <!-- ✅ 분석 상태 뱃지 -->
+      <StatusIndicator
+        v-if="project.analysisStatus"
+        :status="project.analysisStatus"
+        mode="analysis"
+      />
     </div>
-
-    <p class="text-gray-700 text-sm mt-2 line-clamp-2">
-      {{ project.description }}
-    </p>
-
-    <div class="mt-4">
-      <span class="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full">
-        {{ project.domainName }} {{ project.hrCount ?? 0 }}명
-      </span>
-    </div>
-
-    <!-- ✅ 분석 상태 뱃지 -->
-    <StatusIndicator
-      v-if="project.analysisStatus"
-      :status="project.analysisStatus"
-      mode="analysis"
-    />
-  </div>
+  </router-link>
 </template>
 
 <style scoped>
