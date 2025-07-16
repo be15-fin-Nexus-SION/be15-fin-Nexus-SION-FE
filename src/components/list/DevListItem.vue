@@ -35,7 +35,7 @@ const props = defineProps({
 
 <style scoped>
 .developer-item {
-  @apply w-full px-4 py-[10px] bg-white border border-[#eeeeee] rounded;
+  @apply w-full px-4 bg-white border-b py-[10px] hover:bg-gray-50 cursor-pointer;
 }
 
 .developer-content {
