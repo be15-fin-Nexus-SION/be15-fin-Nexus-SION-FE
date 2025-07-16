@@ -1,5 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
+import StatusIndicator from "@/features/project/components/StatusIndicator.vue";
+
 const emit = defineEmits(["filter-change"]);
 
 const props = defineProps({
@@ -26,10 +28,11 @@ const statusOptions = computed(() => {
     ];
   } else {
     return [
-      { label: "미완료", value: "INCOMPLETE", color: "#9e9e9e" },
-      { label: "시작 전", value: "WAITING", color: "#FFD700" },
-      { label: "진행중", value: "IN_PROGRESS", color: "#00C851" },
-      { label: "종료", value: "COMPLETE", color: "#FF4444" },
+      { label: "미완료", value: "INCOMPLETE" },
+      { label: "시작 전", value: "WAITING" },
+      { label: "진행중", value: "IN_PROGRESS" },
+      { label: "평가중", value: "EVALUATION" },
+      { label: "종료", value: "COMPLETE" },
     ];
   }
 });
@@ -48,7 +51,6 @@ function handleStatusClick(value) {
   selectedFilters.value.status =
     selectedFilters.value.status === value ? null : value;
 
-  // 'history' 모드일 때만 즉시 검색 실행
   if (props.mode === "history") {
     emit("filter-change", selectedFilters.value);
   }
@@ -147,7 +149,16 @@ function handleSearchClick() {
                 />
                 <span>{{ option.label }}</span>
               </div>
+
+              <!-- ✅ 상태 아이콘 렌더링 방식 분기 처리 -->
+              <StatusIndicator
+                v-if="props.mode === 'project'"
+                :status="option.value"
+                mode="project"
+                size="sm"
+              />
               <span
+                v-else
                 class="w-2.5 h-2.5 rounded-full"
                 :style="{ backgroundColor: option.color }"
               />
