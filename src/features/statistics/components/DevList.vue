@@ -60,6 +60,7 @@
         :grade="dev.grade"
         :status="dev.status"
         :techStacks="dev.techStacks"
+        @click="goToDeveloperDetail(dev.code)"
       />
 
       <div v-if="isLoading" class="loading">로딩 중...</div>
@@ -79,6 +80,7 @@ import { useInfiniteScroll } from "@/composable/useInfiniteScroll.js";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import FilterDropdown from "@/components/dropdown/FilterDropdown.vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   selectedStacks: Array,
@@ -86,7 +88,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["remove", "add", "reset"]);
-
+const router = useRouter();
 const selectedStack = ref("");
 const sortOption = ref("name"); // 정렬 기본값
 
@@ -141,6 +143,12 @@ const { items, isLoading, isLastPage } = useInfiniteScroll({
   scrollTargetRef: scrollTarget,
   threshold: 150,
 });
+
+function goToDeveloperDetail(employeeId) {
+  if (employeeId) {
+    router.push(`/developers/${employeeId}`);
+  }
+}
 
 const filteredItems = computed(() => {
   let filtered = items.value;
@@ -214,6 +222,6 @@ const filteredItems = computed(() => {
 }
 
 .developer-list-container {
-  @apply flex flex-col gap-2;
+  @apply flex flex-col;
 }
 </style>
