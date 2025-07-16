@@ -217,16 +217,16 @@
       @apply="applyTechStacks"
       @close="isModalOpen = false"
     />
-
-    <!-- 확인 모달 -->
-    <ConfirmModal
-      v-if="isConfirmOpen"
-      message="수정하시겠습니까?"
-      confirmText="확인"
-      @confirm="submit"
-      @close="isConfirmOpen = false"
-    />
   </div>
+
+  <!-- 확인 모달 -->
+  <ConfirmModal
+    v-if="isConfirmOpen"
+    message="수정하시겠습니까?"
+    confirmText="확인"
+    @confirm="submit"
+    @close="isConfirmOpen = false"
+  />
 </template>
 
 <script setup>
