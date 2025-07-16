@@ -223,7 +223,7 @@ const confirmApprove = async () => {
 const confirmReject = async () => {
   const reason = rejectReason.value.trim();
   if (!reason) {
-    showErrorToast("반려 사유를 입력해주세요.");
+    showErrorToast("거부 사유를 입력해주세요.");
     return;
   }
 

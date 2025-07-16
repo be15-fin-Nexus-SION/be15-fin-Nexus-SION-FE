@@ -135,9 +135,37 @@ const sortOrderMap = {
 function renderSummary() {
   const parts = [];
 
+  // 기술스택 요약
   if (selectedFilters.value.techStacks.length) {
     parts.push(selectedFilters.value.techStacks.join(", "));
   }
+
+  // 등급 요약
+  if (selectedFilters.value.grades.length) {
+    parts.push(selectedFilters.value.grades.join(", "));
+  }
+
+  // 상태 요약 (한글 변환)
+  if (selectedFilters.value.statuses.length) {
+    const statusMap = {
+      AVAILABLE: "대기중",
+      IN_PROJECT: "참여중",
+    };
+    const statusLabels = selectedFilters.value.statuses.map(
+      (status) => statusMap[status] || status,
+    );
+    parts.push(statusLabels.join(", "));
+  }
+
+  // 프리랜서 여부 요약
+  if (selectedFilters.value.freelancer) {
+    const freelancerLabel =
+      freelancerMap[selectedFilters.value.freelancer] ||
+      selectedFilters.value.freelancer;
+    parts.push(freelancerLabel);
+  }
+
+  // 정렬 요약
   if (selectedFilters.value.sortBy || selectedFilters.value.sortOrder) {
     const sortByLabel =
       Object.entries(sortByMap).find(
@@ -150,15 +178,6 @@ function renderSummary() {
       )?.[0] || selectedFilters.value.sortOrder;
 
     parts.push(`${sortByLabel}-${sortOrderLabel}`);
-  }
-  if (selectedFilters.value.freelancer) {
-    const freelancerLabel =
-      freelancerMap[selectedFilters.value.freelancer] ||
-      selectedFilters.value.freelancer;
-    parts.push(freelancerLabel);
-  }
-  if (selectedFilters.value.statuses.length) {
-    parts.push(selectedFilters.value.statuses.join(", "));
   }
 
   return parts.join(" / ");
