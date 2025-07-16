@@ -31,7 +31,9 @@ onMounted(async () => {
     <div class="dashboard-row">
       <ProjectStatusPanel
         :pending-projects="dashboardData?.pendingProjects || []"
-        :analyzing-projects="dashboardData?.analyzingProjects || []"
+        :pending-approval-projects="
+          dashboardData?.pendingApprovalProjects || []
+        "
       />
     </div>
 

@@ -54,14 +54,13 @@ const scrollRight = () => {
                 'bg-blue-500': dev.grade === 'A',
                 'bg-green-500': dev.grade === 'B',
                 'bg-gray-500': dev.grade === 'C' || dev.grade === 'D',
+                'bg-black': dev.grade === null,
               }"
             >
-              {{ dev.grade }} 등급
+              {{ dev.grade === null ? "미정" : dev.grade }} 등급
             </span>
             <p class="text-xs text-gray-500 mb-2">
-              <span class="font-bold">{{
-                Number(dev.productivity).toFixed(1)
-              }}</span>
+              <span class="font-bold">{{ Number(dev.totalScores) }}</span>
               점
             </p>
             <div class="flex flex-wrap justify-center items-center gap-2 mt-2">
