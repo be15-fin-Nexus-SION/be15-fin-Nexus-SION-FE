@@ -83,9 +83,10 @@ const enrichedGradeDistribution = computed(() =>
               stroke-width="10"
               fill="none"
               stroke-linecap="round"
-              :stroke-dasharray="220"
+              :stroke-dasharray="2 * Math.PI * 35"
               :stroke-dashoffset="
-                220 - (220 * g.count) / props.availability.totalAvailable
+                2 * Math.PI * 35 -
+                (2 * Math.PI * 35 * g.count) / props.availability.totalAvailable
               "
               class="transition-all duration-700"
             />

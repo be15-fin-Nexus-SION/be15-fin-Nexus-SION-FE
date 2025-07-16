@@ -31,7 +31,7 @@ const remainingDays = (startDate) => {
   const daysLeft = Math.ceil(diff);
   return daysLeft > 0
     ? `${daysLeft}일 남음`
-    : daysLeft == 0
+    : daysLeft === 0
       ? "마감 임박"
       : "기간 초과";
 };
@@ -107,7 +107,7 @@ const goToApprovalPage = (id) => {
     </div>
 
     <div
-      class="flex-[1] p-6 bg-white rounded-xl shadow-md border border-gray-200"
+      class="flex-1 p-6 bg-white rounded-xl shadow-md border border-gray-200"
     >
       <div class="flex justify-between items-center mb-5">
         <h2 class="text-lg font-bold text-gray-800">승인 대기 프로젝트</h2>
