@@ -29,10 +29,12 @@ function removeMember(memberId) {
 }
 
 function setLeader(member) {
-  squadStore.selectedMembers = squadStore.selectedMembers.map((m) => ({
-    ...m,
-    isLeader: m.id === member.id,
-  }));
+  squadStore.selectedMembers.value = squadStore.selectedMembers.value.map(
+    (m) => ({
+      ...m,
+      isLeader: m.id === member.id,
+    }),
+  );
 }
 </script>
 
