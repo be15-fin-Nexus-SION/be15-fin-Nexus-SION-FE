@@ -26,18 +26,7 @@
       class="relative bg-white p-10 rounded-xl shadow flex gap-20 items-start"
     >
       <div class="absolute top-6 right-6">
-        <span
-          :class="[
-            'px-4 py-1 rounded-full text-sm font-semibold',
-            developer.status === 'IN_PROJECT'
-              ? 'bg-green-100 text-green-700'
-              : developer.status === 'AVAILABLE'
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-gray-100 text-gray-600',
-          ]"
-        >
-          {{ statusLabel(developer.status) }}
-        </span>
+        <StatusBadge :status="developer.status" />
       </div>
 
       <div class="w-48 flex flex-col items-center">
@@ -53,7 +42,7 @@
           <div class="text-lg font-bold text-gray-900">
             {{ developer.name }}
           </div>
-          <div class="text-sm font-semibold text-gray-500 mt-1">
+          <div class="text-headlineLg text-gray-500 mt-1">
             {{ developer.grade || "-" }}
           </div>
         </div>
@@ -220,6 +209,7 @@ import {
   deleteDeveloper,
 } from "@/api/member";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
+import StatusBadge from "@/components/badge/StatusBadge.vue";
 import { fetchUserCertificates } from "@/api/certificate.js";
 
 const isLoading = ref(true);
@@ -279,19 +269,6 @@ const certificateDiffDate = computed(() =>
     ? formatDateTime(scoreSummary.value.previousCertificateScoreDate)
     : "",
 );
-
-const statusLabel = (status) => {
-  switch (status) {
-    case "AVAILABLE":
-      return "대기중";
-    case "IN_PROJECT":
-      return "투입중";
-    case "UNAVAILABLE":
-      return "비활성";
-    default:
-      return status;
-  }
-};
 
 function goToEdit() {
   router.push({ name: "developer-edit", params: { employeeId } });
