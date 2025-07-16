@@ -1,14 +1,24 @@
 <script setup>
 import { useRouter } from "vue-router";
 import ProjectHistoryItem from "@/features/project/components/ProjectHistoryItem.vue";
+import Pagination from "@/components/Pagination.vue";
 
 const props = defineProps({
   histories: {
     type: Array,
     required: true,
   },
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  totalPages: {
+    type: Number,
+    required: true,
+  },
 });
 
+const emit = defineEmits(["changePage"]);
 const router = useRouter();
 
 function formatDate(dateStr) {
@@ -22,12 +32,12 @@ function goToDetail(workId) {
 
 <template>
   <div class="container">
-    <div class="header">
-      <span class="project-name">프로젝트명</span>
-      <span class="start-date">요청일</span>
-      <span class="end-date">승인/거부일</span>
-      <span class="work-period">기능 구현수</span>
-      <span class="status-badge">현재 상태</span>
+    <div class="header-row">
+      <span class="col project-name">프로젝트명</span>
+      <span class="col date">요청일</span>
+      <span class="col date">승인/거부일</span>
+      <span class="col work-period">기능 구현수</span>
+      <span class="col status-badge">현재 상태</span>
     </div>
 
     <div class="body">
@@ -50,43 +60,50 @@ function goToDetail(workId) {
         </div>
       </template>
     </div>
+
+    <div v-if="histories.length > 0" class="pagination-wrapper">
+      <Pagination
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        @change="emit('changePage', $event)"
+      />
+    </div>
   </div>
 </template>
 
 <style scoped>
 .container {
-  @apply flex flex-col w-full gap-[10px];
+  @apply flex flex-col gap-[10px];
 }
 
-.header {
-  @apply flex flex-row justify-between items-center w-full text-bodySm pb-2 px-[47px] gap-[20px];
+.header-row {
+  @apply flex items-center w-full text-bodySm gap-4 px-4 py-3 border-b border-gray-200;
+}
+
+.col {
+  @apply flex items-center truncate min-w-0 justify-center;
+  flex: 1 1 0;
 }
 
 .project-name {
-  @apply flex items-center justify-center text-bodySm text-support-stack w-[130px];
+  flex: 2 1 0;
 }
 
-.start-date {
-  @apply flex items-center justify-center text-bodySm text-black text-center w-[130px];
-}
-
-.end-date {
-  @apply flex items-center justify-center text-bodySm text-black text-center w-[130px];
-}
-
-.work-period {
-  @apply flex items-center justify-center text-bodySm text-black text-center w-[80px];
-}
-
+.date,
+.work-period,
 .status-badge {
-  @apply flex items-center justify-center w-[80px];
+  flex: 1 1 0;
+}
+
+.body {
+  @apply flex flex-col gap-[10px];
 }
 
 .no-history-message {
   @apply text-center text-bodySm text-gray-400 py-6;
 }
 
-.body {
-  @apply flex flex-col gap-[10px];
+.pagination-wrapper {
+  @apply mt-10 flex justify-center;
 }
 </style>

@@ -18,11 +18,11 @@ const emit = defineEmits(["click"]);
     @click="$emit('click')"
   >
     <div class="dev-list-inner">
-      <span class="project-name">{{ projectName }}</span>
-      <span class="start-date">{{ startDate }}</span>
-      <span class="end-date">{{ endDate }}</span>
-      <span class="work-period">{{ workPeriod }}</span>
-      <div class="status-badge">
+      <span class="col project-name">{{ projectName }}</span>
+      <span class="col start-date">{{ startDate }}</span>
+      <span class="col end-date">{{ endDate }}</span>
+      <span class="col work-period">{{ workPeriod }}</span>
+      <div class="col status-badge">
         <ProjectHistoryStatusBadge :status="status" />
       </div>
     </div>
@@ -31,30 +31,34 @@ const emit = defineEmits(["click"]);
 
 <style scoped>
 .dev-list-wrapper {
-  @apply box-border border border-stroke-gray rounded-sm flex items-center justify-center px-[17px] py-[17px];
+  @apply box-border border border-stroke-gray rounded-sm px-4 py-3;
 }
 
 .dev-list-inner {
-  @apply flex flex-row justify-between gap-[20px];
+  @apply flex items-center gap-4 w-full;
 }
 
+/* 공통 컬럼 스타일 */
+.col {
+  @apply flex items-center truncate min-w-0 justify-center;
+  flex: 1 1 0;
+}
+
+/* 컬럼 비율 설정 */
 .project-name {
-  @apply flex items-center justify-center text-bodySm text-support-stack w-[130px];
+  flex: 2 1 0;
+  @apply text-bodySm text-support-stack;
 }
 
-.start-date {
-  @apply flex items-center justify-center text-bodySm text-black text-center w-[130px];
-}
-
-.end-date {
-  @apply flex items-center justify-center text-bodySm text-black text-center w-[130px];
-}
-
+.start-date,
+.end-date,
 .work-period {
-  @apply flex items-center justify-center text-bodySm text-black text-center w-[80px];
+  flex: 1 1 0;
+  @apply text-bodySm text-black text-center;
 }
 
 .status-badge {
-  @apply flex items-center justify-center w-[80px];
+  flex: 1 1 0;
+  @apply justify-center;
 }
 </style>
