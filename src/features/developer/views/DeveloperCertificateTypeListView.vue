@@ -40,8 +40,19 @@
         </tbody>
       </table>
 
+      <!-- 항목이 없을 때 메시지 -->
+      <div
+        v-if="pagedCertificates.length === 0"
+        class="w-[730px] text-center py-6 text-gray-500"
+      >
+        등록된 자격증이 없습니다.
+      </div>
+
       <!-- 페이지네이션 -->
-      <div class="mt-4 flex justify-center">
+      <div
+        v-if="pagedCertificates.length > 0"
+        class="mt-4 flex w-[730px] justify-center"
+      >
         <Pagination
           :current-page="currentPage"
           :total-pages="totalPages"
@@ -58,6 +69,7 @@ import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import Pagination from "@/components/Pagination.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
 import { fetchCertificates } from "@/api/member.js";
+import { showErrorToast } from "@/utills/toast.js";
 
 const originalCertificates = ref([]);
 const certificates = ref([]);
@@ -65,9 +77,15 @@ const currentPage = ref(1);
 const itemsPerPage = 10;
 
 const loadCertificates = async () => {
-  const res = await fetchCertificates();
-  originalCertificates.value = res.data.data;
-  certificates.value = [...originalCertificates.value];
+  try {
+    const res = await fetchCertificates();
+    originalCertificates.value = res.data.data;
+    certificates.value = [...originalCertificates.value];
+  } catch (e) {
+    const errorMessage =
+      e.response?.data?.message || "자격증 목록을 불러오지 못했습니다.";
+    showErrorToast(errorMessage);
+  }
 };
 
 const handleSearch = (keyword) => {

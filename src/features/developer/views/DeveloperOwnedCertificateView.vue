@@ -56,25 +56,15 @@
             <td class="py-3">{{ certificate.issuingOrganization }}</td>
             <td class="py-3">{{ formatDate(certificate.issueDate) }}</td>
 
-            <td class="py-3">
-              <span
-                v-if="certificate.certificateStatus === 'REJECTED'"
-                @click="showRejectReason(certificate.rejectedReason)"
-                class="cursor-pointer px-2 py-1 rounded-full font-bold text-sm bg-red-100 text-red-700 hover:underline"
-              >
-                반려됨
-              </span>
-              <span
-                v-else
-                :class="[
-                  'px-2 py-1 rounded-full font-bold text-sm',
-                  certificate.certificateStatus === 'PENDING'
-                    ? 'bg-yellow-100 text-yellow-700'
-                    : 'bg-green-100 text-green-700',
-                ]"
-              >
-                {{ statusLabels[certificate.certificateStatus] }}
-              </span>
+            <td class="py-3 flex justify-center">
+              <ProjectHistoryStatusBadge
+                :status="certificate.certificateStatus"
+                @click="
+                  certificate.certificateStatus === 'REJECTED' &&
+                  showRejectReason(certificate.rejectedReason)
+                "
+                class="cursor-pointer"
+              />
             </td>
 
             <td class="py-2">
@@ -90,8 +80,19 @@
         </tbody>
       </table>
 
+      <!-- 항목이 없을 때 메시지 -->
+      <div
+        v-if="pagedCertificates.length === 0"
+        class="w-[730px] text-center py-6 text-gray-500"
+      >
+        보유 자격증이 없습니다.
+      </div>
+
       <!-- 페이지네이션 -->
-      <div class="mt-4 flex justify-center">
+      <div
+        v-if="pagedCertificates.length > 0"
+        class="mt-4 flex w-[730px] justify-center"
+      >
         <Pagination
           :current-page="currentPage"
           :total-pages="totalPages"
@@ -173,7 +174,7 @@
         >
           &times;
         </button>
-        <h2 class="text-lg font-bold mb-4 text-center">반려 사유</h2>
+        <h2 class="text-lg font-bold mb-4 text-center">거부 사유</h2>
         <p class="text-sm text-gray-700 whitespace-pre-line">
           {{ rejectReasonText }}
         </p>
@@ -196,10 +197,10 @@ import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import Pagination from "@/components/Pagination.vue";
 import { developerRegisterCertificate } from "@/api/member.js";
 import { useAuthStore } from "@/stores/auth";
-import { useToast } from "vue-toastification";
 import { fetchUserCertificates } from "@/api/certificate.js";
+import ProjectHistoryStatusBadge from "@/components/badge/ProjectHistoryStatusBadge.vue";
+import { showErrorToast } from "@/utills/toast.js";
 
-const toast = useToast();
 const authStore = useAuthStore();
 const allCertificates = ref([]);
 const currentPage = ref(1);
@@ -213,7 +214,7 @@ const statusLabels = {
   ALL: "전체",
   PENDING: "대기중",
   APPROVED: "승인됨",
-  REJECTED: "반려됨",
+  REJECTED: "거부됨",
 };
 
 // 반려사유
@@ -230,7 +231,9 @@ const loadCertificates = async () => {
     const res = await fetchUserCertificates(authStore.memberId);
     allCertificates.value = res.data.data;
   } catch (e) {
-    console.error("보유 자격증 조회 실패", e);
+    const errorMessage =
+      e.response?.data?.message || "보유 자격증 목록을 불러오지 못했습니다.";
+    showErrorToast(errorMessage);
   }
 };
 
@@ -272,7 +275,7 @@ const submitCertificate = async () => {
   try {
     const id = authStore.memberId;
     if (!id) {
-      toast.warning("사용자 정보가 확인되지 않아 등록할 수 없습니다.");
+      showErrorToast("사용자 정보가 확인되지 않아 등록할 수 없습니다.");
       return;
     }
 
@@ -294,12 +297,14 @@ const submitCertificate = async () => {
 
     isRegisterModalOpen.value = false;
   } catch (e) {
-    toast.error("자격증 등록 중 오류가 발생했습니다.");
+    const errorMessage =
+      e.response?.data?.message || "자격증 등록 중 오류가 발생했습니다.";
+    showErrorToast(errorMessage);
   }
 };
 
 const showRejectReason = (reason) => {
-  rejectReasonText.value = reason || "반려 사유가 없습니다.";
+  rejectReasonText.value = reason || "거부 사유가 없습니다.";
   showRejectReasonModal.value = true;
 };
 </script>

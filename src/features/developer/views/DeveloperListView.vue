@@ -133,21 +133,8 @@
             </td>
             <td class="p-4 relative text-center" @click.stop>
               <div class="relative">
-                <div class="flex justify-center">
-                  <button
-                    @click="toggleDropdown(index)"
-                    class="text-xs px-3 py-1 rounded-full font-medium focus:outline-none"
-                    :class="{
-                      'bg-yellow-100 text-yellow-700':
-                        developer.status === '대기중',
-                      'bg-green-100 text-green-700':
-                        developer.status === '투입중',
-                      'bg-gray-100 text-gray-600':
-                        developer.status === '비활성',
-                    }"
-                  >
-                    {{ developer.status }}
-                  </button>
+                <div class="flex justify-center" @click="toggleDropdown(index)">
+                  <StatusBadge :status="developer.status" />
                 </div>
                 <ul
                   v-if="openDropdownIndex === index"
@@ -156,15 +143,10 @@
                   <li
                     v-for="option in statusOptions.slice(1)"
                     :key="option.value"
-                    @click="changeStatus(index, option.name, option.value)"
-                    class="m-3 px-2 py-1 text-xs rounded-full font-medium cursor-pointer text-center"
-                    :class="{
-                      'bg-yellow-100 text-yellow-700': option.name === '대기중',
-                      'bg-green-100 text-green-700': option.name === '투입중',
-                      'bg-gray-100 text-gray-600': option.name === '비활성',
-                    }"
+                    @click="changeStatus(index, option.value)"
+                    class="m-3 px-2 py-1 cursor-pointer text-center"
                   >
-                    {{ option.name }}
+                    <StatusBadge :status="option.value" />
                   </li>
                 </ul>
               </div>
@@ -180,7 +162,6 @@
         조건에 일치하는 개발자가 없습니다.
       </div>
 
-      <!-- Pagination Component -->
       <div
         v-if="!isLoading && developers.length !== 0"
         class="flex justify-center mt-6"
@@ -194,6 +175,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { fetchDeveloperList, updateMemberStatus } from "@/api/member";
@@ -204,6 +186,7 @@ import { useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import Pagination from "@/components/Pagination.vue";
+import StatusBadge from "@/components/badge/StatusBadge.vue";
 import { showErrorToast } from "@/utills/toast.js";
 
 const router = useRouter();
@@ -220,6 +203,7 @@ const sortBy = ref("employeeId");
 const sortAsc = ref(true);
 const searchKeyword = ref("");
 const openDropdownIndex = ref(null);
+
 const sortOptions = [
   { name: "사번순", value: "employeeId" },
   { name: "이름순", value: "name" },
@@ -247,19 +231,6 @@ const roleOptions = [
   { name: "내부 개발자", value: "INSIDER" },
   { name: "프리랜서", value: "OUTSIDER" },
 ];
-
-const statusLabel = (status) => {
-  switch (status) {
-    case "AVAILABLE":
-      return "대기중";
-    case "IN_PROJECT":
-      return "투입중";
-    case "UNAVAILABLE":
-      return "비활성";
-    default:
-      return "대기중";
-  }
-};
 
 const roleLabel = (role) => {
   switch (role) {
@@ -296,7 +267,7 @@ const fetchDevelopers = async () => {
       employeeId: dev.employeeId,
       role: roleLabel(dev.role),
       grade: dev.grade_code || "-",
-      status: statusLabel(dev.status),
+      status: dev.status,
       profileImageUrl: dev.profileImageUrl,
       topTechStackName: dev.topTechStackName,
       joinedAt: dev.joinedAt || "1900-01-01T00:00:00",
@@ -344,11 +315,11 @@ const toggleDropdown = (index) => {
   openDropdownIndex.value = openDropdownIndex.value === index ? null : index;
 };
 
-const changeStatus = async (index, newStatusLabel, newStatusEnum) => {
+const changeStatus = async (index, newStatusEnum) => {
   const employeeId = developers.value[index].employeeId;
   try {
     await updateMemberStatus(employeeId, newStatusEnum);
-    developers.value[index].status = newStatusLabel;
+    developers.value[index].status = newStatusEnum;
   } catch (e) {
     showErrorToast("상태 변경에 실패했습니다.");
   } finally {
@@ -380,7 +351,6 @@ const resetFilters = () => {
   sortBy.value = "employeeId";
   sortAsc.value = true;
   currentPage.value = 1;
-
   fetchDevelopers();
 };
 

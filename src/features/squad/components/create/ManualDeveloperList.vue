@@ -9,6 +9,8 @@ import SelectRoleModal from "@/features/squad/components/modal/SelectRoleModal.v
 import { useSquadProjectStore } from "@/stores/squadProject.js";
 import { storeToRefs } from "pinia";
 import { useDeveloperModal } from "@/composable/useDeveloperModal.js";
+import StatusBadge from "@/components/badge/StatusBadge.vue";
+import TechBadge from "@/components/badge/TechBadge.vue";
 
 const searchQuery = ref("");
 const developers = ref([]);
@@ -42,7 +44,7 @@ async function handleSearch(page = 1) {
       : [],
     sortBy: selectedFilters.value.sortBy || "grade",
     sortDir: selectedFilters.value.sortOrder || "asc",
-    page: page - 1, // 백엔드는 0부터 시작
+    page: page - 1,
     size: 10,
   };
 
@@ -52,7 +54,7 @@ async function handleSearch(page = 1) {
       id: dev.employeeId,
       name: dev.name,
       grade: dev.grade,
-      status: dev.status === "AVAILABLE" ? "대기중" : "투입중",
+      status: dev.status,
       techStack: [dev.topTechStackName],
       monthlyUnitPrice: dev.monthlyUnitPrice,
       productivity: dev.productivity,
@@ -109,15 +111,11 @@ function toggleFilter() {
   showSort.value = false;
   showFilter.value = !showFilter.value;
 }
+
 function toggleSort() {
   showFilter.value = false;
   showSort.value = !showSort.value;
 }
-
-const statusMap = {
-  AVAILABLE: "대기중",
-  IN_PROJECT: "투입중",
-};
 
 const freelancerMap = {
   INSIDER: "내부인",
@@ -160,10 +158,7 @@ function renderSummary() {
     parts.push(freelancerLabel);
   }
   if (selectedFilters.value.statuses.length) {
-    const statusLabels = selectedFilters.value.statuses
-      .map((status) => statusMap[status] || status)
-      .join(", ");
-    parts.push(statusLabels);
+    parts.push(selectedFilters.value.statuses.join(", "));
   }
 
   return parts.join(" / ");
@@ -176,7 +171,7 @@ function addTechStack(stack) {
 }
 
 const squadProjectStore = useSquadProjectStore();
-const { projectDetail, loading, error } = storeToRefs(squadProjectStore);
+const { projectDetail } = storeToRefs(squadProjectStore);
 
 const roles = computed(() => {
   return projectDetail.value?.data.jobRequirements?.map((j) => j.jobName) || [];
@@ -187,7 +182,6 @@ const { openModal } = useDeveloperModal();
 
 <template>
   <div>
-    <!-- 검색바 -->
     <div class="search-bar" :class="{ focused: isFocused }">
       <input
         v-model="searchQuery"
@@ -252,18 +246,16 @@ const { openModal } = useDeveloperModal();
               <td class="text-center">{{ index + 1 }}</td>
               <td class="text-center">{{ dev.name }}</td>
               <td class="text-center font-bold">{{ dev.grade }}</td>
-              <td class="text-center">
-                <span class="status-badge">{{ dev.status }}</span>
+              <td class="text-center flex justify-center">
+                <StatusBadge class="flex w-fit" :status="dev.status" />
               </td>
               <td class="text-center">
                 <div class="stack-list">
-                  <span
+                  <TechBadge
                     v-for="stack in dev.techStack"
                     :key="stack"
-                    class="stack-badge"
-                  >
-                    {{ stack }}
-                  </span>
+                    :label="stack"
+                  />
                 </div>
               </td>
               <td class="text-center">
@@ -305,49 +297,47 @@ const { openModal } = useDeveloperModal();
 .search-bar {
   @apply flex items-center gap-2 mb-4 px-3 py-2 border border-gray-300 rounded transition relative;
 }
+
 .search-bar.focused {
   @apply border-primary ring-2 ring-primary/30;
 }
+
 .search-input {
   @apply flex-1 outline-none border-none bg-transparent;
 }
+
 .btn-icon {
   @apply px-4 py-3 text-sm hover:bg-gray-100 rounded;
 }
+
 .filter-summary {
   @apply mb-3 text-sm text-gray-600 max-w-full overflow-hidden;
 }
+
 .table-wrapper {
   @apply h-[500px] overflow-y-auto border border-gray-200 relative mb-4;
 }
+
 .dev-table {
   @apply w-full border-collapse text-sm text-center;
 }
+
 .dev-table thead th {
   @apply bg-gray-100 text-gray-800 py-2 border-b border-gray-300;
 }
+
 .dev-table tbody td {
   @apply py-2 border-b border-gray-100;
 }
-.status-badge {
-  @apply inline-block px-2 py-1 text-xs bg-yellow-200 text-yellow-800 rounded;
-}
+
 .stack-list {
   @apply flex justify-center gap-1 flex-wrap;
 }
-.stack-badge {
-  @apply px-2 py-1 bg-gray-200 text-xs rounded;
-}
+
 .btn-add {
   @apply px-5 py-2 bg-white text-primary border border-primary shadow-sm rounded text-sm font-bold hover:bg-gray-50 transition;
 }
 
-.pagination button {
-  @apply px-2 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100;
-}
-.pagination .active {
-  @apply bg-primary text-white;
-}
 .empty-message {
   @apply absolute inset-0 flex items-center justify-center text-gray-400;
 }
