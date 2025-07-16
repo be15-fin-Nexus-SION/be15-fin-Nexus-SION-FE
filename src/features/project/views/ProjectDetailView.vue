@@ -222,7 +222,11 @@ const approvedCount = computed(
             평가 완료
           </button>
         </template>
-        <template v-else-if="project.status === 'IN_PROGRESS'">
+        <template
+          v-else-if="
+            project.status === 'IN_PROGRESS' || project.status === 'WAITING'
+          "
+        >
           <button
             class="bg-primary px-5 py-2 text-white rounded-md hover:brightness-110"
             @click="handleEvaluate"

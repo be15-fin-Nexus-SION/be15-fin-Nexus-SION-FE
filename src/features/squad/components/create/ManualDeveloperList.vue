@@ -352,7 +352,9 @@ const { openModal } = useDeveloperModal();
 .stack-list {
   @apply flex justify-center gap-1 flex-wrap;
 }
-
+.stack-badge {
+  @apply px-2 py-1 bg-gray-200 text-xs rounded;
+}
 .btn-add {
   @apply px-5 py-2 bg-white text-primary border border-primary shadow-sm rounded text-sm font-bold hover:bg-gray-50 transition;
 }
