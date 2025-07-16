@@ -210,6 +210,11 @@ onMounted(() => {
             평가중인 프로젝트입니다.
           </div>
         </div>
+        <div v-if="!isEvaluating && totalCount === 0">
+          <div class="text-center h-full text-gray-500 py-20 text-lg">
+            스쿼드를 추가해주세요.
+          </div>
+        </div>
         <div class="grid grid-cols-3 gap-4">
           <SquadCard
             v-for="squad in squads"
