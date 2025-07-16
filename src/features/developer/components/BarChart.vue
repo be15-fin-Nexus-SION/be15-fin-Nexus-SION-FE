@@ -95,8 +95,9 @@ watch(
 
     const ctx = chartInstance.ctx;
     const gradient = ctx.createLinearGradient(0, 0, 0, chartInstance.height);
-    gradient.addColorStop(0, "rgba(254, 134, 134, 1)");
-    gradient.addColorStop(1, "rgba(30, 38, 141, 1)");
+    gradient.addColorStop(0, "#404591");
+    gradient.addColorStop(0.5, "#A07298");
+    gradient.addColorStop(1, "#FFC0C0");
 
     gradientBackground.value = gradient;
     chartInstance.update();
