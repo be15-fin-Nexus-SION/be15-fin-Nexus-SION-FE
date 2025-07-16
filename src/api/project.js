@@ -125,5 +125,5 @@ export function replaceRecommendation(payload) {
 }
 
 export function fetchDeveloperApprovals(projectCode) {
-  return api.get(`/projects/${projectCode}/developer-approvals`);
+  return api.get(`/dev-project-works/${projectCode}/developer-approvals`);
 }

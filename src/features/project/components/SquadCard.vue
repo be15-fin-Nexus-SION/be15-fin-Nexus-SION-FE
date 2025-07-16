@@ -1,19 +1,22 @@
 <template>
   <div
     :class="[
-      'flex items-center justify-between px-6 py-4 transition-all duration-200',
-      approvalStatus !== 'APPROVED' ? 'opacity-50' : 'opacity-100',
-      isLeader === 1 && isReplacementMode
-        ? 'cursor-not-allowed bg-gray-100'
-        : selected
-          ? 'cursor-pointer bg-yellow-50 border-yellow-400 border-2 rounded-md'
-          : isReplacementMode
-            ? 'cursor-pointer hover:bg-yellow-50'
-            : 'cursor-pointer bg-[#F7FAFC]',
+      'flex items-center justify-between px-6 py-4 transition-all duration-200 relative group',
+      isEvaluationMode && approvalStatus === 'NOT_REQUESTED'
+        ? 'opacity-50'
+        : 'opacity-100',
+      approvalStatus === 'APPROVED'
+        ? 'bg-green-50'
+        : isLeader === 1 && isReplacementMode
+          ? 'cursor-not-allowed bg-gray-100'
+          : selected
+            ? 'cursor-pointer bg-yellow-50 border-yellow-400 border-2 rounded-md'
+            : isReplacementMode
+              ? 'cursor-pointer hover:bg-yellow-50'
+              : 'cursor-pointer bg-[#F7FAFC]',
     ]"
     @click="handleClick"
   >
-    <!-- 프로필 + 이름/직무 -->
     <div class="flex items-center gap-4">
       <img
         :src="imageUrl"
@@ -23,7 +26,6 @@
       <div>
         <div class="flex items-center gap-1">
           <p class="text-sm font-semibold text-gray-800">{{ name }}</p>
-          <!-- 리더 아이콘 -->
           <svg
             v-if="isLeader === 1"
             xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +35,6 @@
           >
             <path d="M5 16h14v2H5v-2Zm14-8-4 4-3-3-3 3-4-4-1 6h16l-1-6Z" />
           </svg>
-          <!-- 승인 상태 아이콘 -->
           <svg
             v-if="approvalStatus === 'APPROVED'"
             xmlns="http://www.w3.org/2000/svg"
@@ -51,9 +52,22 @@
         <p class="text-xs text-blue-600">{{ role }}</p>
       </div>
     </div>
-    <p class="text-xs text-gray-500 capitalize">
-      {{ statusText }}
-    </p>
+
+    <template v-if="isEvaluationMode && approvalStatus === 'PENDING'">
+      <router-link
+        :to="`/projects/history/${historyId}`"
+        class="absolute right-6 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-semibold text-white bg-blue-500 rounded-md transform translate-x-full group-hover:translate-x-0 transition-all duration-300"
+        @click.stop
+      >
+        프로젝트 이력 내역 확인하기 →
+      </router-link>
+    </template>
+
+    <template v-if="isEvaluationMode">
+      <p class="text-xs text-gray-500 capitalize pr-3">
+        {{ statusText }}
+      </p>
+    </template>
   </div>
 </template>
 
@@ -78,6 +92,14 @@ const props = defineProps({
   approvalStatus: {
     type: String,
     default: "NOT_REQUESTED",
+  },
+  isEvaluationMode: {
+    type: Boolean,
+    default: false,
+  },
+  historyId: {
+    type: String,
+    required: false,
   },
 });
 

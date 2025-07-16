@@ -36,7 +36,6 @@ function handleEvaluate() {
       showSuccessToast("프로젝트 평가 상태로 변경되었습니다.");
     })
     .catch((e) => {
-      console.error("프로젝트 종료 실패", e);
       showErrorToast("상태 변경 중 오류가 발생했습니다.");
     });
 }
@@ -51,7 +50,6 @@ function handleComplete() {
       showSuccessToast("프로젝트가 종료되었습니다.");
     })
     .catch((e) => {
-      console.error("프로젝트 종료 실패", e);
       showErrorToast("상태 변경 중 오류가 발생했습니다.");
     });
 }
@@ -66,7 +64,6 @@ function handleDelete() {
       router.push("/projects");
     })
     .catch((error) => {
-      console.error("프로젝트 삭제 실패:", error);
       showErrorToast("삭제 중 오류가 발생했습니다.");
     });
 }
@@ -83,7 +80,6 @@ async function handleEditSubmit(data) {
 
     isEditVisible.value = false;
   } catch (error) {
-    console.error("프로젝트 수정 실패:", error);
     showErrorToast("수정 중 오류가 발생했습니다.");
   }
 }
@@ -118,7 +114,6 @@ const handleReplace = async ({ oldMemberId, newMemberId }) => {
     const response = await fetchProjectDetail(projectCode);
     project.value = response.data.data;
   } catch (e) {
-    console.error("프로젝트 인원 대체 실패", e);
     showErrorToast("프로젝트 인원 대체에 실패했습니다.");
   }
 };
@@ -127,7 +122,7 @@ const approvalStatuses = ref([]);
 
 async function fetchApprovalStatuses() {
   const { data } = await fetchDeveloperApprovals(projectCode);
-  approvalStatuses.value = data;
+  approvalStatuses.value = data.data;
 }
 
 onMounted(async () => {
@@ -150,7 +145,10 @@ onMounted(async () => {
 
 const approvalStatusMap = computed(() => {
   return approvalStatuses.value.reduce((map, status) => {
-    map[status.employeeId] = status.approvalStatus;
+    map[status.employeeIdentificationNumber] = {
+      approvalStatus: status.approvalStatus,
+      developerProjectWorkId: status.developerProjectWorkId,
+    };
     return map;
   }, {});
 });
@@ -158,7 +156,7 @@ const approvalStatusMap = computed(() => {
 const approvedCount = computed(
   () =>
     Object.values(approvalStatusMap.value).filter(
-      (status) => status === "APPROVED",
+      (status) => status.approvalStatus === "APPROVED",
     ).length,
 );
 </script>
@@ -211,12 +209,12 @@ const approvedCount = computed(
         <template v-if="project.status === 'EVALUATION'">
           <button
             v-if="memberRole === 'ADMIN'"
-            class="bg-gray-300 text-gray-600 px-5 py-2 rounded-md cursor-not-allowed"
-            disabled
             :class="[
               'px-5 py-2 rounded-md font-semibold',
-              approvalStatuses.every((a) => a.approvalStatus === 'APPROVED')
-                ? 'bg-primary text-white cursor-pointer'
+              Object.values(approvalStatusMap).every(
+                (a) => a.approvalStatus === 'APPROVED',
+              )
+                ? 'bg-primary text-white cursor-pointer hover:bg-primary-hover'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed',
             ]"
             @click="handleComplete"
@@ -224,12 +222,20 @@ const approvedCount = computed(
             평가 완료
           </button>
         </template>
-        <template v-else>
+        <template v-else-if="project.status === 'IN_PROGRESS'">
           <button
             class="bg-primary px-5 py-2 text-white rounded-md hover:brightness-110"
             @click="handleEvaluate"
           >
             종료
+          </button>
+        </template>
+        <template v-else>
+          <button
+            v-if="memberRole === 'ADMIN'"
+            class="bg-gray-300 text-gray-600 px-5 py-2 rounded-md cursor-not-allowed"
+          >
+            프로젝트 종료
           </button>
         </template>
       </div>
@@ -318,7 +324,13 @@ const approvedCount = computed(
             "
             @click="handleMemberClick(member)"
             :approvalStatus="
-              approvalStatusMap[member.employeeId] || 'NOT_REQUESTED'
+              approvalStatusMap[member.employeeId]?.approvalStatus ||
+              'NOT_REQUESTED'
+            "
+            :isEvaluationMode="project.status === 'EVALUATION'"
+            :historyId="
+              approvalStatusMap[member.employeeId]?.developerProjectWorkId ||
+              null
             "
           />
         </div>
