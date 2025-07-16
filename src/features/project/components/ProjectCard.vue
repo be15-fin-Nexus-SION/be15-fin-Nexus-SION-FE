@@ -4,10 +4,11 @@ const props = defineProps({
 });
 
 const statusColorMap = {
-  WAITING: "#FFD700",
-  IN_PROGRESS: "#00C851",
-  COMPLETE: "#FF4444",
   INCOMPLETE: "#9e9e9e",
+  WAITING: "#FFD344",
+  IN_PROGRESS: "#64CF8B",
+  EVALUATION: "#6574F6",
+  COMPLETE: "#EC4D4D",
 };
 
 const analysisStatusMap = {

@@ -126,13 +126,6 @@ function goToRegister() {
   router.push("/projects/register");
 }
 
-const statusOptions = [
-  { label: "미완료", value: "INCOMPLETE", color: "#9e9e9e" },
-  { label: "시작 전", value: "WAITING", color: "#FFD700" },
-  { label: "진행중", value: "IN_PROGRESS", color: "#00C851" },
-  { label: "종료", value: "COMPLETE", color: "#FF4444" },
-];
-
 const pagedProjects = computed(() => allProjects.value ?? []);
 const hasNoProjects = computed(() => pagedProjects.value.length === 0);
 

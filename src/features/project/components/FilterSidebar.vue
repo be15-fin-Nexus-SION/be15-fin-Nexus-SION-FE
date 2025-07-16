@@ -27,9 +27,10 @@ const statusOptions = computed(() => {
   } else {
     return [
       { label: "미완료", value: "INCOMPLETE", color: "#9e9e9e" },
-      { label: "시작 전", value: "WAITING", color: "#FFD700" },
-      { label: "진행중", value: "IN_PROGRESS", color: "#00C851" },
-      { label: "종료", value: "COMPLETE", color: "#FF4444" },
+      { label: "시작 전", value: "WAITING", color: "#FFD344" },
+      { label: "진행중", value: "IN_PROGRESS", color: "#64CF8B" },
+      { label: "평가중", value: "EVALUATION", color: "#6574F6" },
+      { label: "종료", value: "COMPLETE", color: "#EC4D4D" },
     ];
   }
 });
