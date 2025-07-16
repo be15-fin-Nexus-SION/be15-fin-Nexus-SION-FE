@@ -138,10 +138,6 @@ export function searchAdmins(payload) {
   });
 }
 
-export function fetchMyCertificates() {
-  return api.get("/user-certificates/me");
-}
-
 export const developerRegisterCertificate = (employeeId, formData) => {
   return api.post(`/members/${employeeId}/certificates`, formData);
 };

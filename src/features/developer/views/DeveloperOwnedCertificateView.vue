@@ -194,12 +194,10 @@
 import { ref, computed, onMounted } from "vue";
 import SidebarWrapper from "@/components/side/SidebarWrapper.vue";
 import Pagination from "@/components/Pagination.vue";
-import {
-  fetchMyCertificates,
-  developerRegisterCertificate,
-} from "@/api/member.js";
+import { developerRegisterCertificate } from "@/api/member.js";
 import { useAuthStore } from "@/stores/auth";
 import { useToast } from "vue-toastification";
+import { fetchUserCertificates } from "@/api/certificate.js";
 
 const toast = useToast();
 const authStore = useAuthStore();
@@ -229,7 +227,7 @@ const formatDate = (dateStr) => {
 
 const loadCertificates = async () => {
   try {
-    const res = await fetchMyCertificates();
+    const res = await fetchUserCertificates(authStore.memberId);
     allCertificates.value = res.data.data;
   } catch (e) {
     console.error("보유 자격증 조회 실패", e);
