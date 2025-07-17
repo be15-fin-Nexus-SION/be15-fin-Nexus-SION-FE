@@ -265,13 +265,15 @@ const { openModal } = useDeveloperModal();
               <td class="text-center">{{ index + 1 }}</td>
               <td class="text-center">{{ dev.name }}</td>
               <td class="text-center font-bold">{{ dev.grade }}</td>
-              <td class="text-center flex justify-center">
-                <StatusBadge class="flex w-fit" :status="dev.status" />
+              <td class="text-center">
+                <div class="flex justify-center">
+                  <StatusBadge class="flex w-fit" :status="dev.status" />
+                </div>
               </td>
               <td class="text-center">
                 <div class="stack-list">
                   <TechBadge
-                    v-for="stack in dev.techStack"
+                    v-for="stack in dev.techStack.filter((s) => s != null)"
                     :key="stack"
                     :label="stack"
                   />
