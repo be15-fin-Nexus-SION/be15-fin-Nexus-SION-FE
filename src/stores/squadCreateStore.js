@@ -10,6 +10,8 @@ export const useSquadStore = defineStore("squad", () => {
     description: "", // 스쿼드 설명
   });
 
+  const leaderId = ref(null);
+
   const isEditMode = computed(() => selectedSquadInfo.value.id !== null);
 
   const addMember = (member) => {
@@ -25,6 +27,15 @@ export const useSquadStore = defineStore("squad", () => {
     );
   };
 
+  const setLeader = (member) => {
+    console.log(selectedMembers.value);
+    leaderId.value = member.id;
+    selectedMembers.value = selectedMembers.value.map((m) => ({
+      ...m,
+      isLeader: m.id === member.id,
+    }));
+  };
+
   const resetSquad = () => {
     selectedMembers.value = [];
     selectedSquadInfo.value = {
@@ -32,7 +43,12 @@ export const useSquadStore = defineStore("squad", () => {
       title: "",
       description: "",
     };
+    leaderId.value = null;
   };
+
+  function hasLeader() {
+    return leaderId.value !== null;
+  }
 
   return {
     selectedMembers,
@@ -41,5 +57,7 @@ export const useSquadStore = defineStore("squad", () => {
     selectedSquadInfo,
     isEditMode,
     resetSquad,
+    setLeader,
+    hasLeader,
   };
 });

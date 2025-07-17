@@ -209,6 +209,11 @@ watchEffect(() => {
 });
 
 function handleSubmit() {
+  // 유효성 검사
+  if (!squadStore.hasLeader()) {
+    showErrorToast("리더를 설정해 주세요");
+    return;
+  }
   showRegisterModal.value = true;
 }
 </script>
