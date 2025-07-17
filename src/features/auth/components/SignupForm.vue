@@ -40,11 +40,18 @@ const {
   validateAll,
 } = useValidation();
 
+const validators = {
+  password: isPasswordValid,
+  phoneNumber: isPhoneNumberValid,
+  email: isEmailValid,
+  birthday: isBirthdayValid,
+};
+
 function handleBlur(fieldKey) {
-  if (fieldKey === "password") return isPasswordValid(form.password);
-  if (fieldKey === "phoneNumber") return isPhoneNumberValid(form.phoneNumber);
-  if (fieldKey === "email") return isEmailValid(form.email);
-  if (fieldKey === "birthday") return isBirthdayValid(form.birthday);
+  const validator = validators[fieldKey];
+  if (validator) {
+    validator(form[fieldKey]);
+  }
 }
 
 function onSubmit() {
@@ -58,6 +65,13 @@ function onSubmit() {
 
   emit("submit", payload);
 }
+
+const errorMessages = {
+  password: passwordError,
+  phoneNumber: phoneError,
+  email: emailError,
+  birthday: birthdayError,
+};
 </script>
 
 <template>
@@ -103,17 +117,8 @@ function onSubmit() {
       </div>
 
       <!-- 에러 메시지 -->
-      <p v-if="field.key === 'password' && passwordError" class="error-msg">
-        {{ passwordError }}
-      </p>
-      <p v-if="field.key === 'phoneNumber' && phoneError" class="error-msg">
-        {{ phoneError }}
-      </p>
-      <p v-if="field.key === 'email' && emailError" class="error-msg">
-        {{ emailError }}
-      </p>
-      <p v-if="field.key === 'birthday' && birthdayError" class="error-msg">
-        {{ birthdayError }}
+      <p v-if="errorMessages[field.key]" class="error-msg">
+        {{ errorMessages[field.key] }}
       </p>
     </div>
     <button type="submit">회원가입</button>
