@@ -61,7 +61,6 @@ export function useValidation() {
       return false;
     }
 
-    // yyyy-mm-dd 또는 yyyymmdd 형식 허용
     const clean = birthday.replaceAll(".", "");
     const regex = /^\d{8}$/;
 
