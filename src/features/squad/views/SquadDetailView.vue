@@ -20,7 +20,6 @@ import ConfirmModal from "@/features/squad/components/ConfirmDeleteModal.vue";
 import SquadCommentList from "@/features/squad/components/SquadCommentList.vue";
 import { useAuthStore } from "@/stores/auth";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
-import { useDeveloperModal } from "@/composable/useDeveloperModal.js";
 
 const props = defineProps({
   squadCode: String,
@@ -183,8 +182,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
 });
-
-console.log(squad);
 </script>
 
 <template>
