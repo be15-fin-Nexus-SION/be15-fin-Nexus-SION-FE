@@ -27,15 +27,6 @@ watchEffect(() => {
 function removeMember(memberId) {
   squadStore.removeMember(memberId);
 }
-
-function setLeader(member) {
-  squadStore.selectedMembers.value = squadStore.selectedMembers.value.map(
-    (m) => ({
-      ...m,
-      isLeader: m.id === member.id,
-    }),
-  );
-}
 </script>
 
 <template>
@@ -44,6 +35,6 @@ function setLeader(member) {
     :members="squadStore.selectedMembers"
     :readonly="false"
     @remove="removeMember"
-    @set-leader="setLeader"
+    @set-leader="squadStore.setLeader"
   />
 </template>
