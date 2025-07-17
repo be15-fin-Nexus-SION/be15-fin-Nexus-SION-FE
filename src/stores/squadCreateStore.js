@@ -33,7 +33,6 @@ export const useSquadStore = defineStore("squad", () => {
       isLeader: false,
       leader: false,
     }));
-    console.log(selectedMembers.value);
     leaderId.value = member.id;
     selectedMembers.value = selectedMembers.value.map((m) => ({
       ...m,

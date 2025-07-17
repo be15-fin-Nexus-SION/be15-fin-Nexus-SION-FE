@@ -9,6 +9,7 @@ import { registerManualSquad, updateManualSquad } from "@/api/squad.js";
 import SquadRegisterModal from "@/features/squad/components/modal/SquadRegisterModal.vue";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import { useSquadProjectStore } from "@/stores/squadProject.js";
+import { handleSquadSelect } from "@/composable/useSquadSelect.js";
 
 const squadStore = useSquadStore();
 const members = computed(() => squadStore.selectedMembers);
@@ -79,9 +80,16 @@ function handleRegisterConfirm({ title, description }) {
       isRegistering.value = false;
     });
 }
+const isEditMode = computed(
+  () => squadStore.selectedSquadInfo.value?.id !== null,
+);
 
-onMounted(() => {
-  fetchProjectDetail(projectCode);
+onMounted(async () => {
+  await fetchProjectDetail(projectCode);
+  const squadCode = route.query.squadCode;
+  if (squadCode) {
+    await handleSquadSelect(squadCode);
+  }
 });
 
 // 애니메이션 대상
@@ -96,8 +104,6 @@ const shakeWarning = ref(false);
 const showWarningText = ref(false);
 const showWarningModal = ref(false);
 const warningReason = ref("");
-
-const isEditMode = computed(() => squadStore.selectedSquadInfo?.id !== null);
 
 // 직무 상태 계산
 const jobStatus = computed(() => {
@@ -127,14 +133,6 @@ const isBudgetExceeded = computed(() => {
     isInitialized.value &&
     projectDetail.value?.budgetLimit > 0 &&
     rawBudget.value > projectDetail.value.budgetLimit
-  );
-});
-
-const isEstimateExceeded = computed(() => {
-  return (
-    isInitialized.value &&
-    projectDetail.value?.estimatedCost > 0 &&
-    rawBudget.value > projectDetail.value.estimatedCost
   );
 });
 
@@ -325,8 +323,11 @@ function handleSubmit() {
 
     <SquadRegisterModal
       v-if="showRegisterModal"
-      :default-title="squadStore.selectedSquadInfo?.title || ''"
-      :default-description="squadStore.selectedSquadInfo?.description || ''"
+      :default-title="squadStore.selectedSquadInfo.value?.title || ''"
+      :default-description="
+        squadStore.selectedSquadInfo.value?.description || ''
+      "
+      :is-edit-mode="isEditMode"
       @submit="handleRegisterConfirm"
       @cancel="() => (showRegisterModal = false)"
     />

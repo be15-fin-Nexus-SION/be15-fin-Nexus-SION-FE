@@ -175,6 +175,7 @@ const openMoreModal = (type) => {
 onMounted(() => {
   selectedProjectCode.value = route.query.projectId;
   fetchProjects();
+  squadStore.resetSquad();
 });
 </script>
 
