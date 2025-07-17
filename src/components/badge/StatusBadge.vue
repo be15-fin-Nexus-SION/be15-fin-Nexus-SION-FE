@@ -24,7 +24,7 @@ const label = computed(() => {
     case "AVAILABLE":
       return "대기중";
     case "UNAVAILABLE":
-      return "미투입"; // 또는 다른 표현
+      return "비활성";
     default:
       return "알수없음";
   }
