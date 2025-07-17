@@ -271,7 +271,7 @@ const { openModal } = useDeveloperModal();
               <td class="text-center">
                 <div class="stack-list">
                   <TechBadge
-                    v-for="stack in dev.techStack"
+                    v-for="stack in dev.techStack.filter((s) => s != null)"
                     :key="stack"
                     :label="stack"
                   />
