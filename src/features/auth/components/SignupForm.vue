@@ -22,7 +22,7 @@ const form = reactive({
 const fields = [
   { key: "employeeIdentificationNumber", type: "text", placeholder: "사번" },
   { key: "password", type: "password", placeholder: "비밀번호" },
-  { key: "birthday", type: "date", placeholder: "생년월일" },
+  { key: "birthday", type: "text", placeholder: "생년월일: 2000.01.01" },
   { key: "email", type: "email", placeholder: "이메일" },
   { key: "phoneNumber", type: "tel", placeholder: "전화번호" },
   { key: "employeeName", type: "text", placeholder: "이름" },
@@ -32,9 +32,11 @@ const {
   passwordError,
   phoneError,
   emailError,
+  birthdayError,
   isPasswordValid,
   isPhoneNumberValid,
   isEmailValid,
+  isBirthdayValid,
   validateAll,
 } = useValidation();
 
@@ -42,10 +44,11 @@ function handleBlur(fieldKey) {
   if (fieldKey === "password") return isPasswordValid(form.password);
   if (fieldKey === "phoneNumber") return isPhoneNumberValid(form.phoneNumber);
   if (fieldKey === "email") return isEmailValid(form.email);
+  if (fieldKey === "birthday") return isBirthdayValid(form.birthday);
 }
 
 function onSubmit() {
-  const birthFormatted = form.birthday ? form.birthday.replaceAll("-", "") : "";
+  const birthFormatted = form.birthday ? form.birthday.replaceAll(".", "") : "";
   const payload = { ...form, birthday: birthFormatted };
 
   if (!validateAll(payload)) {
@@ -108,6 +111,9 @@ function onSubmit() {
       </p>
       <p v-if="field.key === 'email' && emailError" class="error-msg">
         {{ emailError }}
+      </p>
+      <p v-if="field.key === 'birthday' && birthdayError" class="error-msg">
+        {{ birthdayError }}
       </p>
     </div>
     <button type="submit">회원가입</button>
