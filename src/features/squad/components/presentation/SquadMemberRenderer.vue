@@ -241,7 +241,7 @@ const { openModal } = useDeveloperModal();
 
 <style scoped>
 .squad-card-list-wrapper {
-  @apply w-full p-4 bg-white;
+  @apply w-full p-6 shadow rounded-xl bg-white;
 }
 
 .btn-register {

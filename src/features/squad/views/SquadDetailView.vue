@@ -183,6 +183,8 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
 });
+
+console.log(squad);
 </script>
 
 <template>
@@ -191,21 +193,11 @@ onBeforeUnmount(() => {
       v-if="isLoaded && squad.members"
       class="flex gap-6 p-6 w-[1050px] mx-auto items-start animate-slide"
     >
-      <section
-        class="w-[550px] rounded-xl shadow p-4 flex flex-col justify-between"
-      >
-        <div>
-          <SquadMemberList
-            :members="squad.members"
-            :readonly="squad.origin === 'AI' || squad.isActive"
-            @update:members="(updated) => (squad.members = updated)"
-          />
-        </div>
-
+      <section class="w-[550px] p-2 flex flex-col space-y-4 justify-between">
         <!-- 배치 확정 버튼: AI 추천 or 배치된 경우 숨김 -->
-        <div class="mt-6" v-if="!squad.isActive">
+        <div class="mt-2" v-if="!squad.isActive">
           <button
-            class="w-full h-[52px] flex items-center justify-center gap-2 rounded-[8px] text-white font-semibold shadow-md"
+            class="w-full h-[52px] flex items-center justify-center gap-2 rounded-[8px] text-white font-semibold shadow-md hover:shadow-elevated transition-all duration-300 ease-in-out"
             :style="{
               background: 'linear-gradient(90deg, #42EA82 0%, #39F8CF 100%)',
             }"
@@ -214,6 +206,13 @@ onBeforeUnmount(() => {
             <img src="/Squad_confirm.png" alt="배치 확정" class="w-5 h-5" />
             배치 확정
           </button>
+        </div>
+        <div>
+          <SquadMemberList
+            :members="squad.members"
+            :readonly="squad.origin === 'AI' || squad.isActive"
+            @update:members="(updated) => (squad.members = updated)"
+          />
         </div>
 
         <!-- Confirm 배치 확정 모달 -->
