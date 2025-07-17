@@ -26,7 +26,7 @@ export async function handleSquadSelect(squadCode) {
 
     parsedMembers.forEach((m) => squadStore.addMember(m));
 
-    squadStore.selectedSquadInfo = {
+    squadStore.selectedSquadInfo.value = {
       id: squadData.squadCode,
       title: squadData.title,
       description: squadData.description,
