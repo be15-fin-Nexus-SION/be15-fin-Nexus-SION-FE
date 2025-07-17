@@ -80,7 +80,6 @@ export function useValidation() {
       date.getMonth() !== month ||
       date.getDate() !== day
     ) {
-      console.log(date.getFullYear(), date.getMonth(), date.getDate());
       birthdayError.value = "존재하지 않는 날짜입니다.";
       return false;
     }
