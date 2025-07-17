@@ -59,7 +59,7 @@ const confirmSquadDelete = async () => {
     await deleteSquadByCode(squadCode);
     showSuccessToast("스쿼드가 성공적으로 삭제되었습니다.");
     showSquadDeleteModal.value = false;
-    router.push({ name: "squad-list" });
+    await router.push({ name: "squad-list" });
   } catch (e) {
     console.error("스쿼드 삭제 실패:", e);
     showErrorToast("스쿼드 삭제에 실패했습니다.");
@@ -86,7 +86,7 @@ const handleConfirm = async () => {
       members: data.members || [],
       costDetails: data.costDetails || [],
     };
-    router.push({ name: "squad-list" });
+    await router.push({ name: "squad-list" });
   } catch (e) {
     console.error("스쿼드 확정 실패:", e);
     toast.error("스쿼드 확정에 실패했습니다.");
@@ -207,7 +207,7 @@ onBeforeUnmount(() => {
         <div>
           <SquadMemberList
             :members="squad.members"
-            :readonly="squad.origin === 'AI' || squad.isActive"
+            :readonly="true"
             @update:members="(updated) => (squad.members = updated)"
           />
         </div>
