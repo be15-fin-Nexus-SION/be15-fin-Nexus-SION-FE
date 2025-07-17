@@ -116,6 +116,7 @@ const { openModal } = useDeveloperModal();
 
             <!-- 리더 버튼 -->
             <button
+              v-if="member.isLeader || member.leader || !readonly"
               class="btn-leader absolute top-0 left-0 text-yellow-500"
               @click.stop="!readonly && $emit('set-leader', member)"
               :disabled="readonly"
@@ -196,6 +197,7 @@ const { openModal } = useDeveloperModal();
 
               <!-- 리더 버튼 -->
               <button
+                v-if="member.isLeader || member.leader || !readonly"
                 class="btn-leader text-yellow-500"
                 :disabled="readonly"
                 @click.stop="$emit('set-leader', member)"
