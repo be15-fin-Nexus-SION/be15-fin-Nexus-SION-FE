@@ -9,9 +9,6 @@ const props = defineProps({
 const emit = defineEmits(["select"]);
 
 const handleSelect = (projectCode, project) => {
-  console.log("projectMap", props.projectMap.value);
-  console.log("items", props.items);
-  // todo : 이부분에 squad store 안에 있는 값 초기화. 왜냐면 다른 프로젝트에서 수정하던 스쿼드가 뜨기 떄문
   if (project.analysisStatus === "COMPLETE") {
     emit("select", projectCode);
   }

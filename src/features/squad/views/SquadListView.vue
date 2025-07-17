@@ -10,6 +10,7 @@ import { fetchProjectList } from "@/api/project";
 import BasePagination from "@/components/Pagination.vue";
 import { useRoute } from "vue-router";
 import SquadDetailView from "@/features/squad/views/SquadDetailView.vue";
+import { useSquadStore } from "@/stores/squadCreateStore.js";
 
 const totalCount = ref(0); // 총 스쿼드 수
 
@@ -142,6 +143,7 @@ const goToPage = (p) => {
   }
 };
 
+const squadStore = useSquadStore();
 const selectProject = (projectCode) => {
   const project = projectMap.value[projectCode];
   if (project) {
@@ -149,6 +151,10 @@ const selectProject = (projectCode) => {
     selectedProjectCode.value = project.projectCode;
     page.value = 1;
     fetchSquads();
+    // 생성중이던 스쿼드 리셋하기
+    if (project.status === "WAITING" || project.status === "EVALUATION") {
+      squadStore.resetSquad();
+    }
   }
 };
 
