@@ -11,6 +11,7 @@ import { uploadDocument } from "@/api/document.js";
 import { analyzeProject, registerProject } from "@/api/project.js";
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import { useRouter } from "vue-router";
+import PrimaryButton from "@/components/button/PrimaryButton.vue";
 
 const form = reactive({
   projectName: "",
@@ -74,7 +75,7 @@ function handleFileUpload(e) {
     return;
   }
 
-  // ✅ 파일 크기 검사 (10MB 제한)
+  // 파일 크기 검사 (10MB 제한)
   if (selectedFile.size > 10 * 1024 * 1024) {
     showErrorToast("10MB 이하의 파일만 업로드할 수 있습니다");
     form.file = null;
@@ -137,7 +138,8 @@ async function submitForm() {
   if (!form.startDate)
     return scrollAndToast("start-date", "시작일을 선택해주세요");
   if (!form.endDate) return scrollAndToast("end-date", "종료일을 선택해주세요");
-
+  if (new Date(form.startDate) > new Date(form.endDate))
+    return scrollAndToast("end-date", "종료일은 시작일 이후여야 합니다");
   if (budget.value === "" || isNaN(budget.value) || budget.value < 0) {
     return scrollAndToast("budget", "유효한 예산을 입력해주세요");
   }
@@ -230,7 +232,7 @@ async function submitForm() {
       <!-- 프로젝트 명 & 도메인 -->
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label class="block text-sm font-semibold mb-1">프로젝트 명</label>
+          <label class="text">프로젝트 명<span class="star">*</span> </label>
           <input
             v-model="form.projectName"
             id="project-name"
@@ -240,7 +242,7 @@ async function submitForm() {
           />
         </div>
         <div>
-          <label class="block text-sm font-semibold mb-1">도메인</label>
+          <label class="text">도메인<span class="star">*</span> </label>
           <DropdownSelect
             v-model="form.domain"
             :options="allDomains"
@@ -252,7 +254,7 @@ async function submitForm() {
 
       <!-- 개요 -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">개요</label>
+        <label class="text">개요<span class="star">*</span> </label>
         <textarea
           v-model="form.overview"
           id="overview"
@@ -264,9 +266,9 @@ async function submitForm() {
 
       <!-- 파일 + 고객사 -->
       <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1"
-          >요구사항 명세서 & 고객사</label
-        >
+        <label class="text"
+          >요구사항 명세서 & 고객사<span class="star">*</span>
+        </label>
         <div class="flex gap-4">
           <div class="flex-1 relative flex items-center">
             <input
@@ -324,7 +326,7 @@ async function submitForm() {
       <!-- 날짜/예산 -->
       <div class="grid grid-cols-3 gap-4 mb-6">
         <div>
-          <label class="block text-sm font-semibold mb-1">시작일</label>
+          <label class="text">시작일<span class="star">*</span> </label>
           <input
             v-model="form.startDate"
             type="date"
@@ -333,7 +335,7 @@ async function submitForm() {
           />
         </div>
         <div>
-          <label class="block text-sm font-semibold mb-1">종료일</label>
+          <label class="text">종료일<span class="star">*</span> </label>
           <input
             v-model="form.endDate"
             type="date"
@@ -342,7 +344,7 @@ async function submitForm() {
           />
         </div>
         <div>
-          <label class="block text-sm font-semibold mb-1">예산 (만원)</label>
+          <label class="text">예산 (만원)<span class="star">*</span> </label>
           <input
             v-model="budget"
             type="number"
@@ -355,11 +357,11 @@ async function submitForm() {
       <!-- 직무 및 기술 -->
       <div class="mb-4">
         <div class="flex justify-between items-center mb-2">
-          <label class="block text-sm font-semibold"
-            >예상 인원 및 기술 스택</label
-          >
+          <label class="text"
+            >예상 인원 및 기술 스택<span class="star">*</span>
+          </label>
           <span class="text-xs text-gray-500 pr-40"
-            >기술스택 왼쪽부터 우선순위 1 2 3...</span
+            >기술 스택 왼쪽부터 우선순위 1 2 3...</span
           >
         </div>
 
@@ -422,12 +424,11 @@ async function submitForm() {
       </div>
 
       <!-- 제출 버튼 -->
-      <button
-        class="mt-6 w-full bg-blue-500 text-white py-3 rounded-lg font-semibold"
-        @click="submitForm"
-      >
-        프로젝트 등록
-      </button>
+      <PrimaryButton
+        label="프로젝트 등록"
+        :onClick="submitForm"
+        customClass="mt-6 w-full py-3"
+      />
     </div>
   </div>
 </template>
@@ -435,5 +436,13 @@ async function submitForm() {
 <style scoped>
 .input {
   @apply w-full border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400;
+}
+
+.text {
+  @apply text-sm text-gray-600 block mb-3;
+}
+
+.star {
+  @apply text-red-500 ml-1;
 }
 </style>
