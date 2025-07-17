@@ -30,6 +30,7 @@ export async function goToRelatedPage(notification) {
       break;
     case "FP_ANALYSIS_COMPLETE":
     case "FP_ANALYSIS_FAILURE":
+    case "SQUAD_CONFIRMED":
       url = `/projects/${notification.linkedContentId}`;
       break;
     case "SQUAD_SHARE":

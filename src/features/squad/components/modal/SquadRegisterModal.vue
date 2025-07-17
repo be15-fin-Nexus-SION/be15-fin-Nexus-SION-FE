@@ -4,6 +4,7 @@ import { ref, watch } from "vue";
 const props = defineProps({
   defaultTitle: String,
   defaultDescription: String,
+  isEditMode: Boolean,
 });
 const emit = defineEmits(["submit", "cancel"]);
 
@@ -61,7 +62,7 @@ function submit() {
           class="px-5 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600"
           @click="submit"
         >
-          등록
+          {{ isEditMode ? "수정" : "등록" }}
         </button>
       </div>
     </div>
