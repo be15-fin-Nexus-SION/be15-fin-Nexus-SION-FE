@@ -14,10 +14,25 @@ export const useSquadStore = defineStore("squad", () => {
 
   const isEditMode = computed(() => selectedSquadInfo.value.id !== null);
 
+  const updateIsLeaderFlags = () => {
+    selectedMembers.value = selectedMembers.value.map((m) => ({
+      ...m,
+      isLeader: m.id === leaderId.value,
+    }));
+  };
+
   const addMember = (member) => {
     const exists = selectedMembers.value.some((m) => m.id === member.id);
     if (!exists) {
-      selectedMembers.value.push(member);
+      selectedMembers.value.push({
+        ...member,
+        isLeader: member.id === leaderId.value, // 동기화 보장
+      });
+
+      if (member.leader) {
+        leaderId.value = member.id;
+        updateIsLeaderFlags(); // 꼭 동기화
+      }
     }
   };
 
@@ -25,19 +40,17 @@ export const useSquadStore = defineStore("squad", () => {
     selectedMembers.value = selectedMembers.value.filter(
       (m) => m.id !== employeeId,
     );
+
+    if (leaderId.value === employeeId) {
+      leaderId.value = null;
+    }
+
+    updateIsLeaderFlags();
   };
 
   const setLeader = (member) => {
-    selectedMembers.value = selectedMembers.value.map((m) => ({
-      ...m,
-      isLeader: false,
-      leader: false,
-    }));
     leaderId.value = member.id;
-    selectedMembers.value = selectedMembers.value.map((m) => ({
-      ...m,
-      isLeader: m.id === member.id,
-    }));
+    updateIsLeaderFlags();
   };
 
   const resetSquad = () => {
@@ -50,10 +63,6 @@ export const useSquadStore = defineStore("squad", () => {
     leaderId.value = null;
   };
 
-  function hasLeader() {
-    return leaderId.value !== null;
-  }
-
   return {
     selectedMembers,
     addMember,
@@ -62,6 +71,6 @@ export const useSquadStore = defineStore("squad", () => {
     isEditMode,
     resetSquad,
     setLeader,
-    hasLeader,
+    leaderId,
   };
 });

@@ -48,7 +48,7 @@ function handleRegisterConfirm({ title, description }) {
 
   // 수정 모드일 경우 squadCode 포함
   if (isEditMode.value) {
-    payload.squadCode = squadStore.selectedSquadInfo.id;
+    payload.squadCode = route.query.squadCode;
   } else {
     payload.projectCode = projectDetail.value.projectCode;
   }
@@ -61,7 +61,9 @@ function handleRegisterConfirm({ title, description }) {
     .then(() => {
       registerSuccess.value = true;
       squadStore.resetSquad();
-      showSuccessToast("스쿼드 등록에 성공했습니다!");
+      showSuccessToast(
+        "스쿼드 " + (isEditMode.value ? "수정" : "등록") + "에 성공했습니다!",
+      );
       setTimeout(() => {
         router.push(`/squads?projectId=${projectCode}`);
       }, 1500);
@@ -70,9 +72,9 @@ function handleRegisterConfirm({ title, description }) {
       console.error(isEditMode.value ? "수정 실패:" : "등록 실패:", err);
       registerSuccess.value = false;
       showErrorToast(
-        "스쿼드",
-        isEditMode.value ? "수정" : "등록",
-        "에 실패했습니다. 다시 시도해주세요.",
+        "스쿼드" +
+          (isEditMode.value ? "수정" : "등록") +
+          "에 실패했습니다. 다시 시도해주세요.",
       );
     })
     .finally(() => {
@@ -208,7 +210,7 @@ watchEffect(() => {
 
 function handleSubmit() {
   // 유효성 검사
-  if (!squadStore.hasLeader()) {
+  if (squadStore.leaderId === null) {
     showErrorToast("리더를 설정해 주세요");
     return;
   }

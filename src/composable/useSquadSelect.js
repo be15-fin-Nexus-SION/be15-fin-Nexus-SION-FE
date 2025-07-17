@@ -11,28 +11,20 @@ export async function handleSquadSelect(squadCode) {
 
     squadStore.resetSquad();
 
-    let leaderMember;
-
-    const parsedMembers = squadData.members.map((member) => {
-      if (member.leader) {
-        leaderMember = member;
-      }
-
-      return {
-        id: member.memberId,
-        name: member.name,
-        grade: member.grade,
-        monthlyUnitPrice: member.monthlyUnitPrice,
-        productivity: member.productivity,
-        role: member.job,
-        imageUrl: member.imageUrl,
-        leader: member.leader,
-      };
-    });
-
+    const leaderMember = squadData.members.find((m) => m.leader);
     if (leaderMember) {
-      squadStore.setLeader(leaderMember);
+      squadStore.setLeader({ id: leaderMember.memberId });
     }
+
+    const parsedMembers = squadData.members.map((member) => ({
+      id: member.memberId,
+      name: member.name,
+      grade: member.grade,
+      monthlyUnitPrice: member.monthlyUnitPrice,
+      productivity: member.productivity,
+      role: member.job,
+      imageUrl: member.imageUrl,
+    }));
 
     parsedMembers.forEach((m) => squadStore.addMember(m));
 
@@ -41,7 +33,6 @@ export async function handleSquadSelect(squadCode) {
       title: squadData.title,
       description: squadData.description,
     };
-    console.log("set info", squadStore.selectedSquadInfo.value);
   } catch (e) {
     console.error("스쿼드 불러오기 실패:", e);
   }
