@@ -51,7 +51,7 @@ async function handleShareSquad(adminList) {
     showSuccessToast("스쿼드 공유 완료");
     showAdminSearchModal.value = false;
   } catch (e) {
-    console.log("스쿼드 공유 실패했습니다.", e);
+    console.error("스쿼드 공유 실패했습니다.", e);
     showErrorToast("스쿼드 공유에 실패했습니다.");
   }
 }

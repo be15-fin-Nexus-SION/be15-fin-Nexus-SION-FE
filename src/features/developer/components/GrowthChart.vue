@@ -23,8 +23,6 @@ async function drawChart() {
     const res = await fetchScoreTrend(employeeId);
     const trendData = res.data.data;
 
-    console.log("📊 받아온 성장 점수 데이터:", trendData);
-
     if (!trendData || trendData.length === 0) {
       hasData.value = false;
       return;
