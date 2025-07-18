@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1 w-full h-[470px]">
+  <div class="flex flex-col flex-1 w-full h-[575px]">
     <div v-if="certificates.length === 0" class="text-sm text-gray-400">
       등록된 자격증이 없습니다.
     </div>
