@@ -109,7 +109,7 @@ function onSubmit() {
 }
 
 .eye-btn {
-  @apply pr-3 bg-transparent border-none cursor-pointer;
+  @apply mr-3 bg-transparent border-none cursor-pointer;
 }
 
 .eye-icon {
@@ -117,7 +117,7 @@ function onSubmit() {
 }
 
 .clear-btn {
-  @apply pr-3 bg-transparent border-none cursor-pointer;
+  @apply mr-3 bg-transparent border-none cursor-pointer;
 }
 
 .close-icon {
