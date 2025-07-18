@@ -123,7 +123,13 @@ const closeModal = () => {
 async function submit() {
   errors.value = workHistoryItems.map(validate);
   const hasError = errors.value.some((e) => Object.keys(e).length > 0);
-  if (hasError) return;
+
+  if (hasError) {
+    const firstError = errors.value.find((e) => Object.keys(e).length > 0);
+    const firstMessage = Object.values(firstError)[0];
+    showErrorToast(firstMessage);
+    return;
+  }
 
   try {
     await addWorkHistories(projectWorkId, {

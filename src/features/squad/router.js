@@ -26,14 +26,4 @@ export const squadRoutes = [
       roles: ["ADMIN"],
     },
   },
-
-  {
-    path: "projects/register",
-    name: "project-register",
-    component: () => import("@/features/project/views/ProjectRegisterView.vue"),
-    meta: {
-      requiresAuth: true,
-      roles: ["ADMIN"],
-    },
-  },
 ];

@@ -43,12 +43,15 @@ export async function goToRelatedPage(notification) {
     case "GRADE_CHANGE":
       return;
     case "TASK_APPROVAL_REQUEST":
-    case "TASK_APPROVAL_RESULT":
+    case "TASK_RESULT":
     case "TASK_APPROVAL_REQUEST_AGAIN":
       url = `/projects/history/${notification.linkedContentId}`;
       break;
     case "CERTIFICATION_APPROVAL_REQUEST":
       url = `/admin/certificates/approval`;
+      break;
+    case "PROJECT_EVALUATION_READY":
+      url = `/projects/${notification.linkedContentId}`;
       break;
     default:
       return;

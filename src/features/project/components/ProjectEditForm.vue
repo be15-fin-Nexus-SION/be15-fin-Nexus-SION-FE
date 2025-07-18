@@ -134,39 +134,57 @@ async function submitForm() {
 <template>
   <form id="edit-form" @submit.prevent="submitForm">
     <div>
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <input
-          v-model="form.projectName"
-          placeholder="프로젝트 명"
+      <div class="grid grid-cols-2 gap-[10px]">
+        <div class="flex flex-col gap-[6px] mb-6">
+          <label class="text">프로젝트명</label>
+          <input
+            v-model="form.projectName"
+            placeholder="프로젝트 명"
+            class="input"
+          />
+        </div>
+        <div class="flex flex-col gap-[6px] mb-6">
+          <label class="text">도메인</label>
+          <DropdownSelect
+            v-model="form.domain"
+            :options="allDomains"
+            placeholder="도메인 선택"
+          />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-[6px] mb-6">
+        <label class="text">개요</label>
+        <textarea
+          v-model="form.overview"
           class="input"
-        />
-        <DropdownSelect
-          v-model="form.domain"
-          :options="allDomains"
-          placeholder="도메인 선택"
+          rows="4"
+          placeholder="개요 입력"
         />
       </div>
 
-      <textarea
-        v-model="form.overview"
-        class="input w-full mb-4"
-        rows="4"
-        placeholder="개요 입력"
-      />
-
-      <div class="grid grid-cols-3 gap-4 mb-4">
-        <input v-model="form.startDate" type="date" class="input" />
-        <input v-model="form.endDate" type="date" class="input" />
-        <input
-          v-model="budget"
-          type="number"
-          class="input"
-          placeholder="예산 (만원)"
-        />
+      <div class="grid grid-cols-3 gap-[10px]">
+        <div class="flex flex-col gap-[6px] mb-6">
+          <label class="text">시작일</label>
+          <input v-model="form.startDate" type="date" class="input" />
+        </div>
+        <div class="flex flex-col gap-[6px] mb-6">
+          <label class="text">종료일</label>
+          <input v-model="form.endDate" type="date" class="input" />
+        </div>
+        <div class="flex flex-col gap-[6px] mb-6">
+          <label class="text">예산 (만원)</label>
+          <input
+            v-model="budget"
+            type="number"
+            class="input"
+            placeholder="예: 5000"
+          />
+        </div>
       </div>
 
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">요구사항 명세서</label>
+      <div class="flex flex-col gap-[6px] mb-6">
+        <label class="text">요구사항 명세서</label>
         <div class="flex gap-4">
           <div class="flex-1 relative flex items-center">
             <input
@@ -212,5 +230,9 @@ async function submitForm() {
 <style scoped>
 .input {
   @apply w-full border border-gray-300 rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400;
+}
+
+.text {
+  @apply text-sm text-gray-600 block;
 }
 </style>

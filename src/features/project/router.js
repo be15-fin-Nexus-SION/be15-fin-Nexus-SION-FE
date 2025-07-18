@@ -10,9 +10,10 @@ export const projectRoutes = [
   {
     path: "projects/register",
     name: "project-register",
-    component: () => import("./views/ProjectRegisterView.vue"),
+    component: () => import("@/features/project/views/ProjectRegisterView.vue"),
     meta: {
       requiresAuth: true,
+      roles: ["ADMIN"],
     },
   },
   {

@@ -16,6 +16,9 @@ import {
 import { showSuccessToast, showErrorToast } from "@/utills/toast";
 import { useAuthStore } from "@/stores/auth.js";
 import ReplacementPanel from "@/features/project/components/ReplacementPanel.vue";
+import PrimaryButton from "@/components/button/PrimaryButton.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
+import StatusIndicator from "@/features/project/components/StatusIndicator.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -25,47 +28,63 @@ const isEditVisible = ref(false);
 const projectCode = route.params.projectCode;
 const authStore = useAuthStore();
 const memberRole = computed(() => authStore.memberRole);
+const isConfirmVisible = ref(false);
+const confirmMessage = ref("");
+const onConfirmAction = ref(() => {});
+const confirmText = ref("종료");
 
+// 프로젝트 종료
 function handleEvaluate() {
-  const confirm = window.confirm("프로젝트를 종료하시겠습니까?");
-  if (!confirm) return;
-
-  updateProjectStatus(projectCode, "EVALUATION")
-    .then(() => {
+  confirmMessage.value = "프로젝트를 종료하시겠습니까?";
+  confirmText.value = "종료";
+  onConfirmAction.value = async () => {
+    try {
+      await updateProjectStatus(projectCode, "EVALUATION");
       project.value.status = "EVALUATION";
-      showSuccessToast("프로젝트 평가 상태로 변경되었습니다.");
-    })
-    .catch((e) => {
-      showErrorToast("상태 변경 중 오류가 발생했습니다.");
-    });
+      showSuccessToast("프로젝트가 종료되고 평가 상태로 변경되었습니다.");
+    } catch {
+      showErrorToast("프로젝트 종료 중 오류가 발생했습니다.");
+    } finally {
+      isConfirmVisible.value = false;
+    }
+  };
+  isConfirmVisible.value = true;
 }
 
+// 프로젝트 평가 종료
 function handleComplete() {
-  const confirm = window.confirm("프로젝트 평가를 종료하겠습니까?");
-  if (!confirm) return;
-
-  updateProjectStatus(projectCode, "COMPLETE")
-    .then(() => {
+  confirmMessage.value = "평가를 완료하겠습니까?";
+  confirmText.value = "완료";
+  onConfirmAction.value = async () => {
+    try {
+      await updateProjectStatus(projectCode, "COMPLETE");
       project.value.status = "EVALUATION";
-      showSuccessToast("프로젝트가 종료되었습니다.");
-    })
-    .catch((e) => {
-      showErrorToast("상태 변경 중 오류가 발생했습니다.");
-    });
+      showSuccessToast("평가가 완료되었습니다.");
+    } catch (e) {
+      showErrorToast("평가 완료 처리 중 오류가 발생했습니다.");
+    } finally {
+      isConfirmVisible.value = false;
+    }
+  };
+  isConfirmVisible.value = true;
 }
 
+// 프로젝트 삭제
 function handleDelete() {
-  const confirmDelete = window.confirm("정말 이 프로젝트를 삭제하시겠습니까?");
-  if (!confirmDelete) return;
-
-  deleteProject(projectCode)
-    .then(() => {
+  confirmMessage.value = "정말 이 프로젝트를 삭제하시겠습니까?";
+  confirmText.value = "삭제";
+  onConfirmAction.value = async () => {
+    try {
+      await deleteProject(projectCode);
       showSuccessToast("프로젝트가 삭제되었습니다.");
       router.push("/projects");
-    })
-    .catch((error) => {
+    } catch (error) {
       showErrorToast("삭제 중 오류가 발생했습니다.");
-    });
+    } finally {
+      isConfirmVisible.value = false;
+    }
+  };
+  isConfirmVisible.value = true;
 }
 
 async function handleEditSubmit(data) {
@@ -88,9 +107,10 @@ const isReplacementMode = ref(false); // 대체 모드 진입 여부
 const isReplacementVisible = ref(false); // 패널 열림 여부
 const replacingMember = ref(null); // 현재 대체 대상 멤버
 
-const enterReplacementMode = () => {
-  isReplacementMode.value = true;
-  showSuccessToast("대체할 대상을 선택하세요.");
+const toggleReplacementMode = () => {
+  isReplacementMode.value = !isReplacementMode.value;
+  isReplacementVisible.value = false;
+  replacingMember.value = null;
 };
 
 const handleMemberClick = (member) => {
@@ -135,7 +155,7 @@ onMounted(async () => {
       replacingMember.value = project.value.members[1];
     }
   } catch (error) {
-    console.error("프로젝트 상세 정보 로드 실패:", error);
+    showErrorToast("프로젝트 상세 정보 로드 실패");
   } finally {
     isLoading.value = false;
   }
@@ -159,6 +179,23 @@ const approvedCount = computed(
       (status) => status.approvalStatus === "APPROVED",
     ).length,
 );
+
+function beforeEnter(el) {
+  el.style.height = "0";
+  el.style.opacity = "0";
+}
+
+function enter(el) {
+  el.style.transition = "all 0.3s ease";
+  el.style.height = el.scrollHeight + "px";
+  el.style.opacity = "1";
+}
+
+function leave(el) {
+  el.style.transition = "all 0.3s ease";
+  el.style.height = "0";
+  el.style.opacity = "0";
+}
 </script>
 
 <template>
@@ -172,76 +209,66 @@ const approvedCount = computed(
       <div class="flex justify-between items-center mb-4">
         <div class="flex items-center gap-3">
           <h1 class="text-2xl font-bold">{{ project.title }}</h1>
-
-          <a
-            v-if="project.requestSpecificationUrl"
-            :href="project.requestSpecificationUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-blue-600 underline hover:text-blue-800"
-          >
-            요구사항 명세서
-          </a>
-
-          <span
-            v-if="project.analysisStatus"
-            :class="[
-              'text-sm font-semibold',
-              project.analysisStatus === 'FAILED'
-                ? 'text-red-500'
-                : 'text-gray-500',
-            ]"
-          >
-            {{
-              project.analysisStatus === "PENDING"
-                ? "보류"
-                : project.analysisStatus === "PROCEEDING"
-                  ? "진행중..."
-                  : project.analysisStatus === "COMPLETE"
-                    ? "분석 완료"
-                    : project.analysisStatus === "FAILED"
-                      ? "분석 실패"
-                      : ""
-            }}
-          </span>
+          <div class="status">
+            <StatusIndicator
+              :status="project.status"
+              mode="project"
+              :showLabel="true"
+            />
+          </div>
         </div>
-
         <template v-if="project.status === 'EVALUATION'">
-          <button
+          <PrimaryButton
             v-if="memberRole === 'ADMIN'"
-            :class="[
-              'px-5 py-2 rounded-md font-semibold',
-              Object.values(approvalStatusMap).every(
+            label="평가 완료"
+            :onClick="handleComplete"
+            :disabled="
+              !Object.values(approvalStatusMap).every(
                 (a) => a.approvalStatus === 'APPROVED',
               )
-                ? 'bg-primary text-white cursor-pointer hover:bg-primary-hover'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed',
-            ]"
-            @click="handleComplete"
-          >
-            평가 완료
-          </button>
+            "
+            bgColorClass="bg-primary"
+            hoverColorClass="hover:bg-primary-hover"
+            textColorClass="text-white"
+            customClass="px-5 py-2 rounded-md font-semibold"
+          />
         </template>
         <template
           v-else-if="
             project.status === 'IN_PROGRESS' || project.status === 'WAITING'
           "
         >
-          <button
-            class="bg-primary px-5 py-2 text-white rounded-md hover:brightness-110"
+          <PrimaryButton
+            label="프로젝트 종료"
             @click="handleEvaluate"
-          >
-            종료
-          </button>
+            v-if="memberRole === 'ADMIN'"
+          />
         </template>
         <template v-else>
-          <button
+          <PrimaryButton
+            label="평가 완료"
+            @click="handleComplete"
             v-if="memberRole === 'ADMIN'"
-            class="bg-gray-300 text-gray-600 px-5 py-2 rounded-md cursor-not-allowed"
-          >
-            프로젝트 종료
-          </button>
+          />
         </template>
+      </div>
+
+      <div class="requestSpecificationUrl flex items-center gap-3">
+        <a
+          v-if="project.requestSpecificationUrl"
+          :href="project.requestSpecificationUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-sm underline text-support-stack hover:text-primary-hover"
+        >
+          요구사항 명세서
+        </a>
+
+        <StatusIndicator
+          v-if="project.analysisStatus"
+          :status="project.analysisStatus"
+          mode="analysis"
+        />
       </div>
 
       <!-- 기본 정보 -->
@@ -262,7 +289,7 @@ const approvedCount = computed(
 
       <!-- 개요 -->
       <div class="mb-6">
-        <p class="text-gray-400 text-sm mb-2">개요</p>
+        <p class="text-gray-400 text-sm">개요</p>
         <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
           {{ project.description }}
         </p>
@@ -280,97 +307,131 @@ const approvedCount = computed(
       <div class="mb-2 flex justify-between items-center">
         <h2 class="font-semibold">구성 인원</h2>
         <template v-if="project.status === 'EVALUATION'">
-          <p class="text-sm font-bold text-red-500 mb-2">
+          <p class="text-sm text-semantic-warning mr-2">
             승인 인원: {{ approvedCount }}/{{ project.members.length }}
           </p>
         </template>
         <template v-if="['WAITING', 'IN_PROGRESS'].includes(project.status)">
           <button
+            v-if="memberRole === 'ADMIN'"
             class="text-sm text-blue-500"
             @click="
               project.status === 'WAITING'
                 ? router.push(
                     `/squads/create/${projectCode}?squadCode=${project.squadCode}`,
                   )
-                : enterReplacementMode()
+                : toggleReplacementMode()
             "
           >
-            {{ project.status === "WAITING" ? "스쿼드 수정" : "인재 대체" }}
+            {{
+              project.status === "WAITING"
+                ? "스쿼드 추가"
+                : isReplacementMode
+                  ? "인재 대체 취소"
+                  : "인재 대체"
+            }}
           </button>
         </template>
       </div>
 
-      <p
-        v-if="isReplacementMode"
-        class="text-sm text-red-500 mb-2 font-medium animate-fade"
+      <!-- 메시지 문구 + 카드 간격 애니메이션 -->
+      <Transition
+        name="expand-fade"
+        @before-enter="beforeEnter"
+        @enter="enter"
+        @leave="leave"
       >
-        대체할 개발자를 선택하세요.
-      </p>
+        <div v-if="isReplacementMode" class="overflow-hidden">
+          <p class="text-sm text-red-500 font-medium">
+            대체할 개발자를 선택하세요.
+          </p>
+        </div>
+      </Transition>
 
-      <div class="rounded-md overflow-hidden border-y border-gray-200">
-        <div
-          v-if="project.members.length > 0"
-          class="rounded-md bg-[#F7FAFC] divide-y-2 max-h-80"
-        >
-          <SquadCard
-            v-for="(member, idx) in project.members"
-            :key="member.employeeId"
-            :name="member.name"
-            :role="member.job"
-            :isLeader="member.isLeader"
-            :imageUrl="
-              // member.imageUrl ||
-              `https://api.dicebear.com/9.x/notionists/svg?seed=` + idx
-            "
-            :selected="
-              isReplacementMode &&
-              replacingMember?.employeeId === member.employeeId
-            "
-            @click="handleMemberClick(member)"
-            :approvalStatus="
-              approvalStatusMap[member.employeeId]?.approvalStatus ||
-              'NOT_REQUESTED'
-            "
-            :isEvaluationMode="project.status === 'EVALUATION'"
-            :historyId="
-              approvalStatusMap[member.employeeId]?.developerProjectWorkId ||
-              null
-            "
-          />
-        </div>
-        <div v-else class="p-6 text-center text-gray-400 text-sm bg-[#F7FAFC]">
-          스쿼드가 존재하지 않습니다.
-        </div>
-      </div>
+      <!-- 스쿼드 카드 영역 분기 -->
+      <template v-if="project.members.length > 0">
+        <Transition name="slide-y">
+          <div
+            v-if="true"
+            class="rounded-md overflow-hidden border-y border-gray-200 transition-all duration-300 bg-[#F7FAFC] divide-y-2 mb-4"
+            :class="{ 'mt-4': isReplacementMode, 'mt-0': !isReplacementMode }"
+          >
+            <SquadCard
+              v-for="(member, idx) in project.members"
+              :key="member.employeeId"
+              :viewerRole="memberRole"
+              :memberRole="memberRole"
+              :employeeId="member.employeeId"
+              :name="member.name"
+              :role="member.job"
+              :isLeader="member.isLeader"
+              :imageUrl="`https://api.dicebear.com/9.x/notionists/svg?seed=${idx}`"
+              :selected="
+                isReplacementMode &&
+                replacingMember?.employeeId === member.employeeId
+              "
+              @click="handleMemberClick(member)"
+              :approvalStatus="
+                approvalStatusMap[member.employeeId]?.approvalStatus ||
+                'NOT_REQUESTED'
+              "
+              :isEvaluationMode="project.status === 'EVALUATION'"
+              :historyId="
+                approvalStatusMap[member.employeeId]?.developerProjectWorkId ||
+                null
+              "
+            />
+          </div>
+        </Transition>
+      </template>
+
+      <template v-else>
+        <Transition name="fade">
+          <div
+            v-if="true"
+            class="p-6 text-center text-gray-400 text-sm bg-[#F7FAFC]"
+          >
+            스쿼드가 존재하지 않습니다.
+          </div>
+        </Transition>
+      </template>
 
       <!-- 하단 버튼 -->
-      <div class="flex justify-end mt-6 gap-3">
-        <button
-          v-if="['WAITING', 'IN_PROGRESS'].includes(project.status)"
-          class="px-4 py-2 bg-gray-100 rounded text-sm"
-          @click="isEditVisible = true"
-        >
-          수정
-        </button>
-        <button
-          class="px-4 py-2 bg-red-500 text-white rounded text-sm"
-          @click="handleDelete"
-        >
-          삭제
-        </button>
+      <div
+        v-if="memberRole === 'ADMIN' && ['WAITING'].includes(project.status)"
+        class="flex justify-end mt-6 gap-3"
+      >
+        <PrimaryButton
+          label="수정"
+          :onClick="() => (isEditVisible = true)"
+          bgColorClass="bg-gray-100"
+          hoverColorClass="hover:bg-gray-200"
+          textColorClass="text-gray-800"
+          customClass="px-4 py-2 text-sm rounded"
+        />
+        <PrimaryButton
+          label="삭제"
+          :onClick="handleDelete"
+          bgColorClass="bg-red-500"
+          hoverColorClass="hover:bg-red-600"
+          textColorClass="text-white"
+          customClass="px-4 py-2 text-sm rounded"
+        />
       </div>
     </template>
 
-    <div v-else class="text-center text-gray-500">
-      프로젝트 정보를 불러오지 못했습니다.
-    </div>
+    <template v-else>
+      <div class="text-center text-gray-500">
+        프로젝트 정보를 불러오지 못했습니다.
+      </div>
+    </template>
 
     <!-- 수정 패널 -->
     <transition name="slide">
       <div v-if="isEditVisible" class="fixed inset-0 z-40">
         <div class="absolute inset-0" @click="isEditVisible = false"></div>
         <div
-          class="absolute top-0 right-0 w-[480px] h-full bg-white border-l shadow-xl z-50 p-6 overflow-y-auto"
+          class="absolute top-0 right-0 w-[480px] h-full bg-white border-l shadow-xl z-50 p-6 mt-[83px] overflow-y-auto"
           @click.stop
         >
           <div class="flex justify-between items-center mb-4">
@@ -411,9 +472,23 @@ const approvedCount = computed(
       @replace="handleReplace"
     />
   </div>
+
+  <!-- 모달 -->
+  <ConfirmModal
+    v-if="isConfirmVisible"
+    :message="confirmMessage"
+    :confirmText="confirmText"
+    @close="isConfirmVisible = false"
+    @confirm="onConfirmAction"
+  />
 </template>
 
 <style scoped>
+.requestSpecificationUrl {
+  @apply flex gap-[10px] mb-4;
+}
+
+/* 슬라이드 패널 (우측 수정 패널) */
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.3s ease;
@@ -435,6 +510,55 @@ const approvedCount = computed(
   opacity: 0;
 }
 
+/* 세로 슬라이드 (문구 및 스쿼드 카드 영역에 사용) */
+.slide-y-enter-active,
+.slide-y-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-y-enter-from,
+.slide-y-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.slide-y-enter-to,
+.slide-y-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 페이드 (문구용 트랜지션) */
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide-y-enter-active,
+.slide-y-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-y-enter-from,
+.slide-y-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.slide-y-enter-to,
+.slide-y-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @keyframes fade {
   from {
     opacity: 0;
@@ -446,7 +570,20 @@ const approvedCount = computed(
   }
 }
 
-.animate-fade {
-  animation: fade 0.4s ease-out forwards;
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
