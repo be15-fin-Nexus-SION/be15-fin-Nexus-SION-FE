@@ -1,9 +1,9 @@
 <template>
-  <div class="w-full">
+  <div class="flex flex-col flex-1 w-full h-[470px]">
     <div v-if="certificates.length === 0" class="text-sm text-gray-400">
       등록된 자격증이 없습니다.
     </div>
-    <ul v-else class="space-y-5 pt-3 text-sm">
+    <ul v-else class="space-y-5 pt-3 text-sm overflow-y-auto">
       <li
         v-for="cert in certificates"
         :key="cert.certificateName"
@@ -36,7 +36,6 @@ const authStore = useAuthStore();
 onMounted(async () => {
   try {
     const allResponse = await fetchAllCertificates();
-    console.log("authStore.memberId: ", authStore.memberId);
     const userResponse = await fetchUserCertificates(authStore.memberId);
 
     certificates.value = allResponse.data?.data ?? [];

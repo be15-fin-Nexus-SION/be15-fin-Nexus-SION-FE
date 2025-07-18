@@ -32,28 +32,22 @@ export function subscribeToNotification(onMessageCallback) {
   });
 
   eventSource.onopen = () => {
-    console.log("✅ [SSE] 연결됨");
     config.retryCount = 0; // 성공 시 리셋
     lastPing = Date.now();
     startPingWatchdog(onMessageCallback);
   };
 
-  eventSource.addEventListener("ping", (event) => {
+  eventSource.addEventListener("ping", () => {
     lastPing = Date.now();
-    console.log("📡 [SSE] ping 받음:", event.data);
   });
 
-  eventSource.addEventListener("initial-connect", (event) => {
-    console.log("🚀 [SSE] initial-connect:", event.data);
-  });
+  eventSource.addEventListener("initial-connect", () => {});
 
   eventSource.addEventListener("sse", (event) => {
     try {
       const data = JSON.parse(event.data);
       const id = event.lastEventId || event.id;
       if (id) localStorage.setItem("lastEventId", id);
-
-      console.log("📩 [SSE] 알림 수신:", data);
 
       // store 업데이트
       onMessageCallback(data);
@@ -107,10 +101,6 @@ function reconnect(onMessageCallback) {
     config.MAX_RETRY_DELAY,
   );
 
-  console.log(
-    `🔄 [SSE] ${config.retryCount}번째 재연결 시도 (대기 ${delay}ms)`,
-  );
-
   setTimeout(() => {
     subscribeToNotification(onMessageCallback);
   }, delay);
@@ -119,7 +109,6 @@ function reconnect(onMessageCallback) {
 export function closeNotificationConnection() {
   if (eventSource) {
     eventSource.close();
-    console.log("🔌 [SSE] 연결 종료");
   }
   clearPingWatchdog();
 }
