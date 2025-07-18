@@ -35,7 +35,7 @@
       >
         <!-- 자격증 -->
         <div class="w-1/2">
-          <router-link to="/self-development/certificates" class="block">
+          <router-link to="/self-development/certificates">
             <CertificateList />
           </router-link>
         </div>
