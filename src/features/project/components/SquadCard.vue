@@ -2,18 +2,20 @@
   <div
     :class="[
       'flex items-center justify-between px-6 py-4 transition-all duration-200 relative group',
-      isEvaluationMode && approvalStatus === 'NOT_REQUESTED'
+      isEvaluationMode &&
+      approvalStatus === 'NOT_REQUESTED' &&
+      employeeId !== myEmployeeId &&
+      role === 'ADMIN'
         ? 'opacity-50'
         : 'opacity-100',
       approvalStatus === 'APPROVED'
         ? 'bg-green-50'
         : isLeader === 1 && isReplacementMode
           ? 'cursor-not-allowed bg-gray-100'
-          : selected
-            ? 'cursor-pointer bg-yellow-50 border-yellow-400 border-2 rounded-md'
-            : isReplacementMode
-              ? 'cursor-pointer hover:bg-yellow-50'
-              : 'cursor-pointer bg-[#F7FAFC]',
+          : isClickable
+            ? 'cursor-pointer hover:bg-secondary-blue'
+            : 'cursor-default bg-[#F7FAFC]',
+      selected && isClickable ? 'bg-secondary-blue rounded-md' : '',
     ]"
     @click="handleClick"
   >
@@ -53,32 +55,52 @@
       </div>
     </div>
 
-    <template v-if="isEvaluationMode && approvalStatus === 'PENDING'">
-      <router-link
-        :to="`/projects/history/${historyId}`"
-        class="absolute right-6 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-semibold text-white bg-blue-500 rounded-md transform translate-x-full group-hover:translate-x-0 transition-all duration-300"
-        @click.stop
-      >
-        프로젝트 이력 내역 확인하기 →
-      </router-link>
-    </template>
-
     <template v-if="isEvaluationMode">
-      <p class="text-xs text-gray-500 capitalize pr-3">
+      <!-- 항상 보이는 상태 텍스트 -->
+      <p class="text-xs text-support-stack_dark capitalize pr-3">
         {{ statusText }}
       </p>
+
+      <!-- PENDING 상태일 때 호버하면 버튼 등장 -->
+      <button
+        v-if="
+          approvalStatus !== 'NOT_REQUESTED' &&
+          (employeeId === myEmployeeId || viewerRole === 'ADMIN')
+        "
+        @click.stop="goToHistory(historyId)"
+        class="absolute right-0 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-semibold text-white bg-primary rounded-md transform translate-x-full group-hover:translate-x-[-10%] transition-all duration-300"
+      >
+        프로젝트 이력 내역 확인하기 →
+      </button>
+
+      <!-- 요청 전 + 본인일 때 호버하면 버튼 등장 -->
+      <button
+        v-else-if="
+          approvalStatus === 'NOT_REQUESTED' && employeeId === myEmployeeId
+        "
+        @click.stop="goToRegister(historyId)"
+        class="absolute right-6 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-semibold text-primary bg-white border border-primary rounded-md transform translate-x-full group-hover:translate-x-0 transition-all duration-300"
+      >
+        요청하기 →
+      </button>
     </template>
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth.js";
 
 const emit = defineEmits(["click"]);
+const router = useRouter();
+const authStore = useAuthStore();
+const myEmployeeId = authStore.memberId;
 
 const props = defineProps({
   name: String,
   role: String,
+  viewerRole: String,
   isLeader: Number,
   imageUrl: String,
   selected: {
@@ -101,6 +123,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  employeeId: {
+    type: String,
+    required: true,
+  },
 });
 
 const approvalStatusMapping = {
@@ -110,12 +136,31 @@ const approvalStatusMapping = {
   REJECTED: "승인 거절",
 };
 
-const statusText = computed(
-  () => approvalStatusMapping[props.approvalStatus] || "알 수 없음",
-);
+const statusText = computed(() => {
+  if (
+    props.isEvaluationMode &&
+    props.approvalStatus === "NOT_REQUESTED" &&
+    props.employeeId === myEmployeeId
+  ) {
+    return "요청하기";
+  }
+  return approvalStatusMapping[props.approvalStatus] || "알 수 없음";
+});
+
+const isClickable = computed(() => {
+  return props.viewerRole === "ADMIN" || props.employeeId === myEmployeeId;
+});
 
 function handleClick() {
-  if (props.isLeader === 1) return;
-  emit("click");
+  if (!isClickable.value) return;
+  router.push(`/developers/${props.employeeId}`);
+}
+
+function goToRegister(id) {
+  router.push(`/projects/history/register/${id}`);
+}
+
+function goToHistory(id) {
+  router.push(`/projects/history/${id}`);
 }
 </script>

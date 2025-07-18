@@ -1,6 +1,10 @@
 <script setup>
 import { ref, computed } from "vue";
+import { useAuthStore } from "@/stores/auth";
 import StatusIndicator from "@/features/project/components/StatusIndicator.vue";
+
+const authStore = useAuthStore();
+const memberRole = computed(() => authStore.memberRole);
 
 const emit = defineEmits(["filter-change"]);
 
@@ -19,20 +23,41 @@ const selectedFilters = ref({
   status: null,
 });
 
+const selectedSort = ref("RECENT");
+
+const sortOptions = computed(() => {
+  return [
+    { label: "최근 수정일순", value: "RECENT" },
+    { label: "프로젝트명순", value: "TITLE" },
+    { label: "시작일순", value: "START_DATE_DESC" },
+    { label: "인원수 많은순", value: "HR_DESC" },
+  ];
+});
+
 const statusOptions = computed(() => {
   if (props.mode === "history") {
-    return [
+    const commonOptions = [
       { label: "요청중", value: "PENDING", color: "#FFD700" },
       { label: "승인됨", value: "APPROVED", color: "#64CF8B" },
       { label: "거부됨", value: "REJECTED", color: "#EC4D4D" },
     ];
+
+    // 비관리자에게만 '미요청' 상태 추가
+    if (memberRole.value !== "ADMIN") {
+      return [
+        { label: "미요청", value: "NOT_REQUESTED", color: "#A0AEC0" },
+        ...commonOptions,
+      ];
+    }
+
+    return commonOptions;
   } else {
     return [
       { label: "미완료", value: "INCOMPLETE" },
-      { label: "시작 전", value: "WAITING" },
+      { label: "시작전", value: "WAITING" },
       { label: "진행중", value: "IN_PROGRESS" },
       { label: "평가중", value: "EVALUATION" },
-      { label: "종료", value: "COMPLETE" },
+      { label: "종료됨", value: "COMPLETE" },
     ];
   }
 });
@@ -58,7 +83,10 @@ function handleStatusClick(value) {
 
 function handleSearchClick() {
   window.scrollTo({ top: 0, behavior: "smooth" });
-  emit("filter-change", selectedFilters.value);
+  emit("filter-change", {
+    ...selectedFilters.value,
+    sortBy: selectedSort.value,
+  });
 }
 </script>
 
@@ -79,7 +107,7 @@ function handleSearchClick() {
 
       <div class="space-y-6">
         <!-- 기간 -->
-        <div v-if="props.mode === 'project'">
+        <div v-if="props.mode === 'project' && memberRole === 'ADMIN'">
           <p class="text-sm font-semibold text-gray-900 mb-1">
             {{ Math.floor(selectedFilters.period / 12) }} 년
             {{ selectedFilters.period % 12 }} 개월 이하
@@ -97,7 +125,7 @@ function handleSearchClick() {
         </div>
 
         <!-- 예산 -->
-        <div v-if="props.mode === 'project'">
+        <div v-if="props.mode === 'project' && memberRole === 'ADMIN'">
           <p class="text-sm font-semibold text-gray-900 mb-1">
             {{ selectedFilters.budget.toLocaleString() }} 만원 이하
           </p>
@@ -115,7 +143,7 @@ function handleSearchClick() {
         </div>
 
         <!-- 인원 -->
-        <div v-if="props.mode === 'project'">
+        <div v-if="props.mode === 'project' && memberRole === 'ADMIN'">
           <p class="text-sm font-semibold text-gray-900 mb-1">
             {{ selectedFilters.memberCount }} 명 이하
           </p>
@@ -129,6 +157,26 @@ function handleSearchClick() {
               background: `linear-gradient(to right, #111 0%, #111 ${memberFill}, #e5e7eb ${memberFill}, #e5e7eb 100%)`,
             }"
           />
+        </div>
+
+        <!-- 정렬 -->
+        <div v-if="props.mode === 'project'">
+          <label class="filter-label">정렬</label>
+          <div class="space-y-2">
+            <label
+              v-for="option in sortOptions"
+              :key="option.value"
+              class="flex items-center space-x-2 text-sm cursor-pointer"
+            >
+              <input
+                type="radio"
+                :value="option.value"
+                v-model="selectedSort"
+                class="accent-primary"
+              />
+              <span>{{ option.label }}</span>
+            </label>
+          </div>
         </div>
 
         <!-- 상태 -->

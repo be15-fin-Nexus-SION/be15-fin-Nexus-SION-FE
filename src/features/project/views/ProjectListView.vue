@@ -24,11 +24,12 @@ const perPage = 4;
 const selectedFilter = ref({});
 const projectHistories = ref([]);
 const activeTab = ref("list");
+const selectedSort = ref("RECENT");
 
 const memberRole = computed(() => authStore.memberRole);
 const employeeId = computed(() => authStore.memberId);
 const selectedStatusForUser = ref(null);
-const selectedStatusForAdmin = ref(null);
+const selectedStatus = ref(null);
 
 function goToDetail(projectCode) {
   router.push({ name: "project-detail", params: { projectCode } });
@@ -42,6 +43,7 @@ async function fetchProjects(filter = {}) {
       ...filter,
       page,
       size: perPage,
+      sortBy: selectedSort.value,
       statuses: filter.status ? [filter.status] : [],
       maxPeriodInMonth: filter.period,
       maxBudget: filter.budget * 10000,
@@ -61,6 +63,8 @@ async function fetchProjects(filter = {}) {
       page,
       size: perPage,
       statuses,
+      sortBy: selectedSort.value,
+      keyword: filter.keyword ?? "",
     };
     const response = await fetchMyProjectList(requestPayload);
     const pageData = response.data?.data;
@@ -76,13 +80,13 @@ async function fetchProjectHistories() {
     const query = {
       page,
       size: perPage,
-      status: selectedStatusForAdmin.value,
+      status: selectedStatus.value,
     };
 
     const res =
       memberRole.value === "ADMIN"
         ? await getRequestsForAdmin(query)
-        : await getMyProjectWorkRequests(page, perPage);
+        : await getMyProjectWorkRequests(query);
 
     if (res.data.success) {
       const content = res.data.data?.content ?? [];
@@ -100,11 +104,12 @@ async function fetchProjectHistories() {
 function handleFilterChange(filter) {
   currentPage.value = 1;
   selectedFilter.value = filter;
+  selectedSort.value = filter.sortBy ?? "RECENT";
 
   if (activeTab.value === "list") {
     fetchProjects(filter);
   } else if (activeTab.value === "history") {
-    selectedStatusForAdmin.value = filter.status;
+    selectedStatus.value = filter.status;
     fetchProjectHistories();
   }
 }
@@ -160,7 +165,7 @@ onMounted(() => {
 
 <template>
   <div class="page-layout">
-    <div class="filter-sidebar-wrapper" v-if="memberRole === 'ADMIN'">
+    <div class="filter-sidebar-wrapper">
       <FilterSidebar
         :mode="activeTab === 'list' ? 'project' : 'history'"
         @filter-change="handleFilterChange"

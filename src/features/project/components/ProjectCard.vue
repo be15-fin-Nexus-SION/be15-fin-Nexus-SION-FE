@@ -24,18 +24,24 @@ const props = defineProps({
         {{ project.description }}
       </p>
 
-      <div class="mt-4">
-        <span class="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full">
-          {{ project.domainName }} {{ project.hrCount ?? 0 }}명
-        </span>
-      </div>
+      <div class="bottom">
+        <div class="mt-4">
+          <span
+            class="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full"
+          >
+            {{ project.domainName }} {{ project.hrCount ?? 0 }}명
+          </span>
+        </div>
 
-      <!-- ✅ 분석 상태 뱃지 -->
-      <StatusIndicator
-        v-if="project.analysisStatus"
-        :status="project.analysisStatus"
-        mode="analysis"
-      />
+        <div class="w-fit">
+          <!-- ✅ 분석 상태 뱃지 -->
+          <StatusIndicator
+            v-if="project.analysisStatus"
+            :status="project.analysisStatus"
+            mode="analysis"
+          />
+        </div>
+      </div>
     </div>
   </router-link>
 </template>
@@ -51,5 +57,9 @@ const props = defineProps({
 
 .card-wrapper:hover {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.28);
+}
+
+.bottom {
+  @apply flex justify-between;
 }
 </style>

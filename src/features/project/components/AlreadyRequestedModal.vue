@@ -5,7 +5,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 function goToHistoryList() {
-  router.push("/projects/history/list");
+  router.push("/projects");
 }
 </script>
 

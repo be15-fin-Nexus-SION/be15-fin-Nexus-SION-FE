@@ -20,6 +20,7 @@ export function fetchProjectList({
   statuses,
   page = 0,
   size = 4,
+  sortBy = "RECENT",
 }) {
   return api.post("/projects/list", {
     keyword,
@@ -29,6 +30,7 @@ export function fetchProjectList({
     statuses,
     page,
     size,
+    sortBy,
   });
 }
 
@@ -37,12 +39,16 @@ export function fetchMyProjectList({
   page = 0,
   size = 4,
   statuses = [],
+  sortBy = "RECENT",
+  keyword = "",
 }) {
   return api.post("/projects/list/my", {
     employeeId,
     page,
     size,
     statuses,
+    sortBy,
+    keyword,
   });
 }
 
@@ -91,11 +97,16 @@ export async function rejectWorkHistory({ id, adminId, reason }) {
   });
 }
 
-export function getMyProjectWorkRequests(page = 0, size = 10) {
+export function getMyProjectWorkRequests({
+  page = 0,
+  size = 10,
+  status = null,
+} = {}) {
   return api.get("/dev-project-works/me", {
     params: {
       page,
       size,
+      ...(status ? { status } : {}),
     },
   });
 }

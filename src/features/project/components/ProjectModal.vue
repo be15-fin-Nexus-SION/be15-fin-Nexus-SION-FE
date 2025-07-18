@@ -1,9 +1,12 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { fetchProjectDetail, updateProjectStatus } from "@/api/project";
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { useAuthStore } from "@/stores/auth.js";
+import { fetchProjectDetail } from "@/api/project";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import SquadCard from "@/features/project/components/SquadCard.vue";
-import { showSuccessToast } from "@/utills/toast";
+import { showErrorToast } from "@/utills/toast.js";
+
+const scrollY = ref(0);
 
 const props = defineProps({
   projectCode: {
@@ -16,30 +19,38 @@ const emit = defineEmits(["close"]);
 
 const project = ref(null);
 const isLoading = ref(true);
+const authStore = useAuthStore();
+const memberId = computed(() => authStore.memberId);
+const memberRole = computed(() => authStore.memberRole);
 
 onMounted(async () => {
+  scrollY.value = window.scrollY;
+
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${scrollY.value}px`;
+  document.body.style.left = "0";
+  document.body.style.right = "0";
+  document.body.style.width = "100%";
+
   try {
     const response = await fetchProjectDetail(props.projectCode);
     project.value = response.data.data;
-  } catch (error) {
-    console.error("프로젝트 상세 정보 로드 실패:", error);
+  } catch (e) {
+    showErrorToast("프로젝트 상세 정보 로드 실패");
   } finally {
     isLoading.value = false;
   }
 });
 
-const handleComplete = async () => {
-  const confirm = window.confirm("정말 프로젝트를 종료하시겠습니까?");
-  if (!confirm) return;
+onUnmounted(() => {
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.left = "";
+  document.body.style.right = "";
+  document.body.style.width = "";
 
-  try {
-    await updateProjectStatus(props.projectCode, "COMPLETE");
-    project.value.status = "COMPLETE";
-    showSuccessToast("프로젝트가 종료되었습니다.");
-  } catch (e) {
-    console.error("프로젝트 종료 실패", e);
-  }
-};
+  window.scrollTo(0, scrollY.value);
+});
 
 const closeModal = () => {
   emit("close");
@@ -50,8 +61,7 @@ const closeModal = () => {
   <Teleport to="body">
     <div class="modal-overlay">
       <div class="project-modal">
-        <!-- 닫기 버튼 영역 -->
-        <div class="modal-close-wrapper">
+        <div class="sticky-header">
           <button class="close-button" @click="closeModal">
             <svg
               width="25"
@@ -80,22 +90,23 @@ const closeModal = () => {
           </button>
         </div>
 
-        <!-- 본문 내용 -->
         <div v-if="isLoading">로딩 중...</div>
 
         <template v-else-if="project">
           <div class="modal-header">
-            <h1 class="modal-title">프로젝트 {{ project.title }}</h1>
-            <button
-              v-if="project.status === 'COMPLETE'"
-              class="disabled-button"
-              disabled
+            <h1 class="modal-title">{{ project.title }}</h1>
+          </div>
+
+          <div class="w-full mb-4">
+            <a
+              v-if="project.requestSpecificationUrl"
+              :href="project.requestSpecificationUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm underline text-support-stack hover:text-primary-hover"
             >
-              종료됨
-            </button>
-            <button v-else class="complete-button" @click="handleComplete">
-              종료
-            </button>
+              요구사항 명세서
+            </a>
           </div>
 
           <div class="info-group">
@@ -118,12 +129,15 @@ const closeModal = () => {
             <p class="description">{{ project.description }}</p>
           </div>
 
-          <div class="tech-stack">
-            <TechBadge
-              v-for="tech in project.techStacks"
-              :key="tech"
-              :label="tech"
-            />
+          <div class="section">
+            <p class="label">도메인</p>
+            <div class="tech-stack">
+              <TechBadge
+                v-for="tech in project.techStacks"
+                :key="tech"
+                :label="tech"
+              />
+            </div>
           </div>
 
           <div class="section">
@@ -133,12 +147,14 @@ const closeModal = () => {
 
             <div class="squad-list">
               <SquadCard
-                v-for="(member, idx) in project.members"
-                :key="idx"
+                v-for="member in project.members"
+                :key="member.employeeId"
+                :viewerRole="memberRole"
                 :name="member.name"
                 :role="member.job"
                 :isLeader="member.isLeader"
                 :imageUrl="member.imageUrl"
+                :employeeId="member.employeeId"
               />
             </div>
           </div>
@@ -158,14 +174,24 @@ const closeModal = () => {
 }
 
 .project-modal {
-  @apply flex flex-col items-center p-6 bg-white rounded-xl overflow-y-auto shadow-lg;
-  width: 560px;
-  max-height: 80vh;
+  @apply flex flex-col items-center bg-white rounded-xl shadow-lg;
+  width: 800px;
+  height: 600px;
+  max-height: 600vh;
+  overflow-y: auto;
   position: relative;
+  padding: 2rem;
+  padding-top: 1rem;
 }
 
-.modal-close-wrapper {
-  @apply w-full flex justify-end mb-4;
+.sticky-header {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .close-button {
@@ -174,7 +200,6 @@ const closeModal = () => {
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0;
 }
 
 .modal-header {
@@ -183,15 +208,6 @@ const closeModal = () => {
 
 .modal-title {
   @apply text-xl font-bold;
-}
-
-.disabled-button {
-  @apply bg-gray-300 text-gray-600 text-sm px-4 py-1 rounded cursor-not-allowed;
-}
-
-.complete-button {
-  background-color: #6574f6;
-  @apply text-white text-sm px-4 py-1 rounded hover:brightness-110;
 }
 
 .info-group {

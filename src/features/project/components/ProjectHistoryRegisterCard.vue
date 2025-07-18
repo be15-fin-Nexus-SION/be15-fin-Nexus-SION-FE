@@ -194,10 +194,6 @@ const onDescriptionKeydown = createKeydownHandler(
       </button>
     </div>
 
-    <p v-if="firstErrorMessage" class="error-message">
-      {{ firstErrorMessage }}
-    </p>
-
     <div class="flex justify-end">
       <button @click="emitRemove" type="button" class="delete-button">
         삭제
