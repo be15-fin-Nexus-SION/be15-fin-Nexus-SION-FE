@@ -31,7 +31,7 @@ function onSubmit() {
   const isValid = isPasswordValid(form.password, true);
 
   if (!isValid) {
-    console.log("유효성 검사 실패");
+    console.error("유효성 검사 실패");
     return;
   }
 
