@@ -52,6 +52,10 @@ const goToSquad = (projectCode) => {
 const goToApprovalPage = (id) => {
   router.push(`/projects/history/${id}`);
 };
+
+function handleViewMore() {
+  router.push("/projects");
+}
 </script>
 
 <template>
@@ -60,7 +64,15 @@ const goToApprovalPage = (id) => {
       class="flex-[2] p-6 bg-white rounded-xl shadow-md border border-gray-200"
     >
       <div class="flex justify-between items-center mb-5">
-        <h2 class="text-lg font-bold text-gray-800">마감 임박 프로젝트</h2>
+        <div class="flex items-center">
+          <h2 class="text-lg font-bold text-gray-800">마감 임박 프로젝트</h2>
+          <span
+            class="ml-2 text-gray-400 cursor-pointer text-sm text-center"
+            @click="handleViewMore"
+          >
+            더보기
+          </span>
+        </div>
         <span class="text-sm text-primary font-medium">
           기준: {{ today }}
         </span>
