@@ -33,7 +33,7 @@
       <div
         class="flex gap-6 p-6 bg-white rounded-xl shadow-[0_0_2px_rgba(0,0,0,0.25)]"
       >
-        <!-- ✅ 자격증: 너비를 절반으로 제한 -->
+        <!-- 자격증 -->
         <div class="w-1/2">
           <router-link to="/self-development/certificates">
             <CertificateList />
@@ -44,32 +44,81 @@
         <div class="w-1/2">
           <div class="grid grid-cols-2 gap-4">
             <div
-              v-for="course in recommendedCourses"
-              :key="course.id"
-              class="rounded-xl overflow-hidden bg-white shadow-[0_0_2px_rgba(0,0,0,0.25)]"
+              v-for="course in previewCourses"
+              :key="course.trainingId"
+              class="relative w-[250px] h-[280px] bg-white border rounded-xl shadow hover:shadow-lg transition overflow-hidden"
             >
-              <img
-                :src="course.imageUrl"
-                alt="course"
-                class="w-full h-24 object-cover"
-              />
-              <div class="p-4">
-                <div class="text-sm font-bold text-blue-600 mb-1">
-                  [{{ course.category }}]
+              <!-- 썸네일 -->
+              <div class="relative w-full h-40">
+                <img
+                  :src="course.imageUrl"
+                  alt="course"
+                  class="w-full h-full object-cover"
+                />
+
+                <!-- 오버레이 -->
+                <div
+                  v-if="
+                    course.recommendationReason || course.trainingDescription
+                  "
+                  class="absolute inset-0 bg-black bg-opacity-80 text-white text-xs p-4 opacity-0 hover:opacity-100 transition-opacity z-10 overflow-y-auto flex flex-col items-center justify-center text-center"
+                >
+                  <p
+                    v-if="course.recommendationReason"
+                    class="mb-4 whitespace-pre-wrap font-semibold text-sm"
+                  >
+                    {{ course.recommendationReason }}
+                  </p>
+                  <p
+                    v-if="course.trainingDescription"
+                    class="whitespace-pre-wrap leading-snug text-xs"
+                  >
+                    {{ course.trainingDescription }}
+                  </p>
                 </div>
-                <div class="text-base font-semibold">{{ course.title }}</div>
-                <div class="text-xs text-gray-500">{{ course.school }}</div>
+              </div>
+
+              <!-- 본문 -->
+              <div class="p-4 flex flex-col items-center text-center space-y-1">
+                <!-- 카테고리 -->
+                <p
+                  v-if="course.trainingCategory"
+                  class="text-xs inline-block bg-gray-100 text-blue-600 font-semibold px-2 py-0.5 rounded-full"
+                >
+                  {{ course.trainingCategory }}
+                </p>
+
+                <!-- 교육명 -->
+                <h3 class="font-semibold text-sm truncate w-full">
+                  {{ course.trainingName }}
+                </h3>
+
+                <!-- 기관명 -->
+                <p class="text-gray-500 text-xs truncate w-full">
+                  {{ course.organization }}
+                </p>
+
+                <!-- 수강하기 버튼 -->
                 <a
-                  :href="course.link"
+                  v-if="course.videoUrl"
+                  :href="course.videoUrl"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="mt-2 w-full bg-blue-600 text-white rounded px-3 py-1 text-sm block text-center"
+                  class="mt-2 bg-blue-500 text-white w-full py-2 text-sm rounded hover:bg-blue-600 text-center"
                 >
                   수강하기
                 </a>
               </div>
             </div>
           </div>
+
+          <!-- 전체 보기 링크 -->
+          <router-link
+            to="/self-development/recommend"
+            class="block mt-4 text-sm text-right text-blue-600 hover:underline"
+          >
+            추천 교육 전체 보기 →
+          </router-link>
         </div>
       </div>
     </div>
@@ -91,55 +140,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useAuthStore } from "@/stores/auth";
+import { useTrainingStore } from "@/stores/useTrainingStore";
+import { storeToRefs } from "pinia";
+
 import ProjectCard from "@/features/project/components/ProjectCard.vue";
 import GrowthChart from "@/features/developer/components/GrowthChart.vue";
 import NotificationList from "@/features/developer/components/NotificationList.vue";
 import CertificateList from "@/features/developer/components/CertificateList.vue";
 import { fetchProjectListByMember } from "@/api/project.js";
-import { useAuthStore } from "@/stores/auth";
 
+// 인증 정보
 const authStore = useAuthStore();
 const project = ref(null);
 
-const recommendedCourses = [
-  {
-    id: 1,
-    title: "파이썬 실전 코딩",
-    category: "백엔드",
-    school: "서울사이버대학교",
-    imageUrl:
-      "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
-    link: "https://www.kmooc.kr/",
-  },
-  {
-    id: 2,
-    title: "프론트엔드 기초",
-    category: "프론트엔드",
-    school: "패스트캠퍼스",
-    imageUrl:
-      "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
-    link: "https://www.kmooc.kr/",
-  },
-  {
-    id: 3,
-    title: "데이터 분석 실습",
-    category: "데이터",
-    school: "멋쟁이사자처럼",
-    imageUrl:
-      "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
-    link: "https://www.kmooc.kr/",
-  },
-  {
-    id: 4,
-    title: "클라우드 기초",
-    category: "DevOps",
-    school: "Inflearn",
-    imageUrl:
-      "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRvnzm8GJILkLybTeVNH00N6-wVhuiTP8eYbfBxDdzFMGbEGm_G",
-    link: "https://www.kmooc.kr/",
-  },
-];
+// 추천 교육 로딩
+const trainingStore = useTrainingStore();
+const { trainings } = storeToRefs(trainingStore);
+const previewCourses = computed(() => trainings.value.slice(0, 4));
 
 onMounted(async () => {
   try {
@@ -151,5 +170,8 @@ onMounted(async () => {
   } catch (error) {
     console.error("❌ 사용자 프로젝트 목록 조회 실패:", error);
   }
+
+  // 추천 교육 데이터 로딩
+  await trainingStore.fetchRecommendations();
 });
 </script>
