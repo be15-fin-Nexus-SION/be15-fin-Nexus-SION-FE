@@ -187,7 +187,6 @@ async function submitForm() {
     };
 
     const resp = await registerProject(payload);
-    console.log(resp.data.data);
     await analyzeProject(resp.data.data.projectCode, form.file);
     showSuccessToast("프로젝트가 성공적으로 등록되었습니다.");
     setTimeout(() => {

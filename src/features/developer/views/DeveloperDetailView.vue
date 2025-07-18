@@ -305,7 +305,6 @@ onMounted(async () => {
 
     const { data: certRes } = await fetchUserCertificates(employeeId);
     certificateList.value = certRes.data;
-    console.log("cert: ", certificateList.value);
 
     const top7 = [...stackData].sort((a, b) => b.score - a.score).slice(0, 7);
     radarData.value = {

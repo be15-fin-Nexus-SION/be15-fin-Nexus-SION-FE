@@ -115,7 +115,6 @@ function renderSummary() {
 }
 
 function handleReplace(dev) {
-  console.log(dev);
   emit("replace", {
     oldMemberId: props.leavingMember.employeeId,
     newMemberId: dev.id,
