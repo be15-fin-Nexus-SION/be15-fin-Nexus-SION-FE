@@ -56,6 +56,10 @@ const goToApprovalPage = (id) => {
 function handleViewMore() {
   router.push("/projects");
 }
+
+function handleGoToProjectDetail(projectCode) {
+  router.push(`/projects/${projectCode}`);
+}
 </script>
 
 <template>
@@ -82,7 +86,8 @@ function handleViewMore() {
         <li
           v-for="project in pendingProjects"
           :key="project.projectCode"
-          class="relative group border-l-4 border-primary pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg"
+          class="relative group border-l-4 border-primary pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg cursor-pointer"
+          @click="handleGoToProjectDetail(project.projectCode)"
         >
           <div class="transition-all group-hover:translate-x-[-4px]">
             <div class="flex justify-between items-center mb-1">
