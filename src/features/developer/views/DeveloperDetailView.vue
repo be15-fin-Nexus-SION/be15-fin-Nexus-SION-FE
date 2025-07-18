@@ -4,7 +4,7 @@
     <!-- 상단 버튼 -->
     <div class="flex items-center justify-between">
       <div class="text-xl font-semibold">개발자 상세</div>
-      <div class="space-x-2" v-if="isAdmin">
+      <div class="space-x-2" v-if="isAdmin && props.userModal">
         <button
           class="px-4 py-2 rounded-md bg-primary text-white text-sm"
           @click="goToEdit"
@@ -217,6 +217,13 @@ import {
 import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import StatusBadge from "@/components/badge/StatusBadge.vue";
 import { fetchUserCertificates } from "@/api/certificate.js";
+
+const props = defineProps({
+  userModal: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const isLoading = ref(true);
 const route = useRoute();
