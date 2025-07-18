@@ -136,7 +136,8 @@ function handleGoToProjectDetail(projectCode) {
           <li
             v-for="approval in pendingApprovalProjects"
             :key="approval.id"
-            class="relative group border-l-4 border-yellow-400 pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg"
+            class="relative group border-l-4 border-yellow-400 pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg cursor-pointer"
+            @click="handleGoToProjectDetail(approval.projectCode)"
           >
             <div class="transition-all group-hover:translate-x-[-4px]">
               <div class="flex justify-between items-center mb-1">
