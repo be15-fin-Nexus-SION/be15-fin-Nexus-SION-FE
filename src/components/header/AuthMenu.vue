@@ -124,6 +124,6 @@ function handleNotificationModal() {
 }
 
 .profile img {
-  @apply w-[52px] h-[52px] object-cover rounded-full border-2 border-gray-300;
+  @apply w-[52px] h-[52px] object-cover rounded-full border-[1px] border-gray-300;
 }
 </style>
