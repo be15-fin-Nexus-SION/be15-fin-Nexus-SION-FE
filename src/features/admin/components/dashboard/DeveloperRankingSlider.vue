@@ -1,5 +1,6 @@
 <script setup>
 import { nextTick, onMounted, onUnmounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
 // ✅ props로 상위 개발자 리스트를 전달받음
 const props = defineProps({
@@ -71,6 +72,11 @@ onUnmounted(() => {
     observer.unobserve(lastCardRef.value);
   }
 });
+
+const router = useRouter();
+function handleViewDeveloperDetail(developerId) {
+  router.push(`/developers/${developerId}`);
+}
 </script>
 
 <template>
@@ -89,7 +95,8 @@ onUnmounted(() => {
           v-for="(dev, idx) in props.topDevelopers"
           :key="dev.id"
           :ref="idx === props.topDevelopers.length - 1 ? 'lastCardRef' : null"
-          class="flex-shrink-0 w-[220px] bg-white shadow-md rounded-xl p-4 border border-gray-100 hover:shadow-lg transition-all"
+          class="flex-shrink-0 w-[220px] bg-white shadow-md rounded-xl p-4 border border-gray-100 hover:shadow-lg transition-all cursor-pointer"
+          @click="handleViewDeveloperDetail(dev.id)"
         >
           <div class="flex flex-col items-center text-center">
             <img
