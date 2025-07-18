@@ -125,11 +125,7 @@ function onSubmit() {
 }
 
 .register-form button[type="submit"] {
-  @apply mt-4 py-3 bg-[#a1bcd1] text-white border-none rounded cursor-pointer;
-}
-
-.register-form button[type="submit"]:hover {
-  @apply bg-[#88a8bc];
+  @apply mt-4 py-3 bg-primary hover:bg-primary-hover text-white border-none rounded cursor-pointer;
 }
 
 .error-msg {

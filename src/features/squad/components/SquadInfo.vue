@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import gsap from "gsap";
 
 const props = defineProps({
@@ -71,6 +71,7 @@ onMounted(() => {
 
   // 총 예산 애니메이션
   const parseCost = (value) => {
+    if (value === "-") return 0; // 임시값
     if (typeof value === "number") return value;
     if (typeof value === "string") {
       const onlyDigits = value.replace(/[^\d]/g, ""); // 숫자만 추출
