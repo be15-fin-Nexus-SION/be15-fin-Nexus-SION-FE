@@ -96,7 +96,6 @@ const showProjectAddModal = ref(false);
 const confirmAddProject = () => {
   showProjectAddModal.value = false;
 
-  console.log("라우터 이동 시도...");
   router.push({ name: "project-register" });
 };
 </script>

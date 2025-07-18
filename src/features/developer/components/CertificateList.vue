@@ -36,7 +36,6 @@ const authStore = useAuthStore();
 onMounted(async () => {
   try {
     const allResponse = await fetchAllCertificates();
-    console.log("authStore.memberId: ", authStore.memberId);
     const userResponse = await fetchUserCertificates(authStore.memberId);
 
     certificates.value = allResponse.data?.data ?? [];
