@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { nextTick, onMounted, onUnmounted, ref } from "vue";
 
 // ✅ props로 상위 개발자 리스트를 전달받음
 const props = defineProps({
@@ -10,14 +10,67 @@ const props = defineProps({
 });
 
 const scrollRef = ref(null);
+const lastCardRef = ref(null);
+let autoScrollInterval = null;
+let observer = null;
+
+const startAutoScroll = () => {
+  if (autoScrollInterval) return; // 중복 방지
+  autoScrollInterval = setInterval(() => {
+    scrollRef.value?.scrollBy({ left: 1, behavior: "smooth" });
+  }, 30); // 숫자 줄이면 느려짐 (천천히)
+};
+
+const stopAutoScroll = () => {
+  if (autoScrollInterval) {
+    clearInterval(autoScrollInterval);
+    autoScrollInterval = null;
+  }
+};
+
+const observeLastCard = () => {
+  if (!scrollRef.value || !lastCardRef.value) return;
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // 마지막 카드가 화면에 보이면 → 맨 앞으로 자연스럽게
+          scrollRef.value.scrollTo({ left: 0, behavior: "smooth" });
+        }
+      });
+    },
+    {
+      root: scrollRef.value,
+      threshold: 1.0,
+    },
+  );
+
+  observer.observe(lastCardRef.value);
+};
 
 const scrollLeft = () => {
-  scrollRef.value.scrollBy({ left: -300, behavior: "smooth" });
+  stopAutoScroll();
+  scrollRef.value?.scrollBy({ left: -300, behavior: "smooth" });
 };
 
 const scrollRight = () => {
-  scrollRef.value.scrollBy({ left: 300, behavior: "smooth" });
+  stopAutoScroll();
+  scrollRef.value?.scrollBy({ left: 300, behavior: "smooth" });
 };
+
+onMounted(async () => {
+  await nextTick(); // ref들이 DOM에 바인딩된 후 실행되도록 보장
+  startAutoScroll();
+  observeLastCard();
+});
+
+onUnmounted(() => {
+  stopAutoScroll();
+  if (observer && lastCardRef.value) {
+    observer.unobserve(lastCardRef.value);
+  }
+});
 </script>
 
 <template>
@@ -28,11 +81,14 @@ const scrollRight = () => {
     <div class="relative overflow-hidden">
       <div
         ref="scrollRef"
-        class="flex gap-4 overflow-x-auto pb-2 scroll-smooth no-scrollbar"
+        class="mx-12 flex gap-4 overflow-x-auto pb-2 scroll-smooth no-scrollbar"
+        @mouseenter="stopAutoScroll"
+        @mouseleave="startAutoScroll"
       >
         <div
-          v-for="dev in props.topDevelopers"
+          v-for="(dev, idx) in props.topDevelopers"
           :key="dev.id"
+          :ref="idx === props.topDevelopers.length - 1 ? 'lastCardRef' : null"
           class="flex-shrink-0 w-[220px] bg-white shadow-md rounded-xl p-4 border border-gray-100 hover:shadow-lg transition-all"
         >
           <div class="flex flex-col items-center text-center">
