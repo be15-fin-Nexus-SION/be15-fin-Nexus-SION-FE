@@ -113,7 +113,10 @@ const toggleInput = () => {
       <div class="project-area">
         <div class="project-info">
           <div class="project-status">
-            <ProjectHistoryStatusBadge :status="project?.approvalStatus" />
+            <ProjectHistoryStatusBadge
+              v-if="project?.approvalStatus"
+              :status="project?.approvalStatus"
+            />
             <span>|</span>
             <span class="project-dates">
               {{ project?.createdAt?.slice(0, 10) }}
@@ -134,7 +137,9 @@ const toggleInput = () => {
           <PrimaryButton
             label="거부"
             bg-color-class="bg-natural-gray"
-            hover-color-class="hover:bg-natural-gray-hover"
+            :hover-color-class="
+              getRejectReason().trim() ? 'hover:bg-natural-gray-hover' : null
+            "
             text-color-class="text-black"
             :disabled="!getRejectReason().trim()"
             @click="onReject"
