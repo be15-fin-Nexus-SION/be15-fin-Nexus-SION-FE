@@ -73,11 +73,9 @@
         프로젝트 이력 내역 확인하기 →
       </button>
 
-      <!-- 요청 전 + 본인일 때 호버하면 버튼 등장 -->
+      <!--본인일 때 호버하면 버튼 등장 -->
       <button
-        v-else-if="
-          approvalStatus === 'NOT_REQUESTED' && employeeId === myEmployeeId
-        "
+        v-else-if="employeeId === myEmployeeId"
         @click.stop="goToRegister(historyId)"
         class="absolute right-6 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-semibold text-primary bg-white border border-primary rounded-md transform translate-x-full group-hover:translate-x-0 transition-all duration-300"
       >

@@ -67,6 +67,7 @@ watch(isDeveloperModalOpen, async (isOpen) => {
           v-if="internalEmployeeId"
           :employeeId="internalEmployeeId"
           :readonly="true"
+          :userModal="true"
           @close="closeModal"
         />
       </div>

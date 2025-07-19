@@ -82,9 +82,7 @@ function handleRegisterConfirm({ title, description }) {
       isRegistering.value = false;
     });
 }
-const isEditMode = computed(
-  () => squadStore.selectedSquadInfo.value?.id !== null,
-);
+const isEditMode = computed(() => route.query.squadCode !== undefined);
 
 onMounted(async () => {
   await fetchProjectDetail(projectCode);
