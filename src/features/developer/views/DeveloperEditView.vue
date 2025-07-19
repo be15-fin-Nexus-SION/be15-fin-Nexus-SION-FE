@@ -170,27 +170,6 @@
         />
       </div>
 
-      <!-- 기술 스택 -->
-      <div>
-        <label class="text-sm text-gray-600 block mb-3">기술스택</label>
-        <div class="flex flex-wrap gap-2 mb-2">
-          <TechBadge
-            v-for="(tech, idx) in form.techStackNames"
-            :key="tech"
-            :label="tech"
-            :showClose="true"
-            @remove="form.techStackNames.splice(idx, 1)"
-          />
-        </div>
-        <button
-          type="button"
-          @click="openModal"
-          class="border px-3 py-1 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-        >
-          + 기술 추가
-        </button>
-      </div>
-
       <!-- 버튼 영역 -->
       <div class="flex justify-end gap-2">
         <button
@@ -209,14 +188,6 @@
         </button>
       </div>
     </div>
-
-    <TechStackSelectModal
-      v-if="isModalOpen"
-      :all-tech-stacks="allTechStacks"
-      :initial-selected="form.techStackNames"
-      @apply="applyTechStacks"
-      @close="isModalOpen = false"
-    />
   </div>
 
   <!-- 확인 모달 -->
