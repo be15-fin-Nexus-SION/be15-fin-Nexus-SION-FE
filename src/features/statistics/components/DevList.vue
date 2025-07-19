@@ -139,7 +139,14 @@ function handleRemoveFromFilter(stack) {
 }
 const scrollTarget = ref(null);
 const { items, isLoading, isLastPage } = useInfiniteScroll({
-  fetchFn: ({ pageParam }) => fetchDevelopers(pageParam),
+  fetchFn: async (pageParam) => {
+    const res = await fetchDevelopers(pageParam);
+    return {
+      data: {
+        data: res.data.data,
+      },
+    };
+  },
   scrollTargetRef: scrollTarget,
   threshold: 150,
 });
@@ -222,6 +229,6 @@ const filteredItems = computed(() => {
 }
 
 .developer-list-container {
-  @apply flex flex-col;
+  @apply flex flex-col overflow-y-auto max-h-[600px];
 }
 </style>
