@@ -57,6 +57,10 @@ function handleViewMore() {
   router.push("/projects");
 }
 
+function handleViewMoreReadyApproval() {
+  router.push(`/projects?status=evaluate`);
+}
+
 function handleGoToProjectDetail(projectCode) {
   router.push(`/projects/${projectCode}`);
 }
@@ -65,7 +69,7 @@ function handleGoToProjectDetail(projectCode) {
 <template>
   <div class="flex w-full gap-6">
     <div
-      class="flex-[2] p-6 bg-white rounded-xl shadow-md border border-gray-200"
+      class="flex-[1.8] p-6 bg-white rounded-xl shadow-md border border-gray-200"
     >
       <div class="flex justify-between items-center mb-5">
         <div class="flex items-center">
@@ -127,7 +131,15 @@ function handleGoToProjectDetail(projectCode) {
       class="flex-1 p-6 bg-white rounded-xl shadow-md border border-gray-200"
     >
       <div class="flex justify-between items-center mb-5">
-        <h2 class="text-lg font-bold text-gray-800">승인 대기 프로젝트</h2>
+        <div class="flex items-center">
+          <h2 class="text-lg font-bold text-gray-800">승인 대기 프로젝트</h2>
+          <span
+            class="ml-2 text-gray-400 cursor-pointer text-sm text-center"
+            @click="handleViewMoreReadyApproval"
+          >
+            더보기
+          </span>
+        </div>
         <span class="text-sm text-primary font-medium">기준: {{ today }}</span>
       </div>
 

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import {
   fetchProjectList,
   fetchMyProjectList,
@@ -142,6 +142,7 @@ watch(
   { immediate: true },
 );
 
+const route = useRoute();
 onMounted(() => {
   if (!memberRole.value) return;
   if (memberRole.value === "ADMIN") {
@@ -154,6 +155,10 @@ onMounted(() => {
     });
   } else {
     fetchProjects();
+  }
+  const status = route.query.status;
+  if (typeof status === "string" && status.toLowerCase() === "evaluate") {
+    activeTab.value = "history";
   }
 });
 </script>
