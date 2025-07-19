@@ -1,9 +1,9 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
-  fetchProjectList,
   fetchMyProjectList,
+  fetchProjectList,
   getMyProjectWorkRequests,
   getRequestsForAdmin,
 } from "@/api/project.js";
@@ -85,8 +85,7 @@ async function fetchProjectHistories() {
         : await getMyProjectWorkRequests(page, perPage);
 
     if (res.data.success) {
-      const content = res.data.data?.content ?? [];
-      projectHistories.value = content;
+      projectHistories.value = res.data.data?.content ?? [];
       totalPages.value = res.data.data?.totalPages ?? 1;
     } else {
       showErrorToast("요청 목록 불러오기 실패");
@@ -293,13 +292,5 @@ onMounted(() => {
 
 .pagination-wrapper {
   @apply mt-10 flex justify-center;
-}
-
-.page-full {
-  @apply w-full h-screen flex justify-center;
-}
-
-.page-container {
-  @apply flex flex-col w-[782px] h-fit items-center px-[30px] py-[30px] gap-[30px];
 }
 </style>
