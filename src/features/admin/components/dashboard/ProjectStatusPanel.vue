@@ -52,15 +52,35 @@ const goToSquad = (projectCode) => {
 const goToApprovalPage = (id) => {
   router.push(`/projects/history/${id}`);
 };
+
+function handleViewMore() {
+  router.push("/projects");
+}
+
+function handleViewMoreReadyApproval() {
+  router.push(`/projects?status=evaluate`);
+}
+
+function handleGoToProjectDetail(projectCode) {
+  router.push(`/projects/${projectCode}`);
+}
 </script>
 
 <template>
   <div class="flex w-full gap-6">
     <div
-      class="flex-[2] p-6 bg-white rounded-xl shadow-md border border-gray-200"
+      class="flex-[1.8] p-6 bg-white rounded-xl shadow-md border border-gray-200"
     >
       <div class="flex justify-between items-center mb-5">
-        <h2 class="text-lg font-bold text-gray-800">마감 임박 프로젝트</h2>
+        <div class="flex items-center">
+          <h2 class="text-lg font-bold text-gray-800">마감 임박 프로젝트</h2>
+          <span
+            class="ml-2 text-gray-400 cursor-pointer text-sm text-center"
+            @click="handleViewMore"
+          >
+            더보기
+          </span>
+        </div>
         <span class="text-sm text-primary font-medium">
           기준: {{ today }}
         </span>
@@ -70,7 +90,8 @@ const goToApprovalPage = (id) => {
         <li
           v-for="project in pendingProjects"
           :key="project.projectCode"
-          class="relative group border-l-4 border-primary pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg"
+          class="relative group border-l-4 border-primary pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg cursor-pointer"
+          @click="handleGoToProjectDetail(project.projectCode)"
         >
           <div class="transition-all group-hover:translate-x-[-4px]">
             <div class="flex justify-between items-center mb-1">
@@ -110,7 +131,15 @@ const goToApprovalPage = (id) => {
       class="flex-1 p-6 bg-white rounded-xl shadow-md border border-gray-200"
     >
       <div class="flex justify-between items-center mb-5">
-        <h2 class="text-lg font-bold text-gray-800">승인 대기 프로젝트</h2>
+        <div class="flex items-center">
+          <h2 class="text-lg font-bold text-gray-800">승인 대기 프로젝트</h2>
+          <span
+            class="ml-2 text-gray-400 cursor-pointer text-sm text-center"
+            @click="handleViewMoreReadyApproval"
+          >
+            더보기
+          </span>
+        </div>
         <span class="text-sm text-primary font-medium">기준: {{ today }}</span>
       </div>
 
@@ -119,7 +148,8 @@ const goToApprovalPage = (id) => {
           <li
             v-for="approval in pendingApprovalProjects"
             :key="approval.id"
-            class="relative group border-l-4 border-yellow-400 pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg"
+            class="relative group border-l-4 border-yellow-400 pl-4 py-4 bg-gray-50 rounded-md overflow-hidden transition-shadow hover:shadow-lg cursor-pointer"
+            @click="handleGoToProjectDetail(approval.projectCode)"
           >
             <div class="transition-all group-hover:translate-x-[-4px]">
               <div class="flex justify-between items-center mb-1">

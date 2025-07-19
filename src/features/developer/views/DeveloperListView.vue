@@ -182,7 +182,7 @@ import { fetchDeveloperList, updateMemberStatus } from "@/api/member";
 import PrimaryButton from "@/components/button/PrimaryButton.vue";
 import SortDropdown from "@/components/dropdown/SortDropdown.vue";
 import SearchBar from "@/components/searchBar/SearchBar.vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import TechBadge from "@/components/badge/TechBadge.vue";
 import LoadingSpinner from "@/components/LoadingSpinner.vue";
 import Pagination from "@/components/Pagination.vue";
@@ -359,7 +359,16 @@ onBeforeUnmount(() => {
   document.removeEventListener("click", handleClickOutside);
 });
 
-onMounted(fetchDevelopers);
+const route = useRoute();
+onMounted(() => {
+  const status = route.query.status;
+  if (typeof status === "string" && status.toLowerCase() === "available") {
+    // 대문자로 바꾸고 상태 필터 변경
+    onStatusFilterChange({ value: status.toUpperCase() });
+  }
+
+  fetchDevelopers();
+});
 watch(
   [
     statusFilter,

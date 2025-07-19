@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   stacks: {
@@ -28,15 +29,26 @@ const normalizedStacks = computed(() =>
     };
   }),
 );
+
+const router = useRouter();
+function handleGoToStatisticPage() {
+  router.push("/statistics/stack/popular");
+}
 </script>
 
 <template>
   <div
     class="p-6 bg-white rounded-xl shadow-md border border-gray-200 flex flex-col"
   >
-    <h3 class="text-[16px] font-bold text-[#222] mb-4">
-      📊 기술스택 수요 TOP 5
-    </h3>
+    <div class="flex items-center mb-4">
+      <h3 class="text-[16px] font-bold text-[#222]">📊 기술스택 수요 TOP 5</h3>
+      <span
+        class="ml-2 text-gray-400 cursor-pointer text-sm text-center"
+        @click="handleGoToStatisticPage"
+      >
+        더보기
+      </span>
+    </div>
 
     <ul class="space-y-3">
       <li

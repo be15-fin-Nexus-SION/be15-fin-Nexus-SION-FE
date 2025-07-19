@@ -1,11 +1,18 @@
 <script setup>
 // ✅ props로 프리랜서 리스트를 전달받음
+import { useRouter } from "vue-router";
+
 const props = defineProps({
   freelancers: {
     type: Array,
     required: true,
   },
 });
+
+const router = useRouter();
+function handleViewDeveloperDetail(developerId) {
+  router.push(`/developers/${developerId}`);
+}
 </script>
 
 <template>
@@ -18,6 +25,7 @@ const props = defineProps({
         v-for="freelancer in props.freelancers"
         :key="freelancer.id"
         class="flex justify-between items-center bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition"
+        @click="handleViewDeveloperDetail(freelancer.id)"
       >
         <div class="flex items-center gap-3">
           <img
