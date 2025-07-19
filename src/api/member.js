@@ -1,7 +1,7 @@
 import api from "./axios.js";
 
 export function reissueAccessToken() {
-  return api.get("/members/refresh");
+  return api.post("/members/refresh");
 }
 
 export function fetchDeveloperList({
