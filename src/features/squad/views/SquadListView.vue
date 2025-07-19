@@ -81,7 +81,6 @@ const fetchProjects = async () => {
 
     switch (project.status?.toUpperCase()) {
       case "WAITING":
-      case "EVALUATION":
         waiting.push(project.projectCode);
         break;
       case "IN_PROGRESS":
@@ -89,6 +88,7 @@ const fetchProjects = async () => {
         break;
       case "COMPLETE":
       case "INCOMPLETE":
+      case "EVALUATION":
         complete.push(project.projectCode);
         break;
       default:
