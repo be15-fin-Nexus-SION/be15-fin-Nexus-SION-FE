@@ -11,7 +11,6 @@ import {
   deleteSquadByCode,
 } from "@/api/squad";
 
-import { useToast } from "vue-toastification";
 import SquadMemberList from "@/features/squad/components/SquadMemberList.vue";
 import SquadInfo from "@/features/squad/components/SquadInfo.vue";
 import SquadCostTable from "@/features/squad/components/SquadCostTable.vue";
@@ -36,7 +35,6 @@ const commentList = ref([]);
 const auth = useAuthStore();
 const router = useRouter();
 const squadCode = props.squadCode ?? useRoute().params.squadCode;
-const toast = useToast();
 
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
@@ -77,7 +75,7 @@ const handleClose = () => {
 const handleConfirm = async () => {
   try {
     await patchConfirmSquad(squadCode);
-    toast.success("스쿼드가 확정되었습니다.");
+    showSuccessToast("스쿼드가 확정되었습니다.");
     showConfirmModal.value = false;
     const res = await getSquadDetail(squadCode);
     const data = res?.data?.data || res?.data;
@@ -88,8 +86,7 @@ const handleConfirm = async () => {
     };
     await router.push({ name: "squad-list" });
   } catch (e) {
-    console.error("스쿼드 확정 실패:", e);
-    toast.error("스쿼드 확정에 실패했습니다.");
+    showErrorToast("스쿼드 확정에 실패했습니다.");
   }
 };
 
@@ -109,7 +106,7 @@ const handleCancelDelete = () => {
 
 const deleteComment = async () => {
   if (!selectedCommentId.value) {
-    toast.error("삭제할 댓글이 유효하지 않습니다.");
+    showErrorToast("삭제할 댓글이 유효하지 않습니다.");
     return;
   }
   try {
@@ -117,7 +114,7 @@ const deleteComment = async () => {
     await loadComments();
     showDeleteModal.value = false;
   } catch (e) {
-    console.error("댓글 삭제 실패:", e);
+    showErrorToast("댓글 삭제에 실패했습니다.");
   }
 };
 
@@ -127,7 +124,7 @@ const loadComments = async () => {
     const raw = res.data.data;
     commentList.value = Array.isArray(raw) ? raw : [];
   } catch (e) {
-    console.error("댓글 불러오기 실패:", e);
+    showErrorToast("댓글 불러오기에 실패했습니다.");
     commentList.value = [];
   }
 };
@@ -136,15 +133,14 @@ const submitComment = async (commentText) => {
   if (!commentText) return;
   const employeeId = auth.memberId;
   if (!employeeId) {
-    toast.error("로그인이 필요합니다.");
+    showErrorToast("로그인이 필요합니다.");
     return;
   }
   try {
     await postSquadComment(squadCode, commentText);
     await loadComments();
   } catch (e) {
-    console.error("댓글 등록 실패:", e);
-    toast.error("댓글 등록에 실패했습니다.");
+    showErrorToast("댓글 등록에 실패했습니다.");
   }
 };
 
@@ -173,7 +169,7 @@ onMounted(async () => {
     isLoaded.value = true;
     await loadComments();
   } catch (e) {
-    console.error("스쿼드 상세 조회 실패:", e);
+    showErrorToast("스쿼드 상세 조회에 실패했습니다.");
   }
 
   document.addEventListener("click", handleClickOutside);

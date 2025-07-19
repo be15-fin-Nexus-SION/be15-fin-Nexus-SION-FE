@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { useToast } from "vue-toastification";
 import SquadSidebar from "@/features/squad/components/SquadSidebar.vue";
 import SquadCard from "@/features/squad/components/SquadCard.vue";
 import SquadDropdown from "@/features/squad/components/SquadDropdown.vue";
@@ -11,10 +10,9 @@ import BasePagination from "@/components/Pagination.vue";
 import { useRoute } from "vue-router";
 import SquadDetailView from "@/features/squad/views/SquadDetailView.vue";
 import { useSquadStore } from "@/stores/squadCreateStore.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
 const totalCount = ref(0); // 총 스쿼드 수
-
-const toast = useToast();
 
 const showMoreModal = ref(false);
 const selectedMoreType = ref("");
@@ -63,10 +61,9 @@ const deleteSquad = async (squadCode) => {
     totalPages.value = Math.max(1, Math.ceil(totalCount.value / size));
 
     await fetchSquads();
-    toast.success("스쿼드가 성공적으로 삭제되었습니다.");
+    showSuccessToast("스쿼드가 성공적으로 삭제되었습니다.");
   } catch (e) {
-    console.error("스쿼드 삭제 실패:", e);
-    toast.error("스쿼드 삭제에 실패했습니다.");
+    showErrorToast("스쿼드 삭제에 실패했습니다.");
   }
 };
 
