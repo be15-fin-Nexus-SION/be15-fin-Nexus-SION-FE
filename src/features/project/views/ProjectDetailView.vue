@@ -247,7 +247,8 @@ function leave(el) {
         <template v-else>
           <PrimaryButton
             label="평가 완료"
-            @click="handleComplete"
+            :onClick="handleComplete"
+            :disabled="project.status === 'COMPLETE'"
             v-if="memberRole === 'ADMIN'"
           />
         </template>
@@ -282,8 +283,12 @@ function leave(el) {
           <p>{{ project.duration }}</p>
         </div>
         <div>
-          <p class="text-gray-400">예산</p>
-          <p>{{ project.budget }}</p>
+          <div>
+            <p class="text-gray-400">
+              {{ project.status === "WAITING" ? "예산" : "실투입 금액" }}
+            </p>
+            <p>{{ project.budget }}</p>
+          </div>
         </div>
       </div>
 
