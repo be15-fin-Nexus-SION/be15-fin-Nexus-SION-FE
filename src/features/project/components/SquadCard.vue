@@ -151,7 +151,12 @@ const isClickable = computed(() => {
 
 function handleClick() {
   if (!isClickable.value) return;
-  router.push(`/developers/${props.employeeId}`);
+
+  if (props.isReplacementMode) {
+    emit("click");
+  } else {
+    router.push(`/developers/${props.employeeId}`);
+  }
 }
 
 function goToRegister(id) {
