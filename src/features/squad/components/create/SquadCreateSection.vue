@@ -82,7 +82,7 @@ function handleRegisterConfirm({ title, description }) {
       isRegistering.value = false;
     });
 }
-const isEditMode = computed(() => route.query.squadCode !== "null");
+const isEditMode = computed(() => route.query.squadCode !== undefined);
 
 onMounted(async () => {
   await fetchProjectDetail(projectCode);
@@ -90,6 +90,7 @@ onMounted(async () => {
   if (squadCode) {
     await handleSquadSelect(squadCode);
   }
+  console.log(squadCode);
 });
 
 // 애니메이션 대상
