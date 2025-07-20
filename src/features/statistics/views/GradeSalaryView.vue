@@ -81,7 +81,7 @@ function renderChart() {
       scales: {
         y: {
           beginAtZero: true,
-          ticks: { stepSize: 1, precision: 0 },
+          precision: 0,
         },
       },
     },
