@@ -68,7 +68,7 @@ watch(
     form.fileUrl = data.requestSpecificationUrl;
 
     form.startDate = data.startDate;
-    form.endDate = data.endDate;
+    form.endDate = data.endDate || data.expectedEndDate;
   },
   { immediate: true },
 );
