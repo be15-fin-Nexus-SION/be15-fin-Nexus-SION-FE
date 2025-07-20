@@ -219,7 +219,15 @@ import StatusBadge from "@/components/badge/StatusBadge.vue";
 import { fetchUserCertificates } from "@/api/certificate.js";
 
 const props = defineProps({
+  employeeId: {
+    type: String,
+    default: null,
+  },
   userModal: {
+    type: Boolean,
+    default: false,
+  },
+  readonly: {
     type: Boolean,
     default: false,
   },
@@ -228,7 +236,8 @@ const props = defineProps({
 const isLoading = ref(true);
 const route = useRoute();
 const router = useRouter();
-const employeeId = route.params.employeeId;
+const employeeId = computed(() => props.employeeId || route.params.employeeId);
+console.log(employeeId.value);
 const showDeleteConfirm = ref(false);
 
 const authStore = useAuthStore();
@@ -284,12 +293,15 @@ const certificateDiffDate = computed(() =>
 );
 
 function goToEdit() {
-  router.push({ name: "developer-edit", params: { employeeId } });
+  router.push({
+    name: "developer-edit",
+    params: { employeeId: employeeId.value },
+  });
 }
 
 async function deleteDeveloperHandler() {
   try {
-    await deleteDeveloper(employeeId);
+    await deleteDeveloper(employeeId.value);
     showSuccessToast("삭제가 완료되었습니다.");
     router.push({ name: "developer-list" });
   } catch (e) {
@@ -302,15 +314,17 @@ async function deleteDeveloperHandler() {
 
 onMounted(async () => {
   try {
-    const { data: devRes } = await fetchDeveloperDetail(employeeId);
+    const { data: devRes } = await fetchDeveloperDetail(employeeId.value);
     developer.value = devRes.data;
 
-    const { data: stackRes } = await fetchTechStacksByEmployeeId(employeeId);
+    const { data: stackRes } = await fetchTechStacksByEmployeeId(
+      employeeId.value,
+    );
     const stackData = stackRes.data;
     techList.value = stackData.map((s) => s.techStackName);
     barData.value = stackData;
 
-    const { data: certRes } = await fetchUserCertificates(employeeId);
+    const { data: certRes } = await fetchUserCertificates(employeeId.value);
     certificateList.value = certRes.data;
 
     const top7 = [...stackData].sort((a, b) => b.score - a.score).slice(0, 7);
@@ -327,7 +341,7 @@ onMounted(async () => {
       ],
     };
 
-    const { data: scoreRes } = await fetchScoreSummary(employeeId);
+    const { data: scoreRes } = await fetchScoreSummary(employeeId.value);
     scoreSummary.value = scoreRes.data;
   } catch (e) {
     console.error("개발자 상세 정보 불러오기 실패", e);
