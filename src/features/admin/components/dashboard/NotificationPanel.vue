@@ -48,6 +48,11 @@ const { items: allNotifications, isLastPage: isAllLastPage } =
 
 const notificationStore = useNotificationStore();
 
+async function handleRead(item) {
+  await reset();
+  await goToRelatedPage(item);
+}
+
 async function handleAllRead() {
   await notificationStore.markAllAsRead();
   await reset();
@@ -58,7 +63,7 @@ async function handleAllRead() {
   <div class="flex gap-8 w-full">
     <!-- 내 알림 -->
     <div
-      class="flex-1 p-6 space-y-5 rounded-xl shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"
+      class="flex-1 p-5 space-y-5 rounded-xl shadow-lg transition-all bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200"
     >
       <div class="w-full flex justify-between items-center">
         <h3 class="text-[18px] font-bold text-[#333]">📥 내 알림</h3>
@@ -73,14 +78,14 @@ async function handleAllRead() {
       <div class="flex flex-col h-[200px]">
         <ul
           v-if="myNotifications.length > 0"
-          class="overflow-y-auto hide-scrollbar space-y-4"
+          class="overflow-y-auto hide-scrollbar space-y-3"
           ref="myScrollContainer"
         >
           <li
             v-for="item in myNotifications"
             :key="item.id"
-            class="bg-white/90 rounded-lg px-5 py-4 border-l-4 border-[#90caf9] shadow-sm hover-setting transition-all"
-            @click="goToRelatedPage(item)"
+            class="bg-white/90 rounded-lg px-5 py-4 m-2 border-l-4 border-[#90caf9] shadow-sm hover-setting transition-all"
+            @click="handleRead(item)"
           >
             <div class="text-[14px] text-[#555] mb-1">
               <span v-if="!item.isRead" class="text-red-500">* </span>

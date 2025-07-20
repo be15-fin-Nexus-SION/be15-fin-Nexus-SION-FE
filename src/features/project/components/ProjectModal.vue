@@ -36,7 +36,7 @@ onMounted(async () => {
     const response = await fetchProjectDetail(props.projectCode);
     project.value = response.data.data;
   } catch (e) {
-    showErrorToast("프로젝트 상세 정보 로드 실패");
+    showErrorToast("존재하지 않는 프로젝트입니다.");
   } finally {
     isLoading.value = false;
   }

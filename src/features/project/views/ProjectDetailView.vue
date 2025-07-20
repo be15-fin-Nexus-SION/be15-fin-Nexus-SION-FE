@@ -158,7 +158,11 @@ onMounted(async () => {
       replacingMember.value = project.value.members[1];
     }
   } catch (error) {
-    showErrorToast("프로젝트 상세 정보 로드 실패");
+    showErrorToast("존재하지 않는 프로젝트입니다.");
+
+    setTimeout(() => {
+      router.back();
+    }, 1000); // 1.5초 후 뒤로가기
   } finally {
     isLoading.value = false;
   }
