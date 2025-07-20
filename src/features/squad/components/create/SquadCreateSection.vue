@@ -90,7 +90,6 @@ onMounted(async () => {
   if (squadCode) {
     await handleSquadSelect(squadCode);
   }
-  console.log(squadCode);
 });
 
 // 애니메이션 대상
