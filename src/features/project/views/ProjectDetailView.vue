@@ -403,6 +403,7 @@ function formatDate(dateStr) {
                 approvalStatusMap[member.employeeId]?.developerProjectWorkId ||
                 null
               "
+              :isReplacementMode="isReplacementMode"
             />
           </div>
         </Transition>
