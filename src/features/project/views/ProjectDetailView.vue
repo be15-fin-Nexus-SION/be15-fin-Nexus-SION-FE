@@ -77,7 +77,7 @@ function handleDelete() {
     try {
       await deleteProject(projectCode);
       showSuccessToast("프로젝트가 삭제되었습니다.");
-      router.push("/projects");
+      await router.push("/projects");
     } catch (error) {
       showErrorToast("삭제 중 오류가 발생했습니다.");
     } finally {
