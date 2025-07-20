@@ -8,14 +8,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// ✅ 중복 리프레시 방지 변수
-let refreshSubscribers = [];
-
-function onAccessTokenFetched(token) {
-  refreshSubscribers.forEach((callback) => callback(token));
-  refreshSubscribers = [];
-}
-
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore();
   if (authStore.accessToken)
@@ -53,7 +45,6 @@ api.interceptors.response.use(
 
       try {
         const newToken = await refreshToken();
-        authStore.setAuth(newToken);
 
         // 헤더 갱신 후 원래 요청 재시도
         config.headers.Authorization = `Bearer ${newToken}`;
