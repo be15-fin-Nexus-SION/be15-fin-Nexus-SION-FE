@@ -243,7 +243,6 @@ const isLoading = ref(true);
 const route = useRoute();
 const router = useRouter();
 const employeeId = computed(() => props.employeeId || route.params.employeeId);
-console.log(employeeId.value);
 const showDeleteConfirm = ref(false);
 
 const authStore = useAuthStore();
