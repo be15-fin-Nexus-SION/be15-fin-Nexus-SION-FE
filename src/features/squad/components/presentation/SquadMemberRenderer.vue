@@ -33,10 +33,6 @@ const updateIsMobile = () => {
 onMounted(() => {
   updateIsMobile();
   window.addEventListener("resize", updateIsMobile);
-
-  props.members.forEach((m) => {
-    console.log(`memberId: ${m.id || m.memberId}, imageUrl: ${m.imageUrl}`);
-  });
 });
 
 onUnmounted(() => {

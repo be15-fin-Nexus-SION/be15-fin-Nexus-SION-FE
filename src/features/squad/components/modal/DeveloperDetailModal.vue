@@ -54,8 +54,9 @@ watch(isDeveloperModalOpen, async (isOpen) => {
     >
       <div
         ref="modalRef"
-        class="bg-white rounded-xl shadow-xl w-[900px] max-h-[90vh] overflow-y-auto relative p-6"
+        class="bg-white rounded-xl shadow-xl w-[900px] max-h-[90vh] relative flex flex-col p-6"
       >
+        <!-- 닫기 버튼 -->
         <button
           class="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl"
           @click="closeModal"
@@ -63,20 +64,26 @@ watch(isDeveloperModalOpen, async (isOpen) => {
           &times;
         </button>
 
-        <DeveloperDetailView
-          v-if="internalEmployeeId"
-          :employeeId="internalEmployeeId"
-          :readonly="true"
-          :userModal="true"
-          @close="closeModal"
-        />
+        <!-- 스크롤 가능한 영역 -->
+        <div class="overflow-y-auto flex-1 pr-2 scroll-container">
+          <DeveloperDetailView
+            v-if="internalEmployeeId"
+            :employeeId="internalEmployeeId"
+            :readonly="true"
+            :userModal="true"
+            @close="closeModal"
+          />
+        </div>
       </div>
     </div>
   </Teleport>
 </template>
 
 <style scoped>
-::-webkit-scrollbar {
+.scroll-container::-webkit-scrollbar {
   display: none;
+}
+.scroll-container {
+  scrollbar-width: none; /* Firefox */
 }
 </style>
