@@ -120,7 +120,7 @@ async function handleAllRead() {
             :key="item.id"
             class="bg-white/90 rounded-lg px-5 py-4 border-l-4 border-[#ba68c8] shadow-sm transition-all"
           >
-            <div v-if="item.receiverId" class="text-[12px] text-[#999] mb-2">
+            <div v-if="item.receiverName" class="text-[12px] text-[#999] mb-2">
               {{ item.receiverName }}
             </div>
             <div class="text-[14px] text-[#555] mb-1">
