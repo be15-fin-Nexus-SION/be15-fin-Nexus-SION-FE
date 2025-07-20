@@ -3,6 +3,7 @@ import { ref, computed, watchEffect, onMounted, onUnmounted } from "vue";
 import CrownFilled from "@/assets/icons/Crown_filled.svg";
 import CrownUnfilled from "@/assets/icons/Crown_Unfilled.svg";
 import { useDeveloperModal } from "@/composable/useDeveloperModal.js";
+import BasicProfile from "@/assets/icons/Basic_Profile.svg";
 
 const props = defineProps({
   title: {
@@ -28,10 +29,16 @@ const roleFilter = ref("전체");
 const updateIsMobile = () => {
   isMobile.value = window.innerWidth <= 800;
 };
+
 onMounted(() => {
   updateIsMobile();
   window.addEventListener("resize", updateIsMobile);
+
+  props.members.forEach((m) => {
+    console.log(`memberId: ${m.id || m.memberId}, imageUrl: ${m.imageUrl}`);
+  });
 });
+
 onUnmounted(() => {
   window.removeEventListener("resize", updateIsMobile);
 });
@@ -100,11 +107,7 @@ const { openModal } = useDeveloperModal();
               @click="openModal(member.id)"
             >
               <img
-                :src="
-                  member.imageUrl ||
-                  `https://api.dicebear.com/9.x/notionists/svg?seed=` +
-                    member.id
-                "
+                :src="member.imageUrl || BasicProfile"
                 alt="profile"
                 class="hexagon-image"
               />
