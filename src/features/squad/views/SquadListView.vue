@@ -223,7 +223,7 @@ onBeforeUnmount(() => {
     <transition name="sidebar-slide">
       <div
         v-if="isSidebarOpen"
-        class="fixed top-0 left-0 h-full w-auto min-w-[300px] max-w-[400px] z-50 bg-white shadow-xl border-r overflow-hidden"
+        class="fixed top-0 left-0 h-full w-auto min-w-[300px] max-w-[400px] z-50 bg-white shadow-xl border-r overflow-hidden mt-[83px]"
         @mouseleave="isSidebarOpen = false"
       >
         <SquadSidebar

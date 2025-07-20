@@ -228,9 +228,9 @@ function formatDate(dateStr) {
             />
           </div>
         </div>
-        <template v-if="project.status === 'EVALUATION'">
+        <template v-if="memberRole === 'ADMIN' && project.status !== 'WAITING'">
           <PrimaryButton
-            v-if="memberRole === 'ADMIN'"
+            v-if="project.status === 'EVALUATION'"
             label="평가 완료"
             :onClick="handleComplete"
             :disabled="
@@ -243,24 +243,16 @@ function formatDate(dateStr) {
             textColorClass="text-white"
             customClass="px-5 py-2 rounded-md font-semibold"
           />
-        </template>
-        <template
-          v-else-if="
-            project.status === 'IN_PROGRESS' || project.status === 'WAITING'
-          "
-        >
           <PrimaryButton
+            v-else-if="project.status === 'IN_PROGRESS'"
             label="프로젝트 종료"
             @click="handleEvaluate"
-            v-if="memberRole === 'ADMIN'"
           />
-        </template>
-        <template v-else>
           <PrimaryButton
+            v-else
             label="평가 완료"
             :onClick="handleComplete"
             :disabled="project.status === 'COMPLETE'"
-            v-if="memberRole === 'ADMIN'"
           />
         </template>
       </div>
