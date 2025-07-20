@@ -199,11 +199,11 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="flex h-full justify-center relative">
-    <!-- 아이콘: >, 색상 변화 -->
+    <!-- 사이드바 열기 버튼 -->
     <div
       v-if="!isSidebarOpen"
       ref="arrowRef"
-      class="fixed left-0 top-1/2 -translate-y-1/2 z-30 text-headlineLg select-none ml-[30px]"
+      class="fixed left-[2vw] top-1/2 -translate-y-1/2 z-30 text-headlineLg select-none"
       :style="{
         color: interpolatedColor,
         transition: 'color 0.2s ease',
@@ -212,21 +212,19 @@ onBeforeUnmount(() => {
       &gt;
     </div>
 
+    <!-- 사이드바 hover 트리거 -->
     <div
       v-if="!isSidebarOpen"
-      class="fixed top-0 left-0 h-full w-[40px] z-50 hover-trigger"
+      class="fixed top-0 left-0 h-full w-[3vw] min-w-[40px] z-50 hover-trigger"
       @mouseenter="isSidebarOpen = true"
     />
 
-    <div
-      class="sidebar-container absolute top-0 left-0 h-screen z-40 flex flex-row"
-      @mouseleave="isSidebarOpen = false"
-    >
+    <!-- 사이드바 슬라이드 패널 -->
+    <transition name="sidebar-slide">
       <div
-        class="relative transition-transform duration-300 transform w-[260px] h-full shadow-lg bg-white border-r border-gray-200"
-        :class="[
-          isSidebarOpen ? '-translate-x-[135px]' : '-translate-x-[445px]',
-        ]"
+        v-if="isSidebarOpen"
+        class="fixed top-0 left-0 h-full w-auto min-w-[300px] max-w-[400px] z-50 bg-white shadow-xl border-r overflow-hidden"
+        @mouseleave="isSidebarOpen = false"
       >
         <SquadSidebar
           :projectGroups="projectGroups"
@@ -236,7 +234,7 @@ onBeforeUnmount(() => {
           @more="openMoreModal"
         />
       </div>
-    </div>
+    </transition>
 
     <ProjectListModal
       v-if="showMoreModal"
@@ -273,13 +271,17 @@ onBeforeUnmount(() => {
           스쿼드를 추가해주세요.
         </div>
         <div class="grid grid-cols-3 gap-4">
-          <SquadCard
+          <div
             v-for="squad in squads"
             :key="squad.squadCode"
-            :squad="squad"
-            :projectId="selectedProjectCode"
-            @delete="deleteSquad"
-          />
+            class="transition-all hover:shadow-lg hover:scale-[1.02] hover:-translate-y-[2px] duration-300"
+          >
+            <SquadCard
+              :squad="squad"
+              :projectId="selectedProjectCode"
+              @delete="deleteSquad"
+            />
+          </div>
         </div>
       </main>
 
@@ -309,5 +311,30 @@ onBeforeUnmount(() => {
 .hover-trigger {
   width: 40px;
   cursor: pointer;
+}
+
+.sidebar-slide-enter-active,
+.sidebar-slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.sidebar-slide-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.sidebar-slide-enter-to {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.sidebar-slide-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.sidebar-slide-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
 }
 </style>
