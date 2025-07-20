@@ -62,6 +62,7 @@ async function handleSearch(page = 1) {
       techStack: [dev.topTechStackName],
       monthlyUnitPrice: dev.monthlyUnitPrice,
       productivity: dev.productivity,
+      imageUrl: dev.imageUrl,
     }));
 
     currentPage.value = result.currentPage + 1;

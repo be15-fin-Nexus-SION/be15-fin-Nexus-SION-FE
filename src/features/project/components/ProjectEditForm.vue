@@ -67,14 +67,8 @@ watch(
         : data.budget;
     form.fileUrl = data.requestSpecificationUrl;
 
-    if (data.duration) {
-      const [start, end] = data.duration.split(" ~ ");
-      form.startDate = start;
-      form.endDate = end;
-    } else {
-      form.startDate = data.startDate;
-      form.endDate = data.expectedEndDate;
-    }
+    form.startDate = data.startDate;
+    form.endDate = data.endDate || data.expectedEndDate;
   },
   { immediate: true },
 );

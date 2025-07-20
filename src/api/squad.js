@@ -39,13 +39,8 @@ export const getTechStackAutocomplete = (keyword) => {
 };
 
 export async function searchSquadDevelopers(payload) {
-  try {
-    const response = await axios.post("/members/squad-search", payload);
-    return response.data.data;
-  } catch (error) {
-    console.error("개발자 조회 실패:", error);
-    throw error;
-  }
+  const response = await axios.post("/members/squad-search", payload);
+  return response.data.data;
 }
 
 export async function getRecommendedCandidates(projectId) {
