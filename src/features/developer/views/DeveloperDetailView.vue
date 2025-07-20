@@ -5,7 +5,7 @@
       <!-- 상단 버튼 -->
       <div class="flex items-center justify-between">
         <div class="text-xl font-semibold">개발자 상세</div>
-        <div class="space-x-2" v-if="isAdmin && props.userModal">
+        <div class="space-x-2" v-if="isAdmin && !props.userModal">
           <button
             class="px-4 py-2 rounded-md bg-primary text-white text-sm"
             @click="goToEdit"
