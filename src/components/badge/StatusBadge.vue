@@ -45,6 +45,6 @@ const badgeClass = computed(() => {
 
 <style scoped>
 .badge-text {
-  @apply text-[14px] text-[#121212] leading-[1.1] whitespace-nowrap;
+  @apply text-[12px] text-white font-semibold leading-[1.1] whitespace-nowrap;
 }
 </style>
