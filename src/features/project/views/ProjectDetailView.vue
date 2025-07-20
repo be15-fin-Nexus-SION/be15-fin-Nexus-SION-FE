@@ -92,13 +92,16 @@ async function handleEditSubmit(data) {
     await updateProject(projectCode, data.payload);
     showSuccessToast("프로젝트가 수정되었습니다.");
 
-    await analyzeProject(projectCode, data.file);
+    if (data.file) {
+      await analyzeProject(projectCode, data.file);
+    }
 
     // UI 반영
     Object.assign(project.value, data.payload);
 
     isEditVisible.value = false;
   } catch (error) {
+    console.log(error);
     showErrorToast("수정 중 오류가 발생했습니다.");
   }
 }
