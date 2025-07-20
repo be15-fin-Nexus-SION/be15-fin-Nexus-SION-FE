@@ -226,7 +226,7 @@ onBeforeUnmount(() => {
       <!-- 우측: Squad 정보 -->
       <section class="w-[55%] bg-white rounded-xl shadow p-6 relative">
         <div class="flex justify-between items-start mb-4">
-          <div class="flex items-start gap-2">
+          <div class="flex items-center gap-2">
             <h2 class="text-2xl font-semibold">{{ squad.title }}</h2>
             <span
               v-if="squad.origin === 'AI'"
