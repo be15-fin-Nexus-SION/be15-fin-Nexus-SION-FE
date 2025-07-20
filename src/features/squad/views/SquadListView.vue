@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, onBeforeUnmount } from "vue";
 import SquadSidebar from "@/features/squad/components/SquadSidebar.vue";
 import SquadCard from "@/features/squad/components/SquadCard.vue";
 import SquadDropdown from "@/features/squad/components/SquadDropdown.vue";
@@ -190,6 +190,10 @@ onMounted(() => {
   fetchProjects();
   squadStore.resetSquad();
   window.addEventListener("mousemove", handleMouseMove);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("mousemove", handleMouseMove);
 });
 </script>
 
