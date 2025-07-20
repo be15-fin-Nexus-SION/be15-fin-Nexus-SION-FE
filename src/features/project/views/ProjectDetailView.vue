@@ -196,6 +196,14 @@ function leave(el) {
   el.style.height = "0";
   el.style.opacity = "0";
 }
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}.${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
+}
 </script>
 
 <template>
@@ -279,8 +287,17 @@ function leave(el) {
           <p>{{ project.domainName }}</p>
         </div>
         <div>
-          <p class="text-gray-400">기간</p>
-          <p>{{ project.duration }}</p>
+          <p class="text-gray-400">
+            {{ project.status === "WAITING" ? "예상 기간" : "기간" }}
+          </p>
+          <p>
+            {{ formatDate(project.startDate) }} ~
+            {{
+              project.status === "COMPLETE" || project.endDate
+                ? formatDate(project.endDate)
+                : "진행중"
+            }}
+          </p>
         </div>
         <div>
           <div>
