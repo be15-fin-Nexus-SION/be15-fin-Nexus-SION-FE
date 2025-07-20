@@ -1,6 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { useToast } from "vue-toastification";
+import { ref, onMounted, computed, onBeforeUnmount } from "vue";
 import SquadSidebar from "@/features/squad/components/SquadSidebar.vue";
 import SquadCard from "@/features/squad/components/SquadCard.vue";
 import SquadDropdown from "@/features/squad/components/SquadDropdown.vue";
@@ -11,19 +10,15 @@ import BasePagination from "@/components/Pagination.vue";
 import { useRoute } from "vue-router";
 import SquadDetailView from "@/features/squad/views/SquadDetailView.vue";
 import { useSquadStore } from "@/stores/squadCreateStore.js";
+import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 
-const totalCount = ref(0); // 총 스쿼드 수
-
-const toast = useToast();
-
+const totalCount = ref(0);
 const showMoreModal = ref(false);
 const selectedMoreType = ref("");
-
 const squads = ref([]);
 const page = ref(1);
 const size = 9;
 const totalPages = ref(1);
-
 const route = useRoute();
 
 const selectedProjectCode = ref();
@@ -33,7 +28,6 @@ const selectedProjectStatus = computed(() => {
     projectMap.value[selectedProjectCode.value]?.status?.toUpperCase() ?? ""
   );
 });
-
 const isEvaluating = computed(() => {
   return (
     projectMap.value[selectedProjectCode.value]?.analysisStatus !== "COMPLETE"
@@ -41,7 +35,8 @@ const isEvaluating = computed(() => {
 });
 
 const projectGroups = ref({ waiting: [], inprogress: [], complete: [] });
-const projectMap = ref({}); // title → { projectCode, title, status }
+const projectMap = ref({});
+const isSidebarOpen = ref(false);
 
 const closeModal = () => {
   showMoreModal.value = false;
@@ -55,25 +50,21 @@ const selectProjectAndClose = (projectCode) => {
 const deleteSquad = async (squadCode) => {
   try {
     await deleteSquadByCode(squadCode);
-
     totalCount.value = Math.max(0, totalCount.value - 1);
     if (squads.value.length === 1 && page.value > 1) {
       page.value -= 1;
     }
     totalPages.value = Math.max(1, Math.ceil(totalCount.value / size));
-
     await fetchSquads();
-    toast.success("스쿼드가 성공적으로 삭제되었습니다.");
+    showSuccessToast("스쿼드가 성공적으로 삭제되었습니다.");
   } catch (e) {
-    console.error("스쿼드 삭제 실패:", e);
-    toast.error("스쿼드 삭제에 실패했습니다.");
+    showErrorToast("스쿼드 삭제에 실패했습니다.");
   }
 };
 
 const fetchProjects = async () => {
   const response = await fetchProjectList({ page: 0, size: 100 });
   const content = response.data.data?.content ?? [];
-
   const waiting = [],
     inprogress = [],
     complete = [];
@@ -81,10 +72,8 @@ const fetchProjects = async () => {
 
   for (const project of content) {
     map[project.projectCode] = project;
-
     switch (project.status?.toUpperCase()) {
       case "WAITING":
-      case "EVALUATION":
         waiting.push(project.projectCode);
         break;
       case "IN_PROGRESS":
@@ -92,6 +81,7 @@ const fetchProjects = async () => {
         break;
       case "COMPLETE":
       case "INCOMPLETE":
+      case "EVALUATION":
         complete.push(project.projectCode);
         break;
       default:
@@ -100,12 +90,7 @@ const fetchProjects = async () => {
   }
 
   projectMap.value = map;
-
-  projectGroups.value = {
-    waiting,
-    inprogress,
-    complete,
-  };
+  projectGroups.value = { waiting, inprogress, complete };
 
   const projectIdFromQuery = route.query.projectId;
   if (projectIdFromQuery && map[projectIdFromQuery]) {
@@ -115,25 +100,21 @@ const fetchProjects = async () => {
     selectedProjectCode.value = content[0].projectCode;
     selectedProjectTitle.value = content[0].title;
   }
-
   await fetchSquads();
 };
 
 const fetchSquads = async () => {
   if (!selectedProjectCode.value) return;
-
   const response = await getSquadList({
     projectCode: selectedProjectCode.value,
-    page: page.value - 1, // 0-indexed
+    page: page.value - 1,
     size,
   });
-
   const squadData = response.data?.data ?? {};
   squads.value = squadData.content ?? [];
-
   totalCount.value = squadData.totalElements ?? 0;
   totalPages.value = squadData.totalPages ?? 1;
-  page.value = (squadData.currentPage ?? 0) + 1; // 현재 페이지 갱신
+  page.value = (squadData.currentPage ?? 0) + 1;
 };
 
 const goToPage = (p) => {
@@ -151,7 +132,6 @@ const selectProject = (projectCode) => {
     selectedProjectCode.value = project.projectCode;
     page.value = 1;
     fetchSquads();
-    // 생성중이던 스쿼드 리셋하기
     if (project.status === "WAITING" || project.status === "EVALUATION") {
       squadStore.resetSquad();
     }
@@ -167,27 +147,94 @@ const openMoreModal = (type) => {
     alert("프로젝트 정보가 아직 로드되지 않았습니다.");
     return;
   }
-
   selectedMoreType.value = type;
   showMoreModal.value = true;
+};
+
+// 색상 보간 관련
+const baseRGB = { r: 209, g: 213, b: 219 }; // gray-500
+const primaryRGB = { r: 101, g: 116, b: 246 }; // primary
+
+const arrowOpacity = ref(0);
+const arrowRef = ref(null);
+
+const interpolatedColor = computed(() => {
+  const r = Math.round(
+    baseRGB.r + (primaryRGB.r - baseRGB.r) * arrowOpacity.value,
+  );
+  const g = Math.round(
+    baseRGB.g + (primaryRGB.g - baseRGB.g) * arrowOpacity.value,
+  );
+  const b = Math.round(
+    baseRGB.b + (primaryRGB.b - baseRGB.b) * arrowOpacity.value,
+  );
+  return `rgb(${r}, ${g}, ${b})`;
+});
+
+const handleMouseMove = (e) => {
+  if (!arrowRef.value) return;
+  const rect = arrowRef.value.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  const dx = e.clientX - centerX;
+  const dy = e.clientY - centerY;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  const maxDistance = 1200;
+  arrowOpacity.value = Math.max(0, 1 - distance / maxDistance);
 };
 
 onMounted(() => {
   selectedProjectCode.value = route.query.projectId;
   fetchProjects();
   squadStore.resetSquad();
+  window.addEventListener("mousemove", handleMouseMove);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("mousemove", handleMouseMove);
 });
 </script>
 
 <template>
-  <div class="flex h-full">
-    <SquadSidebar
-      :projectGroups="projectGroups"
-      :selectedProjectCode="selectedProjectCode"
-      :projectMap="projectMap"
-      @select="selectProject"
-      @more="openMoreModal"
+  <div class="flex h-full justify-center relative">
+    <!-- 사이드바 열기 버튼 -->
+    <div
+      v-if="!isSidebarOpen"
+      ref="arrowRef"
+      class="fixed left-[2vw] top-1/2 -translate-y-1/2 z-30 text-headlineLg select-none"
+      :style="{
+        color: interpolatedColor,
+        transition: 'color 0.2s ease',
+      }"
+    >
+      &gt;
+    </div>
+
+    <!-- 사이드바 hover 트리거 -->
+    <div
+      v-if="!isSidebarOpen"
+      class="fixed top-0 left-0 h-full w-[3vw] min-w-[40px] z-50 hover-trigger"
+      @mouseenter="isSidebarOpen = true"
     />
+
+    <!-- 사이드바 슬라이드 패널 -->
+    <transition name="sidebar-slide">
+      <div
+        v-if="isSidebarOpen"
+        class="fixed top-0 left-0 h-full w-auto min-w-[300px] max-w-[400px] z-50 bg-white shadow-xl border-r overflow-hidden"
+        @mouseleave="isSidebarOpen = false"
+      >
+        <SquadSidebar
+          :projectGroups="projectGroups"
+          :selectedProjectCode="selectedProjectCode"
+          :projectMap="projectMap"
+          @select="selectProject"
+          @more="openMoreModal"
+        />
+      </div>
+    </transition>
 
     <ProjectListModal
       v-if="showMoreModal"
@@ -198,7 +245,6 @@ onMounted(() => {
       @select="selectProjectAndClose"
     />
 
-    <!-- 메인 컨텐츠 -->
     <div
       v-if="selectedProjectStatus === 'WAITING'"
       class="min-w-[900px] flex-1 flex flex-col p-6"
@@ -212,24 +258,30 @@ onMounted(() => {
       </div>
 
       <main class="overflow-y-auto h-[550px] p-2">
-        <div v-if="isEvaluating">
-          <div class="text-center h-full text-gray-500 py-20 text-lg">
-            평가중인 프로젝트입니다.
-          </div>
+        <div
+          v-if="isEvaluating"
+          class="text-center h-full text-gray-500 py-20 text-lg"
+        >
+          평가중인 프로젝트입니다.
         </div>
-        <div v-if="!isEvaluating && totalCount === 0">
-          <div class="text-center h-full text-gray-500 py-20 text-lg">
-            스쿼드를 추가해주세요.
-          </div>
+        <div
+          v-else-if="totalCount === 0"
+          class="text-center h-full text-gray-500 py-20 text-lg"
+        >
+          스쿼드를 추가해주세요.
         </div>
         <div class="grid grid-cols-3 gap-4">
-          <SquadCard
+          <div
             v-for="squad in squads"
             :key="squad.squadCode"
-            :squad="squad"
-            :projectId="selectedProjectCode"
-            @delete="deleteSquad"
-          />
+            class="transition-all hover:shadow-lg hover:scale-[1.02] hover:-translate-y-[2px] duration-300"
+          >
+            <SquadCard
+              :squad="squad"
+              :projectId="selectedProjectCode"
+              @delete="deleteSquad"
+            />
+          </div>
         </div>
       </main>
 
@@ -241,15 +293,48 @@ onMounted(() => {
         />
       </div>
     </div>
+
     <div v-else>
       <SquadDetailView
         v-if="squads.length > 0"
         :key="squads[0].squadCode"
         :squadCode="squads[0].squadCode"
       />
-      <div v-else class="text-center text-gray-500 py-20 text-lg font-semibold">
+      <div class="text-center text-gray-500 py-20 text-lg font-semibold" v-else>
         스쿼드 정보가 없습니다.
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.hover-trigger {
+  width: 40px;
+  cursor: pointer;
+}
+
+.sidebar-slide-enter-active,
+.sidebar-slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.sidebar-slide-enter-from {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.sidebar-slide-enter-to {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.sidebar-slide-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.sidebar-slide-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+</style>

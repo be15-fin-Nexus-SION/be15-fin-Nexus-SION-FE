@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import ManualDeveloperList from "@/features/squad/components/create/ManualDeveloperList.vue";
 import AiRecommendedSection from "@/features/squad/components/create/AiRecommendedSection.vue";
 import AiLoadingOverlay from "@/components/AiLoadingOverlay.vue";

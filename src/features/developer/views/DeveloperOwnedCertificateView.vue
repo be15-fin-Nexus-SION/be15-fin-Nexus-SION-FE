@@ -119,6 +119,9 @@
         <h2 class="text-lg font-bold mb-6 text-center">자격증 등록</h2>
 
         <form @submit.prevent="submitCertificate" class="space-y-4">
+          <p class="text-caption text-gray-400 mt-1">
+            * 모든 입력값은 필수입니다.
+          </p>
           <input
             v-model="form.certificateName"
             type="text"
@@ -272,6 +275,21 @@ const handleFile = (e) => {
 };
 
 const submitCertificate = async () => {
+  const requiredFields = [
+    form.value.certificateName,
+    form.value.issuingOrganization,
+    form.value.issueDate,
+    form.value.file,
+  ];
+
+  const hasEmptyField = requiredFields.some(
+    (value) => value === null || value === undefined || value === "",
+  );
+
+  if (hasEmptyField) {
+    showErrorToast("빈칸 없이 모두 입력해주세요.");
+    return;
+  }
   try {
     const id = authStore.memberId;
     if (!id) {

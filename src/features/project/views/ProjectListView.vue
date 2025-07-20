@@ -1,9 +1,9 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import {
-  fetchProjectList,
   fetchMyProjectList,
+  fetchProjectList,
   getMyProjectWorkRequests,
   getRequestsForAdmin,
 } from "@/api/project.js";
@@ -20,7 +20,7 @@ const authStore = useAuthStore();
 const allProjects = ref([]);
 const currentPage = ref(1);
 const totalPages = ref(1);
-const perPage = 4;
+const perPage = 10;
 const selectedFilter = ref({});
 const projectHistories = ref([]);
 const activeTab = ref("list");
@@ -89,8 +89,7 @@ async function fetchProjectHistories() {
         : await getMyProjectWorkRequests(query);
 
     if (res.data.success) {
-      const content = res.data.data?.content ?? [];
-      projectHistories.value = content;
+      projectHistories.value = res.data.data?.content ?? [];
       totalPages.value = res.data.data?.totalPages ?? 1;
     } else {
       showErrorToast("요청 목록 불러오기 실패");
@@ -147,6 +146,7 @@ watch(
   { immediate: true },
 );
 
+const route = useRoute();
 onMounted(() => {
   if (!memberRole.value) return;
   if (memberRole.value === "ADMIN") {
@@ -159,6 +159,10 @@ onMounted(() => {
     });
   } else {
     fetchProjects();
+  }
+  const status = route.query.status;
+  if (typeof status === "string" && status.toLowerCase() === "evaluate") {
+    activeTab.value = "history";
   }
 });
 </script>
@@ -293,13 +297,5 @@ onMounted(() => {
 
 .pagination-wrapper {
   @apply mt-10 flex justify-center;
-}
-
-.page-full {
-  @apply w-full h-screen flex justify-center;
-}
-
-.page-container {
-  @apply flex flex-col w-[782px] h-fit items-center px-[30px] py-[30px] gap-[30px];
 }
 </style>

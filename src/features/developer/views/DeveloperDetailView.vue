@@ -1,4 +1,5 @@
 <template>
+
   <LoadingSpinner v-if="isLoading" />
   <div v-else class="max-w-5xl mx-auto py-10 px-4 space-y-8">
     <!-- 상단 버튼 -->
@@ -17,8 +18,9 @@
         >
           삭제
         </button>
+
       </div>
-    </div>
+
 
     <!-- 개인 정보 카드 -->
     <section
@@ -29,148 +31,151 @@
         <StatusBadge :status="developer.status" />
       </div>
 
-      <div class="w-48 flex flex-col items-center">
-        <img
-          :src="
-            developer.profileImageUrl ||
-            `https://api.dicebear.com/9.x/notionists/svg?seed=${developer.employeeId}`
-          "
-          alt="프로필 이미지"
-          class="w-48 h-48 rounded-full object-cover border mb-4"
-        />
-        <div class="text-center">
-          <div class="text-lg font-bold text-gray-900">
-            {{ developer.name }}
-          </div>
-          <div class="text-headlineLg text-gray-500 mt-1">
-            {{ developer.grade || "-" }}
-          </div>
-        </div>
-      </div>
 
-      <div class="flex-1 space-y-4">
-        <h3 class="text-sm font-semibold text-gray-700 mb-2">사원 정보</h3>
-        <div class="border-b pb-4">
-          <dl class="grid grid-cols-4 gap-y-3 text-sm text-gray-800">
-            <dt class="font-semibold text-gray-500">사번</dt>
-            <dd class="col-span-3">{{ developer.employeeId }}</dd>
-
-            <dt class="font-semibold text-gray-500">직급</dt>
-            <dd class="col-span-3">{{ developer.position || "-" }}</dd>
-
-            <dt class="font-semibold text-gray-500">부서</dt>
-            <dd class="col-span-3">{{ developer.department || "-" }}</dd>
-
-            <dt class="font-semibold text-gray-500">생년월일</dt>
-            <dd class="col-span-3">{{ developer.birthday || "-" }}</dd>
-
-            <dt class="font-semibold text-gray-500">이메일</dt>
-            <dd class="col-span-3">{{ developer.email }}</dd>
-
-            <dt class="font-semibold text-gray-500">근무 기간</dt>
-            <dd class="col-span-3">{{ developer.joinedAt }} ~ 진행중</dd>
-
-            <dt class="font-semibold text-gray-500">연락처</dt>
-            <dd class="col-span-3">
-              {{ developer.phoneNumber }} | {{ developer.email }}
-            </dd>
-
-            <dt class="font-semibold text-gray-500">년차</dt>
-            <dd class="col-span-3">{{ developer.careerYears }}년차</dd>
-          </dl>
-        </div>
-
-        <h3 class="text-sm font-semibold text-gray-700 mb-2">기술 스택</h3>
-        <div>
-          <div class="flex flex-wrap gap-1.5">
-            <TechBadge v-for="tech in techList" :key="tech" :label="tech" />
+        <div class="w-48 flex flex-col items-center">
+          <img
+            :src="
+              developer.profileImageUrl ||
+              `https://api.dicebear.com/9.x/notionists/svg?seed=${developer.employeeId}`
+            "
+            alt="프로필 이미지"
+            class="w-48 h-48 rounded-full object-cover border mb-4"
+          />
+          <div class="text-center">
+            <div class="text-lg font-bold text-gray-900">
+              {{ developer.name }}
+            </div>
+            <div class="text-headlineLg text-gray-500 mt-1">
+              {{ developer.grade || "-" }}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- 점수 카드 -->
-    <section class="grid grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
-        <div class="text-sm text-gray-500 font-semibold mb-2">총 점수</div>
-        <div class="text-3xl font-bold mb-1">
-          {{ scoreSummary?.currentTotalScore ?? "-" }}
-        </div>
-        <div class="flex justify-start items-center gap-2">
-          <div class="text-xs text-green-600">{{ totalDiffText }}</div>
-          <div v-if="totalDiffDate" class="text-[10px] text-gray-400 mt-0.5">
-            ({{ totalDiffDate }} 대비)
+        <div class="flex-1 space-y-4">
+          <h3 class="text-sm font-semibold text-gray-700 mb-2">사원 정보</h3>
+          <div class="border-b pb-4">
+            <dl class="grid grid-cols-4 gap-y-3 text-sm text-gray-800">
+              <dt class="font-semibold text-gray-500">사번</dt>
+              <dd class="col-span-3">{{ developer.employeeId }}</dd>
+
+              <dt class="font-semibold text-gray-500">직급</dt>
+              <dd class="col-span-3">{{ developer.position || "-" }}</dd>
+
+              <dt class="font-semibold text-gray-500">부서</dt>
+              <dd class="col-span-3">{{ developer.department || "-" }}</dd>
+
+              <dt class="font-semibold text-gray-500">생년월일</dt>
+              <dd class="col-span-3">{{ developer.birthday || "-" }}</dd>
+
+              <dt class="font-semibold text-gray-500">이메일</dt>
+              <dd class="col-span-3">{{ developer.email }}</dd>
+
+              <dt class="font-semibold text-gray-500">근무 기간</dt>
+              <dd class="col-span-3">{{ developer.joinedAt }} ~ 진행중</dd>
+
+              <dt class="font-semibold text-gray-500">연락처</dt>
+              <dd class="col-span-3">
+                {{ developer.phoneNumber }} | {{ developer.email }}
+              </dd>
+
+              <dt class="font-semibold text-gray-500">년차</dt>
+              <dd class="col-span-3">{{ developer.careerYears }}년차</dd>
+            </dl>
+          </div>
+
+          <h3 class="text-sm font-semibold text-gray-700 mb-2">기술 스택</h3>
+          <div>
+            <div class="flex flex-wrap gap-1.5">
+              <TechBadge v-for="tech in techList" :key="tech" :label="tech" />
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
-        <div class="text-sm text-gray-500 font-semibold mb-2">
-          기술스택 점수
-        </div>
-        <div class="text-3xl font-bold mb-1">
-          {{ scoreSummary?.currentTechScore ?? "-" }}
-        </div>
-        <div class="flex justify-start items-center gap-2">
-          <div class="text-xs text-green-600">{{ techDiffText }}</div>
-          <div v-if="techDiffDate" class="text-[10px] text-gray-400 mt-0.5">
-            ({{ techDiffDate }} 대비)
+      <!-- 점수 카드 -->
+      <section class="grid grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
+          <div class="text-sm text-gray-500 font-semibold mb-2">총 점수</div>
+          <div class="text-3xl font-bold mb-1">
+            {{ scoreSummary?.currentTotalScore ?? "-" }}
+          </div>
+          <div class="flex justify-start items-center gap-2">
+            <div class="text-xs text-green-600">{{ totalDiffText }}</div>
+            <div v-if="totalDiffDate" class="text-[10px] text-gray-400 mt-0.5">
+              ({{ totalDiffDate }} 대비)
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
-        <div class="text-sm text-gray-500 font-semibold mb-2">자격증 점수</div>
-        <div class="text-3xl font-bold mb-1">
-          {{ scoreSummary?.currentCertificateScore ?? "-" }}
-        </div>
-        <div class="flex justify-start items-center gap-2">
-          <div class="text-xs text-green-600">{{ certificateDiffText }}</div>
-          <div
-            v-if="certificateDiffDate"
-            class="text-[10px] text-gray-400 mt-0.5"
-          >
-            ({{ certificateDiffDate }} 대비)
+        <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
+          <div class="text-sm text-gray-500 font-semibold mb-2">
+            기술스택 점수
+          </div>
+          <div class="text-3xl font-bold mb-1">
+            {{ scoreSummary?.currentTechScore ?? "-" }}
+          </div>
+          <div class="flex justify-start items-center gap-2">
+            <div class="text-xs text-green-600">{{ techDiffText }}</div>
+            <div v-if="techDiffDate" class="text-[10px] text-gray-400 mt-0.5">
+              ({{ techDiffDate }} 대비)
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+
+        <div class="bg-white p-6 rounded-xl border border-gray-150 text-start">
+          <div class="text-sm text-gray-500 font-semibold mb-2">
+            자격증 점수
+          </div>
+          <div class="text-3xl font-bold mb-1">
+            {{ scoreSummary?.currentCertificateScore ?? "-" }}
+          </div>
+          <div class="flex justify-start items-center gap-2">
+            <div class="text-xs text-green-600">{{ certificateDiffText }}</div>
+            <div
+              v-if="certificateDiffDate"
+              class="text-[10px] text-gray-400 mt-0.5"
+            >
+              ({{ certificateDiffDate }} 대비)
+            </div>
+          </div>
+        </div>
+      </section>
 
     <section class="grid grid-cols-2 gap-6">
       <div class="bg-white p-4 rounded-xl border border-gray-150">
         <div class="font-semibold mb-4">보유 자격증</div>
 
-        <div
-          v-if="certificateList.length === 0"
-          class="h-40 flex items-center justify-center"
-        >
-          <p class="text-gray-400 text-sm">보유한 자격증이 없습니다.</p>
-        </div>
-
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div
-            v-for="cert in certificateList"
-            :key="cert.userCertificateHistoryId"
-            class="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow transition"
+            v-if="certificateList.length === 0"
+            class="h-40 flex items-center justify-center"
           >
-            <div class="text-sm font-bold text-gray-800 mb-2">
-              {{ cert.certificateName }}
+            <p class="text-gray-400 text-sm">보유한 자격증이 없습니다.</p>
+          </div>
+
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div
+              v-for="cert in certificateList"
+              :key="cert.userCertificateHistoryId"
+              class="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow transition"
+            >
+              <div class="text-sm font-bold text-gray-800 mb-2">
+                {{ cert.certificateName }}
+              </div>
+              <dl class="text-xs text-gray-600 space-y-1">
+                <div>
+                  <dt class="inline font-medium text-gray-500">발급기관:</dt>
+                  <dd class="inline ml-1">
+                    {{ cert.issuingOrganization || "미입력" }}
+                  </dd>
+                </div>
+                <div>
+                  <dt class="inline font-medium text-gray-500">발급일자:</dt>
+                  <dd class="inline ml-1">{{ cert.issueDate }}</dd>
+                </div>
+              </dl>
             </div>
-            <dl class="text-xs text-gray-600 space-y-1">
-              <div>
-                <dt class="inline font-medium text-gray-500">발급기관:</dt>
-                <dd class="inline ml-1">
-                  {{ cert.issuingOrganization || "미입력" }}
-                </dd>
-              </div>
-              <div>
-                <dt class="inline font-medium text-gray-500">발급일자:</dt>
-                <dd class="inline ml-1">{{ cert.issueDate }}</dd>
-              </div>
-            </dl>
           </div>
         </div>
-      </div>
 
       <div class="bg-white p-4 rounded-xl border border-gray-150">
         <div class="font-semibold mb-4">주요 기술 스택</div>
@@ -189,13 +194,15 @@
     </section>
   </div>
 
-  <ConfirmModal
-    v-if="showDeleteConfirm"
-    message="정말 삭제하시겠습니까?"
-    confirmText="확인"
-    @confirm="deleteDeveloperHandler"
-    @close="showDeleteConfirm = false"
-  />
+
+    <ConfirmModal
+      v-if="showDeleteConfirm"
+      message="정말 삭제하시겠습니까?"
+      confirmText="확인"
+      @confirm="deleteDeveloperHandler"
+      @close="showDeleteConfirm = false"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -218,8 +225,18 @@ import { showErrorToast, showSuccessToast } from "@/utills/toast.js";
 import StatusBadge from "@/components/badge/StatusBadge.vue";
 import { fetchUserCertificates } from "@/api/certificate.js";
 
+defineEmits(["close"]);
+
 const props = defineProps({
+  employeeId: {
+    type: String,
+    default: null,
+  },
   userModal: {
+    type: Boolean,
+    default: false,
+  },
+  readonly: {
     type: Boolean,
     default: false,
   },
@@ -228,7 +245,7 @@ const props = defineProps({
 const isLoading = ref(true);
 const route = useRoute();
 const router = useRouter();
-const employeeId = route.params.employeeId;
+const employeeId = computed(() => props.employeeId || route.params.employeeId);
 const showDeleteConfirm = ref(false);
 
 const authStore = useAuthStore();
@@ -284,12 +301,15 @@ const certificateDiffDate = computed(() =>
 );
 
 function goToEdit() {
-  router.push({ name: "developer-edit", params: { employeeId } });
+  router.push({
+    name: "developer-edit",
+    params: { employeeId: employeeId.value },
+  });
 }
 
 async function deleteDeveloperHandler() {
   try {
-    await deleteDeveloper(employeeId);
+    await deleteDeveloper(employeeId.value);
     showSuccessToast("삭제가 완료되었습니다.");
     router.push({ name: "developer-list" });
   } catch (e) {
@@ -302,15 +322,17 @@ async function deleteDeveloperHandler() {
 
 onMounted(async () => {
   try {
-    const { data: devRes } = await fetchDeveloperDetail(employeeId);
+    const { data: devRes } = await fetchDeveloperDetail(employeeId.value);
     developer.value = devRes.data;
 
-    const { data: stackRes } = await fetchTechStacksByEmployeeId(employeeId);
+    const { data: stackRes } = await fetchTechStacksByEmployeeId(
+      employeeId.value,
+    );
     const stackData = stackRes.data;
     techList.value = stackData.map((s) => s.techStackName);
     barData.value = stackData;
 
-    const { data: certRes } = await fetchUserCertificates(employeeId);
+    const { data: certRes } = await fetchUserCertificates(employeeId.value);
     certificateList.value = certRes.data;
 
     const top7 = [...stackData].sort((a, b) => b.score - a.score).slice(0, 7);
@@ -327,7 +349,7 @@ onMounted(async () => {
       ],
     };
 
-    const { data: scoreRes } = await fetchScoreSummary(employeeId);
+    const { data: scoreRes } = await fetchScoreSummary(employeeId.value);
     scoreSummary.value = scoreRes.data;
   } catch (e) {
     console.error("개발자 상세 정보 불러오기 실패", e);

@@ -52,7 +52,6 @@ const props = defineProps({
 
 const GRADE_ORDER = ["S", "A", "B", "C", "D"];
 const selectedGrade = ref("__ALL__");
-const sortOption = "grade";
 
 const filteredStackOptions = computed(() => {
   const allGrades = props.stats.map((item) => item.gradeCode);
@@ -66,16 +65,10 @@ const filteredList = computed(() => {
 });
 
 const sortedList = computed(() => {
-  let list = [...filteredList.value];
-
-  if (sortOption.value === "grade") {
-    return list.sort(
-      (a, b) =>
-        GRADE_ORDER.indexOf(a.gradeCode) - GRADE_ORDER.indexOf(b.gradeCode),
-    );
-  }
-
-  return list;
+  return [...filteredList.value].sort(
+    (a, b) =>
+      GRADE_ORDER.indexOf(a.gradeCode) - GRADE_ORDER.indexOf(b.gradeCode),
+  );
 });
 </script>
 

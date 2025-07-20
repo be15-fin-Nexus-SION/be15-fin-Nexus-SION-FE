@@ -77,7 +77,7 @@ function handleDelete() {
     try {
       await deleteProject(projectCode);
       showSuccessToast("프로젝트가 삭제되었습니다.");
-      router.push("/projects");
+      await router.push("/projects");
     } catch (error) {
       showErrorToast("삭제 중 오류가 발생했습니다.");
     } finally {
@@ -92,13 +92,16 @@ async function handleEditSubmit(data) {
     await updateProject(projectCode, data.payload);
     showSuccessToast("프로젝트가 수정되었습니다.");
 
-    await analyzeProject(projectCode, data.file);
+    if (data.file) {
+      await analyzeProject(projectCode, data.file);
+    }
 
     // UI 반영
     Object.assign(project.value, data.payload);
 
     isEditVisible.value = false;
   } catch (error) {
+    console.log(error);
     showErrorToast("수정 중 오류가 발생했습니다.");
   }
 }
@@ -196,6 +199,14 @@ function leave(el) {
   el.style.height = "0";
   el.style.opacity = "0";
 }
+
+function formatDate(dateStr) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  return `${date.getFullYear()}.${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
+}
 </script>
 
 <template>
@@ -247,7 +258,8 @@ function leave(el) {
         <template v-else>
           <PrimaryButton
             label="평가 완료"
-            @click="handleComplete"
+            :onClick="handleComplete"
+            :disabled="project.status === 'COMPLETE'"
             v-if="memberRole === 'ADMIN'"
           />
         </template>
@@ -278,12 +290,25 @@ function leave(el) {
           <p>{{ project.domainName }}</p>
         </div>
         <div>
-          <p class="text-gray-400">기간</p>
-          <p>{{ project.duration }}</p>
+          <p class="text-gray-400">
+            {{ project.status === "WAITING" ? "예상 기간" : "기간" }}
+          </p>
+          <p>
+            {{ formatDate(project.startDate) }} ~
+            {{
+              project.status === "COMPLETE" || project.endDate
+                ? formatDate(project.endDate)
+                : "진행중"
+            }}
+          </p>
         </div>
         <div>
-          <p class="text-gray-400">예산</p>
-          <p>{{ project.budget }}</p>
+          <div>
+            <p class="text-gray-400">
+              {{ project.status === "WAITING" ? "예산" : "실투입 금액" }}
+            </p>
+            <p>{{ project.budget }}</p>
+          </div>
         </div>
       </div>
 
