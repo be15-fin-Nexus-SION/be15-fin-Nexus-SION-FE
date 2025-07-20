@@ -342,9 +342,7 @@ function formatDate(dateStr) {
             class="text-sm text-blue-500"
             @click="
               project.status === 'WAITING'
-                ? router.push(
-                    `/squads/create/${projectCode}?squadCode=${project.squadCode}`,
-                  )
+                ? router.push(`/squads/create/${projectCode}`)
                 : toggleReplacementMode()
             "
           >
