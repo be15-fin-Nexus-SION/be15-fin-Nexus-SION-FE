@@ -4,7 +4,7 @@
     <!-- 상단 버튼 -->
     <div class="flex items-center justify-between">
       <div class="text-xl font-semibold">개발자 상세</div>
-      <div class="space-x-2" v-if="isAdmin && props.userModal">
+      <div class="space-x-2" v-if="isAdmin && !props.userModal">
         <button
           class="px-4 py-2 rounded-md bg-primary text-white text-sm"
           @click="goToEdit"
@@ -23,7 +23,7 @@
     <!-- 개인 정보 카드 -->
     <section
       v-if="developer"
-      class="relative bg-white p-10 rounded-xl shadow flex gap-20 items-start"
+      class="relative bg-white p-10 rounded-xl border border-gray-150 flex gap-20 items-start"
     >
       <div class="absolute top-6 right-6">
         <StatusBadge :status="developer.status" />
@@ -137,7 +137,7 @@
     </section>
 
     <section class="grid grid-cols-2 gap-6">
-      <div class="bg-white p-4 rounded-xl shadow">
+      <div class="bg-white p-4 rounded-xl border border-gray-150">
         <div class="font-semibold mb-4">보유 자격증</div>
 
         <div
@@ -172,18 +172,18 @@
         </div>
       </div>
 
-      <div class="bg-white p-4 rounded-xl shadow">
+      <div class="bg-white p-4 rounded-xl border border-gray-150">
         <div class="font-semibold mb-4">주요 기술 스택</div>
         <RadarChart v-if="radarData" :data="radarData" />
       </div>
     </section>
 
-    <section class="bg-white p-4 rounded-xl shadow">
+    <section class="bg-white p-4 rounded-xl border border-gray-150">
       <div class="font-semibold mb-4">기술 스택별 점수</div>
       <BarChart v-if="barData" :data="barData" />
     </section>
 
-    <section class="bg-white p-4 rounded-xl shadow">
+    <section class="bg-white p-4 rounded-xl border border-gray-150">
       <div class="font-semibold mb-4">성장 추이</div>
       <GrowthChart v-if="developer" :employeeId="developer.employeeId" />
     </section>
