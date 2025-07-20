@@ -59,8 +59,15 @@ api.interceptors.response.use(
       // 토큰 재발급 시도
       if (isRefreshing) {
         // ⏳ 리프레시 중이면 새 토큰 받을 때까지 대기
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
           addRefreshSubscriber((newToken) => {
+            if (!newToken) {
+              const error = new Error(
+                "토큰 갱신에 실패하여 요청을 취소합니다.",
+              );
+              error.name = "TokenRefreshError";
+              return reject(error);
+            }
             config.headers.Authorization = `Bearer ${newToken}`;
             resolve(api(config));
           });
@@ -81,6 +88,7 @@ api.interceptors.response.use(
         config.headers.Authorization = `Bearer ${newToken}`;
         return api(config);
       } catch (refreshErr) {
+        onAccessTokenFetched(null);
         // 재발급 실패하면 로그아웃
         await authStore.clearAuth();
         return Promise.reject(refreshErr);
