@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "@/stores/auth.js";
-import { reissueAccessToken } from "@/api/member.js";
 import { stopLoading } from "@/composable/useLoadingBar.js";
+import { refreshToken } from "@/composable/useTokenRefresher.js";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -9,16 +9,11 @@ const api = axios.create({
 });
 
 // ✅ 중복 리프레시 방지 변수
-let isRefreshing = false;
 let refreshSubscribers = [];
 
 function onAccessTokenFetched(token) {
   refreshSubscribers.forEach((callback) => callback(token));
   refreshSubscribers = [];
-}
-
-function addRefreshSubscriber(callback) {
-  refreshSubscribers.push(callback);
 }
 
 api.interceptors.request.use((config) => {
@@ -56,44 +51,15 @@ api.interceptors.response.use(
       }
       config._retry = true;
 
-      // 토큰 재발급 시도
-      if (isRefreshing) {
-        // ⏳ 리프레시 중이면 새 토큰 받을 때까지 대기
-        return new Promise((resolve, reject) => {
-          addRefreshSubscriber((newToken) => {
-            if (!newToken) {
-              const error = new Error(
-                "토큰 갱신에 실패하여 요청을 취소합니다.",
-              );
-              error.name = "TokenRefreshError";
-              return reject(error);
-            }
-            config.headers.Authorization = `Bearer ${newToken}`;
-            resolve(api(config));
-          });
-        });
-      }
-
-      isRefreshing = true;
-
       try {
-        const refreshRes = await reissueAccessToken();
-        const newToken = refreshRes.data.data.accessToken;
+        const newToken = await refreshToken();
         authStore.setAuth(newToken);
-
-        // 📣 기다리던 요청들에 새 토큰 전달
-        onAccessTokenFetched(newToken);
 
         // 헤더 갱신 후 원래 요청 재시도
         config.headers.Authorization = `Bearer ${newToken}`;
         return api(config);
       } catch (refreshErr) {
-        onAccessTokenFetched(null);
-        // 재발급 실패하면 로그아웃
-        await authStore.clearAuth();
         return Promise.reject(refreshErr);
-      } finally {
-        isRefreshing = false; // ✅ 여기 추가!!
       }
     }
 

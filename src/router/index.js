@@ -12,7 +12,7 @@ import { scoreRoutes } from "@/features/score/router.js";
 import { useAuthStore } from "@/stores/auth.js";
 import { showErrorToast } from "@/utills/toast.js";
 import { freelancerRoutes } from "@/features/freelancer/router.js";
-import { reissueAccessToken } from "@/api/member.js";
+import { refreshToken } from "@/composable/useTokenRefresher.js";
 
 const getDashboardRouteByRole = (role) => {
   return role === "ADMIN"
@@ -57,12 +57,9 @@ router.beforeEach(async (to) => {
   // accessToken이 있고, 만료되었으면 리프레시 시도
   if (authStore.accessToken && isTokenExpired) {
     try {
-      const res = await reissueAccessToken();
-      const newToken = res.data.data.accessToken;
-      authStore.setAuth(newToken);
+      await refreshToken();
     } catch (e) {
       console.warn("❌ 토큰 리프레시 실패. 로그아웃 처리");
-      await authStore.clearAuth();
       showErrorToast("로그인이 필요한 페이지입니다.");
       return { name: "login" };
     }
