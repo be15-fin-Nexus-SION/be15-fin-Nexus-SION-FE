@@ -8,6 +8,19 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// ✅ 중복 리프레시 방지 변수
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+function onAccessTokenFetched(token) {
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(callback) {
+  refreshSubscribers.push(callback);
+}
+
 api.interceptors.request.use((config) => {
   const authStore = useAuthStore();
   if (authStore.accessToken)
@@ -44,11 +57,25 @@ api.interceptors.response.use(
       config._retry = true;
 
       // 토큰 재발급 시도
+      if (isRefreshing) {
+        // ⏳ 리프레시 중이면 새 토큰 받을 때까지 대기
+        return new Promise((resolve) => {
+          addRefreshSubscriber((newToken) => {
+            config.headers.Authorization = `Bearer ${newToken}`;
+            resolve(api(config));
+          });
+        });
+      }
+
+      isRefreshing = true;
 
       try {
         const refreshRes = await reissueAccessToken();
         const newToken = refreshRes.data.data.accessToken;
         authStore.setAuth(newToken);
+
+        // 📣 기다리던 요청들에 새 토큰 전달
+        onAccessTokenFetched(newToken);
 
         // 헤더 갱신 후 원래 요청 재시도
         config.headers.Authorization = `Bearer ${newToken}`;
@@ -57,6 +84,8 @@ api.interceptors.response.use(
         // 재발급 실패하면 로그아웃
         await authStore.clearAuth();
         return Promise.reject(refreshErr);
+      } finally {
+        isRefreshing = false; // ✅ 여기 추가!!
       }
     }
 
