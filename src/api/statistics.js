@@ -8,8 +8,12 @@ export function getAllTechStacks() {
   return api.get("/statistics/all-tech-stacks");
 }
 
-export async function fetchDevelopers(page = 0) {
-  return api.get(`/statistics/developers?page=${page}&size=10`);
+export async function fetchDevelopersAndStacks(page = 0, stackFilters = []) {
+  return api.post(`/statistics/stack-members`, {
+    page,
+    size: 10,
+    stackFilters,
+  });
 }
 
 export function getStackAvgCareer({
