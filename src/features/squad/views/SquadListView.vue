@@ -245,63 +245,71 @@ onBeforeUnmount(() => {
       @select="selectProjectAndClose"
     />
 
-    <div
-      v-if="selectedProjectStatus === 'WAITING'"
-      class="min-w-[900px] flex-1 flex flex-col p-6"
-    >
+    <!-- 공통 헤더 + 본문 영역 -->
+    <div class="flex-1 flex flex-col p-6 mx-20 mb-10">
+      <!-- 항상 보이는 제목/설명 -->
       <div class="flex justify-between items-center mb-6">
         <div>
           <h2 class="text-2xl font-bold mb-1">{{ selectedProjectTitle }}</h2>
-          <p class="text-sm text-gray-500">스쿼드 구성 현황을 확인해보세요</p>
+          <p class="text-sm text-gray-500">스쿼드 구성을 확인하세요</p>
         </div>
-        <SquadDropdown v-if="!isEvaluating" :projectId="selectedProjectCode" />
-      </div>
-
-
-      <main class="overflow-y-auto h-[calc(100vh-150px)] p-2">
-        <div v-if="isEvaluating">
-          <div class="text-center h-full text-gray-500 py-20 text-lg">
-            평가중인 프로젝트입니다.
-          </div>
-        </div>
-        <div
-          v-else-if="totalCount === 0"
-          class="text-center h-full text-gray-500 py-20 text-lg"
-        >
-          스쿼드를 추가해주세요.
-        </div>
-        <div class="grid grid-cols-3 gap-4">
-          <div
-            v-for="squad in squads"
-            :key="squad.squadCode"
-            class="transition-all hover:shadow-lg hover:scale-[1.02] hover:-translate-y-[2px] duration-300"
-          >
-            <SquadCard
-              :squad="squad"
-              :projectId="selectedProjectCode"
-              @delete="deleteSquad"
-            />
-          </div>
-        </div>
-      </main>
-
-      <div class="mt-8 flex justify-center">
-        <BasePagination
-          :currentPage="page"
-          :totalPages="totalPages"
-          @change="goToPage"
+        <SquadDropdown
+          v-if="!isEvaluating && selectedProjectStatus === 'WAITING'"
+          :projectId="selectedProjectCode"
         />
       </div>
-    </div>
 
-    <div v-else>
-      <SquadDetailView
-        v-if="squads.length > 0"
-        :key="squads[0].squadCode"
-        :squadCode="squads[0].squadCode"
-      />
-      <div class="text-center text-gray-500 py-20 text-lg font-semibold" v-else>
-        스쿼드 정보가 없습니다.
+      <!-- 조건부 본문 -->
+      <div v-if="selectedProjectStatus === 'WAITING'">
+        <main class="overflow-y-auto h-fit">
+          <div v-if="isEvaluating">
+            <div class="text-center h-full text-gray-500 py-20 text-lg">
+              평가중인 프로젝트입니다.
+            </div>
+          </div>
+          <div
+            v-else-if="totalCount === 0"
+            class="text-center h-full text-gray-500 py-20 text-lg"
+          >
+            스쿼드를 추가해주세요.
+          </div>
+          <div class="grid grid-cols-3 gap-4">
+            <div
+              v-for="squad in squads"
+              :key="squad.squadCode"
+              class="transition-all hover:shadow-lg hover:scale-[1.02] hover:-translate-y-[2px] duration-300 rounded-lg m-2"
+            >
+              <SquadCard
+                :squad="squad"
+                :projectId="selectedProjectCode"
+                @delete="deleteSquad"
+              />
+            </div>
+          </div>
+        </main>
+
+        <div class="mt-8 flex justify-center">
+          <BasePagination
+            :currentPage="page"
+            :totalPages="totalPages"
+            @change="goToPage"
+          />
+        </div>
+      </div>
+
+      <!-- 대기 상태가 아닐 경우 상세뷰 -->
+      <div v-else>
+        <SquadDetailView
+          v-if="squads.length > 0"
+          :key="squads[0].squadCode"
+          :squadCode="squads[0].squadCode"
+        />
+        <div
+          v-else
+          class="text-center text-gray-500 py-20 text-lg font-semibold"
+        >
+          스쿼드 정보가 없습니다.
+        </div>
       </div>
     </div>
   </div>
