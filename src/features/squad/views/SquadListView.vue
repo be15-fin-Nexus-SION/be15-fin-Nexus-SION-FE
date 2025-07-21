@@ -257,12 +257,12 @@ onBeforeUnmount(() => {
         <SquadDropdown v-if="!isEvaluating" :projectId="selectedProjectCode" />
       </div>
 
-      <main class="overflow-y-auto h-[550px] p-2">
-        <div
-          v-if="isEvaluating"
-          class="text-center h-full text-gray-500 py-20 text-lg"
-        >
-          평가중인 프로젝트입니다.
+
+      <main class="overflow-y-auto h-[calc(100vh-150px)] p-2">
+        <div v-if="isEvaluating">
+          <div class="text-center h-full text-gray-500 py-20 text-lg">
+            평가중인 프로젝트입니다.
+          </div>
         </div>
         <div
           v-else-if="totalCount === 0"
