@@ -52,7 +52,7 @@ const chartData = computed(() => {
         label: "기술 스택 점수",
         data: values,
         backgroundColor: gradientBackground.value || "rgba(99, 102, 241, 0.6)", // fallback
-        borderRadius: 4,
+        borderRadius: 25,
         categoryPercentage: 0.8,
         barPercentage: 0.9,
       },

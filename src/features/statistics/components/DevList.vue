@@ -115,6 +115,10 @@ const filteredItems = computed(() => {
 
   return filtered;
 });
+
+function onSortChange(option) {
+  sortOption.value = option.value;
+}
 </script>
 
 <template>
@@ -167,7 +171,11 @@ const filteredItems = computed(() => {
     </div>
 
     <!-- 개발자 리스트 -->
-    <div ref="scrollTarget" class="developer-list-container">
+    <div
+      ref="scrollTarget"
+      class="developer-list-container"
+      :class="{ 'min-h-[600px]': isLoading || filteredItems.length > 4 }"
+    >
       <DevListItem
         v-for="dev in filteredItems"
         :key="dev.code"
@@ -244,6 +252,6 @@ const filteredItems = computed(() => {
 }
 
 .developer-list-container {
-  @apply flex flex-col overflow-y-auto max-h-[600px];
+  @apply flex flex-col overflow-y-auto transition-all duration-300;
 }
 </style>
