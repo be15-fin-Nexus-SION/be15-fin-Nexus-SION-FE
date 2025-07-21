@@ -184,9 +184,9 @@ onBeforeUnmount(() => {
   <transition name="slide-fade">
     <div
       v-if="isLoaded && squad.members"
-      class="flex gap-6 p-6 w-[1050px] mx-auto items-start animate-slide"
+      class="flex gap-6 p-6 mx-auto items-start animate-slide"
     >
-      <section class="w-[550px] p-2 flex flex-col space-y-4 justify-between">
+      <section class="p-2 flex flex-col space-y-4 justify-between">
         <!-- 배치 확정 버튼: AI 추천 or 배치된 경우 숨김 -->
         <div class="mt-2" v-if="!squad.isActive">
           <button
