@@ -187,13 +187,6 @@ const { openModal } = useDeveloperModal();
             </div>
 
             <div class="flex items-center gap-4">
-              <span
-                class="grade-text"
-                :class="`text-gradient-grade-${member.grade?.toLowerCase?.()}`"
-              >
-                {{ member.grade }}
-              </span>
-
               <!-- 리더 버튼 -->
               <button
                 v-if="member.isLeader || member.leader || !readonly"
@@ -214,6 +207,14 @@ const { openModal } = useDeveloperModal();
                   alt="리더 아이콘"
                 />
               </button>
+
+              <!-- 등급 버튼 -->
+              <span
+                class="grade-text"
+                :class="`text-gradient-grade-${member.grade?.toLowerCase?.()}`"
+              >
+                {{ member.grade }}
+              </span>
 
               <!-- 삭제 버튼 -->
               <button
