@@ -99,6 +99,19 @@ watch(
   },
   { deep: true },
 );
+
+watch(
+  () => props.mode,
+  (newMode) => {
+    selectedFilters.value = {
+      keyword: "",
+      period: 36,
+      budget: 50000,
+      memberCount: 50,
+      status: null,
+    };
+  },
+);
 </script>
 
 <template>
