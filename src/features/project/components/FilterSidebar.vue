@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import StatusIndicator from "@/features/project/components/StatusIndicator.vue";
 
@@ -88,6 +88,30 @@ function handleSearchClick() {
     sortBy: selectedSort.value,
   });
 }
+
+watch(
+  [selectedFilters, selectedSort],
+  ([newFilters, newSort]) => {
+    emit("filter-change", {
+      ...newFilters,
+      sortBy: newSort,
+    });
+  },
+  { deep: true },
+);
+
+watch(
+  () => props.mode,
+  (newMode) => {
+    selectedFilters.value = {
+      keyword: "",
+      period: 36,
+      budget: 50000,
+      memberCount: 50,
+      status: null,
+    };
+  },
+);
 </script>
 
 <template>
