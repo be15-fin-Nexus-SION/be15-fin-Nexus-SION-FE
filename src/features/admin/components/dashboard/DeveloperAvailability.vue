@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import TechBadge from "@/components/badge/TechBadge.vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   availability: {
@@ -35,6 +36,11 @@ const enrichedGradeDistribution = computed(() =>
     colorCode: gradeColorCodeMap[g.grade] || "#9ca3af",
   })),
 );
+
+const router = useRouter();
+function handleSearchAvailableDeveloper() {
+  router.push("/developers?status=available");
+}
 </script>
 
 <template>
@@ -49,7 +55,8 @@ const enrichedGradeDistribution = computed(() =>
     </div>
 
     <div
-      class="flex justify-center items-center bg-white rounded-2xl shadow-inner py-6 hover:scale-[1.02] transition"
+      class="flex justify-center items-center bg-white rounded-2xl shadow-inner py-6 hover:shadow-md hover:scale-[1.02] transition"
+      @click="handleSearchAvailableDeveloper"
     >
       <div class="flex flex-col items-center">
         <div class="text-sm text-gray-500">총 투입 가능 인원</div>

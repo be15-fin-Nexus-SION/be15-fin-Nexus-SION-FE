@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAuthStore } from "@/stores/auth.js";
-import { reissueAccessToken } from "@/api/member.js";
 import { stopLoading } from "@/composable/useLoadingBar.js";
+import { refreshToken } from "@/composable/useTokenRefresher.js";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -43,19 +43,13 @@ api.interceptors.response.use(
       }
       config._retry = true;
 
-      // 토큰 재발급 시도
-
       try {
-        const refreshRes = await reissueAccessToken();
-        const newToken = refreshRes.data.data.accessToken;
-        authStore.setAuth(newToken);
+        const newToken = await refreshToken();
 
         // 헤더 갱신 후 원래 요청 재시도
         config.headers.Authorization = `Bearer ${newToken}`;
         return api(config);
       } catch (refreshErr) {
-        // 재발급 실패하면 로그아웃
-        await authStore.clearAuth();
         return Promise.reject(refreshErr);
       }
     }

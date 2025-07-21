@@ -67,14 +67,8 @@ watch(
         : data.budget;
     form.fileUrl = data.requestSpecificationUrl;
 
-    if (data.duration) {
-      const [start, end] = data.duration.split(" ~ ");
-      form.startDate = start;
-      form.endDate = end;
-    } else {
-      form.startDate = data.startDate;
-      form.endDate = data.expectedEndDate;
-    }
+    form.startDate = data.startDate;
+    form.endDate = data.endDate || data.expectedEndDate;
   },
   { immediate: true },
 );
@@ -98,7 +92,32 @@ function removeFile() {
   form.fileUrl = "";
 }
 
+function scrollToTop() {
+  document.getElementById("top")?.scrollIntoView({ behavior: "smooth" });
+}
+
 async function submitForm() {
+  const scrollAndToast = (id, message) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    showErrorToast(message);
+    scrollToTop();
+  };
+
+  if (!form.projectName.trim())
+    return scrollAndToast("project-name", "프로젝트명을 입력해주세요");
+  if (form.projectName.trim().length > 10)
+    return scrollAndToast(
+      "project-name",
+      "프로젝트명은 10자 이하로 입력해주세요",
+    );
+  if (!form.overview.trim())
+    return scrollAndToast("overview", "개요를 입력해주세요");
+  if (!form.fileUrl)
+    return scrollAndToast("file-upload", "요구사항 명세서를 업로드해주세요");
+  if (budget.value === "" || isNaN(budget.value) || budget.value < 0) {
+    return scrollAndToast("budget", "유효한 예산을 입력해주세요");
+  }
+
   try {
     if (form.file) {
       const formData = new FormData();

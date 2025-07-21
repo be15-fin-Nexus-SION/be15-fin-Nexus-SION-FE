@@ -21,6 +21,10 @@ const squadStore = useSquadStore();
 const showRoleModal = ref(false);
 const selectedDeveloper = ref(null);
 
+function isAlreadyAdded(id) {
+  return squadStore.selectedMembers.some((member) => member.id === id);
+}
+
 function handleAddDeveloper(id) {
   const dev = developers.value.find((d) => d.id === id);
   selectedDeveloper.value = dev;
@@ -58,6 +62,7 @@ async function handleSearch(page = 1) {
       techStack: [dev.topTechStackName],
       monthlyUnitPrice: dev.monthlyUnitPrice,
       productivity: dev.productivity,
+      imageUrl: dev.imageUrl,
     }));
 
     currentPage.value = result.currentPage + 1;
@@ -197,6 +202,11 @@ const roles = computed(() => {
 });
 
 const { openModal } = useDeveloperModal();
+
+function handleModal(id) {
+  if (isAlreadyAdded(id)) return;
+  openModal(id);
+}
 </script>
 
 <template>
@@ -259,8 +269,13 @@ const { openModal } = useDeveloperModal();
             <tr
               v-for="(dev, index) in developers"
               :key="dev.id"
-              @click="openModal(dev.id)"
-              class="transition-all duration-200 ease-in hover:bg-gray-50 hover:shadow-md cursor-pointer"
+              @click="handleModal(dev.id)"
+              :class="[
+                'transition-all duration-200 ease-in',
+                isAlreadyAdded(dev.id)
+                  ? 'bg-gray-100 cursor-not-allowed'
+                  : 'hover:bg-gray-50 hover:shadow-md cursor-pointer',
+              ]"
             >
               <td class="text-center">{{ index + 1 }}</td>
               <td class="text-center">{{ dev.name }}</td>
@@ -283,6 +298,7 @@ const { openModal } = useDeveloperModal();
                 <button
                   class="btn-add"
                   @click.stop="handleAddDeveloper(dev.id)"
+                  :disabled="isAlreadyAdded(dev.id)"
                 >
                   추가
                 </button>
@@ -359,6 +375,10 @@ const { openModal } = useDeveloperModal();
 }
 .btn-add {
   @apply px-5 py-2 bg-white text-primary border border-primary shadow-sm rounded text-sm font-bold hover:bg-gray-50 transition;
+}
+
+.btn-add:disabled {
+  @apply bg-white text-natural-gray border-natural-gray cursor-not-allowed;
 }
 
 .empty-message {

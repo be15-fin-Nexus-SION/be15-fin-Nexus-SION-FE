@@ -128,6 +128,11 @@ async function submitForm() {
 
   if (!form.projectName.trim())
     return scrollAndToast("project-name", "프로젝트명을 입력해주세요");
+  if (form.projectName.trim().length > 10)
+    return scrollAndToast(
+      "project-name",
+      "프로젝트명은 10자 이하로 입력해주세요",
+    );
   if (!form.domain) return scrollAndToast("domain", "도메인을 선택해주세요");
   if (!form.overview.trim())
     return scrollAndToast("overview", "개요를 입력해주세요");
@@ -237,7 +242,7 @@ async function submitForm() {
             id="project-name"
             type="text"
             class="input"
-            placeholder="프로젝트 명"
+            placeholder="프로젝트 명(10자 이내)"
           />
         </div>
         <div>
