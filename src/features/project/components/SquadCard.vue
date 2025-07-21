@@ -68,7 +68,7 @@
           (employeeId === myEmployeeId || viewerRole === 'ADMIN')
         "
         @click.stop="goToHistory(historyId)"
-        class="absolute right-0 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-semibold text-white bg-primary rounded-md transform translate-x-full group-hover:translate-x-[-10%] transition-all duration-300"
+        class="absolute right-[-10px] top-1/2 -translate-y-1/2 px-4 py-2 text-xs text-white bg-primary rounded-md transform translate-x-full group-hover:translate-x-[-10%] transition-all duration-300"
       >
         프로젝트 이력 내역 확인하기 →
       </button>
@@ -77,7 +77,7 @@
       <button
         v-else-if="employeeId === myEmployeeId"
         @click.stop="goToRegister(historyId)"
-        class="absolute right-6 top-1/2 -translate-y-1/2 px-4 py-2 text-xs font-semibold text-primary bg-white border border-primary rounded-md transform translate-x-full group-hover:translate-x-0 transition-all duration-300"
+        class="absolute right-[-10px] top-1/2 -translate-y-1/2 px-4 py-2 text-xs text-primary bg-white border border-primary rounded-md transform translate-x-full group-hover:translate-x-[-20%] transition-all duration-300"
       >
         요청하기 →
       </button>
